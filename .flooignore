@@ -1,0 +1,8 @@
+extern
+node_modules
+tmp
+vendor
+token.txt
+devmode
+venv/*
+.idea/*
