@@ -143,6 +143,9 @@ class Game:
             player_to_wait_for.first_card = (
               await self.ctx.bot.wait_for('message', check=wait_check, timeout=60)
             ).content
+            player_to_wait_for.first_card = player_to_wait_for.first_card \
+            if player_to_wait_for.first_card != "0" \
+            else "10"
           except asyncio.TimeoutError:
             await self.quit(player_to_wait_for)
             return await player_to_wait_for.member.send(
@@ -162,6 +165,9 @@ class Game:
               player_to_wait_for.second_card = (
                 await self.ctx.bot.wait_for('message', check=wait_check, timeout=60)
               ).content
+              player_to_wait_for.second_card = player_to_wait_for.second_card \
+              if player_to_wait_for.second_card != "0" \
+              else "10"
             except asyncio.TimeoutError:
               await self.quit(player_to_wait_for)
               await player_to_wait_for.member.send(
@@ -177,9 +183,10 @@ class Game:
               color=discord.Color(0x8bc34a)
             )
           )
+          s = "s" if question.count(r'\_\_') == 2 else ""
           await self.channel.send(
             embed=discord.Embed(
-              description=f"{player_to_wait_for.member} has selected their card",
+              description=f"{player_to_wait_for.member} has selected their card{s}",
               color=discord.Color(0x8bc34a)
             )
           )
