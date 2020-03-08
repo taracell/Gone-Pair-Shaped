@@ -88,9 +88,7 @@ class Game:
 
   async def begin_round(self):
     question = random.choice(self.question_cards)
-    if all([player.tsar_count == self.players[0].tsar_count for player in self.players]):
-      random.shuffle(self.players)  # shuffle the players so we don't know who will be tsar
-    tsar = sorted(self.players, key=lambda player: player.tsar_count)[0]
+    tsar = sorted(self.players, key=lambda player: (player.tsar_count, random.random))[0]
     tsar.tsar_count += 1
     scores = "\n".join(
       [
