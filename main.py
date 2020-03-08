@@ -27,6 +27,7 @@ bot = commands.Bot(
 )
 
 bot.admins = () + bot.owner_ids
+bot.skips = []
 
 bot.main_prefix = main_prefix
 
