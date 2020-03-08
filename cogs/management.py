@@ -66,15 +66,16 @@ class Owner(commands.Cog, name="core"):
     @tasks.loop(minutes=5)
     async def trigger_me(self):
         print("Adding official tester roles")
-        g = self.bot.get_guild(606866057998762023)
+        g = self.bot.get_guild(684492926528651336)
         if not g:
-            return print("I don't appear to be in the DDS guild")
+            return print("I don't appear to be in the CAH guild")
+        test_role = g.get_role(686310450748719243)
         for guild in self.bot.guilds:
             member = guild.owner
-            if member in g.members and "Official Tester" not in [x.name for x in g.get_member(member.id).roles]:
+            if member in g.members and test_role not in [x.id for x in g.get_member(member.id).roles]:
                 try:
                     user = await g.get_member(member.id)
-                    await user.add_roles(g.get_role(606990137275973635),
+                    await user.add_roles(test_role,
                                          reason=f"User of {self.bot.user.name} - Official tester.")
                     print(f"added role to {user}")
                 except discord.NotFound:

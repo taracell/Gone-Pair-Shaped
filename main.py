@@ -26,7 +26,7 @@ bot = commands.Bot(
   owner_ids=(438733159748599813, 317731855317336067)
 )
 
-bot.admins = []
+bot.admins = () + bot.owner_ids
 
 bot.main_prefix = main_prefix
 

@@ -8,7 +8,7 @@ from discord.ext import commands
 # outside of this module but still allow it
 def bot_mod(ctx):
     mod_users = []
-    mod_roles = [625584831320948737]
+    mod_roles = [686310450618695703]
     if ctx.author is None:
         return False
     if ctx.author.id in mod_users:
@@ -18,7 +18,7 @@ def bot_mod(ctx):
     mods = []
     for role in mod_roles:
         mods = mods + discord.utils.get(
-            ctx.bot.get_guild(606866057998762023).roles, id=role).members
+            ctx.bot.get_guild(684492926528651336).roles, id=role).members
     mod_ids = []
     for mod in mods:
         mod_ids.append(mod.id)
@@ -35,7 +35,7 @@ def is_owner(ctx):
 
 def tester(ctx):
     testers = []
-    test_roles = [606990137275973635]
+    test_roles = [686310450748719243]
     if ctx.author is None:
         return False
     if ctx.author in testers:
@@ -43,26 +43,11 @@ def tester(ctx):
     testers = []
     for role in test_roles:
         testers = testers + discord.utils.get(
-            ctx.bot.get_guild(606866057998762023).roles, id=role).members
+            ctx.bot.get_guild(684492926528651336).roles, id=role).members
     test_ids = []
     for test in testers:
         test_ids.append(test.id)
     if ctx.author.id in test_ids:
-        return True
-    return False
-
-
-def intestingserver(ctx):
-    try:
-        if ctx.author in ctx.bot.get_guild(413314727591149568).members:
-            return True
-        return False
-    except AttributeError:
-        return False
-
-
-def inbetaserver(ctx):
-    if ctx.author in ctx.bot.get_guild(606866057998762023).members:
         return True
     return False
 
