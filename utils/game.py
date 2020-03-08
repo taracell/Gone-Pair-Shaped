@@ -15,13 +15,16 @@ class Player:
 
 
 class Game:
-  def __init__(self, context, players, available_packs, enabled_packs, score_to_win: typing.Optional[int]):
+  def __init__(self, context, players, available_packs, enabled_packs, score_to_win: typing.Optional[int], min_players,
+               max_players):
     enabled_packs = enabled_packs or ["base"]
 
     # Initialize basic game variables (Round number, which turn the players are on, etc.)
     self.active = False
     self.turn_count = 0
     self.round_number = 0
+    self.min = min_players
+    self.max = max_players
 
     # Initialize context related game variables (Channel, creator, etc.)
     self.creator = context.author
@@ -37,7 +40,7 @@ class Game:
         self.question_cards += questions  # Add our questions to the possible questions...
         self.answer_cards += answers  # ...and do the same for answers
 
-    # Create a Player for everyone who's playing, and shuffle them so we don't know who will be tsar
+    # Create a Player for everyone who's playing
     self.players = [Player(member, self.answer_cards) for member in players]
     random.shuffle(self.players)
 
@@ -64,9 +67,26 @@ class Game:
       )
     )
 
+  async def end(self, force):
+    embed = discord.Embed(description='<a:blobleave:527721655162896397> The game will end after this round',
+                          color=discord.Color(0x8bc34a))
+    self.active = False
+    await self.channel.send(embed=embed)
+
+  async def quit(self, player):
+    embed = discord.Embed(description='<a:blobleave:527721655162896397> The game will end after this round',
+                          color=discord.Color(0x8bc34a))
+    self.players.remove(player)
+    embed = await self.channel.send(embed=embed)
+    if len(self.players) < self.min:
+      await self.end(True)
+    return embed
+
   async def begin_round(self):
     self.turn_count += 1
     question = random.choice(self.question_cards)
+    if self.turn_count % len(self.players) == 0:
+      random.shuffle(self.players)  # shuffle the players so we don't know who will be tsar
     tsar = self.players[self.turn_count % len(self.players)]
     scores = "\n".join(
       [
@@ -112,30 +132,42 @@ class Game:
 
           await player_to_wait_for.member.send(
             embed=discord.Embed(
-              title=f"Please select a card from 1 to 10. You have 20 seconds to decide" +
+              title=f"Please select a card from 1 to 10. You have 1 minute to decide" +
                     (" (1/2)" if question.count(r"\_\_") == 2 else ""),
               color=discord.Color(0x212121)
             )
           )
           try:
             player_to_wait_for.first_card = (
-              await self.ctx.bot.wait_for('message', check=wait_check, timeout=20)
+              await self.ctx.bot.wait_for('message', check=wait_check, timeout=60)
             ).content
           except asyncio.TimeoutError:
-            player_to_wait_for.first_card = random.randint(1, 10)
+            await self.quit(player_to_wait_for)
+            return await player_to_wait_for.member.send(
+              embed=discord.Embed(
+                title=f"You have been removed from the game for inactivity",
+                color=discord.Color(0x8bc34a)
+              )
+            )
           if question.count(r"\_\_") == 2:
             await player_to_wait_for.member.send(
               embed=discord.Embed(
-                title=f"Please select a card from 1 to 10. You have 20 seconds to decide" + " (2/2)",
+                title=f"Please select a card from 1 to 10. You have 1 minute to decide" + " (2/2)",
                 color=discord.Color(0x212121)
               )
             )
-          try:
-            player_to_wait_for.second_card = (
-              await self.ctx.bot.wait_for('message', check=wait_check, timeout=20)
-            ).content
-          except asyncio.TimeoutError:
-            player_to_wait_for.second_card = random.randint(1, 10)
+            try:
+              player_to_wait_for.second_card = (
+                await self.ctx.bot.wait_for('message', check=wait_check, timeout=60)
+              ).content
+            except asyncio.TimeoutError:
+              await self.quit(player_to_wait_for)
+              await player_to_wait_for.member.send(
+                embed=discord.Embed(
+                  title=f"You have been removed from the game for inactivity",
+                  color=discord.Color(0x8bc34a)
+                )
+              )
           await player_to_wait_for.member.send(
             embed=discord.Embed(
               title=f"Please wait for all players to select their card",
@@ -186,22 +218,27 @@ class Game:
       except ValueError:
         return False
 
-    winner = random.randint(1, len(playing_users))
-
     try:
       winner = (
-        await self.ctx.bot.wait_for('message', check=check, timeout=20)
+        await self.ctx.bot.wait_for('message', check=check, timeout=120)
       ).content
+      await tsar.member.send(
+        embed=discord.Embed(
+          description=f"Selected. The game will continue in {self.channel.mention}",
+          color=discord.Color(0x8bc34a)
+        )
+      )
     except asyncio.TimeoutError:
-      pass
+      winner = random.randint(1, len(playing_users))
+      await self.quit(tsar)
+      await tsar.member.send(
+        embed=discord.Embed(
+          title=f"You have been removed from the game for inactivity",
+          color=discord.Color(0x8bc34a)
+        )
+      )
 
     winner = playing_users[int(winner) - 1]
-    await tsar.member.send(
-      embed=discord.Embed(
-        description=f"Selected. The game will continue in {self.channel.mention}",
-        color=discord.Color(0x8bc34a)
-      )
-    )
 
     winner.score += 1
 
