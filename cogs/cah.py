@@ -40,7 +40,7 @@ class CardsAgainstHumanity(commands.Cog):
       question_cards_in_pack.close()
       answer_cards_in_pack.close()
 
-  @commands.command()
+  @commands.command(aliases=["start"])
   @commands.guild_only()
   async def play(self,
                  ctx,
