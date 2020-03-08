@@ -67,7 +67,7 @@ class Game:
       )
     )
 
-  async def end(self, force):
+  async def end(self, _):
     embed = discord.Embed(description='<a:blobleave:527721655162896397> The game will end after this round',
                           color=discord.Color(0x8bc34a))
     self.active = False

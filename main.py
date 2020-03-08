@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from utils import help
 
@@ -25,6 +26,13 @@ bot = commands.Bot(
 
 bot.main_prefix = main_prefix
 
+@bot.event
+async def on_command_error(_, error):
+    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
+        return
+    elif isinstance(error, discord.ext.commands.errors.NoPrivateMessage):
+        return
+    raise error
 
 @bot.event
 async def on_ready():

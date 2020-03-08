@@ -40,6 +40,8 @@ class CardsAgainstHumanity(commands.Cog):
       question_cards_in_pack.close()
       answer_cards_in_pack.close()
 
+  @commands.command()
+  @commands.guild_only()
   async def play(self,
                  ctx,
                  players: commands.Greedy[discord.Member],
@@ -48,10 +50,8 @@ class CardsAgainstHumanity(commands.Cog):
                  ):
     """Play a game
 Run %%play [@ping as many players as you like] [number of rounds, or enter 0 for unlimited (default unlimited)] [packs]
-
 Optionally specify how many points a player needs to win (default is 7)
 Note: press 0 to have an endless game
-
 Optionally specify which packs to include (run %%packs to view all the options or enter all to go crazy)"""
     players = [user for user in players if not user.bot]
     players.append(ctx.author)
@@ -81,7 +81,9 @@ Optionally specify which packs to include (run %%packs to view all the options o
       players,
       self.packs,
       enabled_packs,
-      score_to_win if score_to_win > 0 else None
+      score_to_win if score_to_win > 0 else None,
+      self.minPlayers,
+      self.maxPlayers
     )
     await self.games[ctx.channel].start()
     del self.games[ctx.channel]
@@ -99,15 +101,11 @@ Note- You must have manage channels or be playing to end the game"""
             channel_game.players and ctx.author not in [user.member for user in channel_game.players]
     ) and not ctx.author.permissions_in(ctx.channel).manage_channels:
       return await ctx.send("You aren't playing and you don't have manage channels, so you can't end this game...")
-    embed = discord.Embed(description='<a:blobleave:527721655162896397> The game will end after this round',
-                          color=discord.Color(0x8bc34a))
-    game.active = False
-    await ctx.channel.send(embed=embed)
+    await channel_game.end(force)
 
   @commands.command()
   async def packs(self, ctx):
     """Shows a list of packs to enable and disable in the game
-
     They are added when using the %%play command"""
     embed = discord.Embed(
       title=f'Packs ( {len(self.packs)} )',
@@ -131,6 +129,7 @@ Note- You must have manage channels or be playing to end the game"""
       color=discord.Color(0xf44336)
     )
     await ctx.channel.send(embed=embed)
+
 
 def setup(bot: commands.Bot):
   bot.add_cog(CardsAgainstHumanity(bot))
