@@ -12,6 +12,7 @@ class Player:
     self.first_card = 0
     self.second_card = 0
     self.cards.append(random.sample(available_cards, 10))
+    self.tsar_count = 0
 
 
 class Game:
@@ -21,7 +22,7 @@ class Game:
 
     # Initialize basic game variables (Round number, which turn the players are on, etc.)
     self.active = False
-    self.turn_count = 0
+    self.skip_round = True
     self.round_number = 0
     self.min = min_players
     self.max = max_players
@@ -53,6 +54,7 @@ class Game:
     while self.active and \
             (self.score_to_win is None or not any([user.score >= self.score_to_win for user in self.players])):
       self.round_number += 1
+      self.skip_round = False
       await self.begin_round()
     final_scores = "\n".join(
       [
@@ -67,27 +69,29 @@ class Game:
       )
     )
 
-  async def end(self, _):
+  async def end(self, _, __=False):
     embed = discord.Embed(description='<a:blobleave:527721655162896397> The game will end after this round',
                           color=discord.Color(0x8bc34a))
     self.active = False
     await self.channel.send(embed=embed)
 
   async def quit(self, player):
-    embed = discord.Embed(description='<a:blobleave:527721655162896397> The game will end after this round',
+    embed = discord.Embed(description=f'{player.member} left the game',
                           color=discord.Color(0x8bc34a))
     self.players.remove(player)
     embed = await self.channel.send(embed=embed)
     if len(self.players) < self.min:
+      embed = await self.channel.send(embed=discord.Embed(description=f'There are too few players left to continue...',
+                                                          color=discord.Color(0x8bc34a)))
       await self.end(True)
     return embed
 
   async def begin_round(self):
-    self.turn_count += 1
     question = random.choice(self.question_cards)
-    if self.turn_count % len(self.players) == 0:
+    if all([player.tsar_count == self.players[0].tsar_count for player in self.players]):
       random.shuffle(self.players)  # shuffle the players so we don't know who will be tsar
-    tsar = self.players[self.turn_count % len(self.players)]
+    tsar = sorted(self.players, key=lambda player: player.tsar_count)[0]
+    tsar.tsar_count += 1
     scores = "\n".join(
       [
         f'{user.member}: {user.score}' for user in sorted(self.players, key=lambda user: user.score, reverse=True)
