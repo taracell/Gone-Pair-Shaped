@@ -213,49 +213,6 @@ class Owner(commands.Cog, name="core"):
             except UnicodeDecodeError:
                 await ctx.send("Fatal error while reading from the file.")
 
-    @commands.group(invoke_without_command=True)
-    @commands.check(checks.is_owner)
-    async def names(self, ctx):
-        """Lists names."""
-        paginator = commands.Paginator()
-        with open('./data/names.json', 'r') as asdf:
-            data = json.load(asdf)
-        for line in data.keys():
-            user = self.bot.get_user(int(line))
-            if user:
-                paginator.add_line(f"{str(user)}:")
-            else:
-                paginator.add_line(f"{line}:")
-            for name in data[line]:
-                paginator.add_line(f'-- {name}'[:1975])
-        paginator.add_line('\n============\nfinished.')
-        pages = list(paginator.pages)
-        if len(pages) > 5:
-            ab = await ctx.send(f"There are over 5 pages. continue to send {len(pages)} pages?")
-            try:
-                await self.bot.wait_for('message', check=lambda
-                    a: a.author == ctx.author and a.channel == ctx.channel and a.content.lower().startswith('y'),
-                                        timeout=30)
-            except asyncio.TimeoutError:
-                return await ab.delete()
-        for page in pages:
-            await ctx.send(page)
-            await asyncio.sleep(1)
-
-    @names.command()
-    @commands.check(checks.is_owner)
-    async def remove(self, ctx, *, user: discord.User):
-        """remove a name from the entries. this removes full name logs."""
-        with open('./data/names.json', 'r') as _:
-            data = json.load(_)
-            if str(user.id) not in data.keys():
-                return await ctx.send('\U0001f44e')
-            else:
-                del data[str(user.id)]
-                with open('./data/names.json', 'w') as __:
-                    json.dump(data, __, indent=1)
-                return await ctx.send('\U0001f44d')
-
     @commands.command()
     @commands.check(checks.bot_mod)
     async def skip(self, ctx):
@@ -282,15 +239,6 @@ Run:
                               f"&scope=bot"
                               f"&permissions=8 to invite me to your server")
 
-    @commands.command()
-    async def support(self, ctx):
-        """Find out how to get support
-
-Run:
-- %%support"""
-        return await ctx.send(f"You can join our support server `DragDev Studios` here => `{self.bot.main_invite}`\n"
-                              f"You can join our bot-testing server `The Nothing Server` here => "
-                              f"`{self.bot.test_invite}`\n")
 
 
 def setup(bot):

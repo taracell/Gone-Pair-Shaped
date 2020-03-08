@@ -5,7 +5,7 @@ from discord.ext.commands.core import Group, Command
 import traceback
 import asyncio
 
-exceptions_channel_id = 673553244743794698
+exceptions_channel_id = 686285252817059881
 
 
 async def send_help(ctx, send_to, *args):
@@ -47,7 +47,7 @@ class Blacklisted(commands.CheckFailure):
 
     def __str__(self):
         return f"Sorry... Something around here is blacklisted. reason: {self.reason}\n" \
-               f"Want to appeal? Go to the support guild at https://discord.gg/kxuScQz"
+               f"Want to appeal? Go to the support guild at https://discord.gg/6WMeXzj"
 
     def __int__(self):
         return 403
@@ -61,7 +61,7 @@ class BlacklistedGuild(commands.CheckFailure):
     def __str__(self):
         return f"Sorry, but the server {self.server.name} is blacklisted. reason: {self.reason}\n" \
                f"Want to appeal? Get {self.server.owner.display_name} to go to the support guild at " \
-               f"https://discord.gg/kxuScQz "
+               f"https://discord.gg/6WMeXzj "
 
 
 class BlacklistedUser(Blacklisted):
@@ -71,7 +71,7 @@ class BlacklistedUser(Blacklisted):
 
     def __str__(self):
         return f"Sorry {self.user.display_name}, but you are blacklisted. reason: {self.reason}\nWant to appeal? " \
-               f"go to the support guild at https://discord.gg/kxuScQz"
+               f"go to the support guild at https://discord.gg/6WMeXzj"
 
 
 class PremiumOnly(Blacklisted):
@@ -186,8 +186,7 @@ class ErrorHandler(commands.Cog):
                                   description=f"It looks like something went wrong. This error {exception_status} "
                                               f"sent to our developers, if you want more help with this command please"
                                               f" report the **Case ID `{str(ctx.message.id)[-4:-1]}`** to our [support "
-                                              f"team](https://dragdev.xyz/redirects/server.html) or our [testing "
-                                              f"server](https://discordapp.com/invite/rcchE3b).",
+                                              f"team](https://discord.gg/6WMeXzj)",
                                   color=discord.Color.red())
                 e.set_footer(text=f"{str(error)}",
                              icon_url='https://cdn.discordapp.com/emojis/459634743181574144.png?v=1')
@@ -199,8 +198,7 @@ class ErrorHandler(commands.Cog):
                             f"**OOPS!**\nThere was an error. This error {exception_status} sent to our "
                             f"developers, if you want more help with this command please report the **Case "
                             f"ID `{str(ctx.message.id)[-4:-1]}`** to our support team ||"
-                            f"https://dragdev.xyz/redirects/server.html|| or our testing server ||"
-                            f"https://discordapp.com/invite/rcchE3b||.")
+                            f"https://discord.gg/6WMeXzj||")
                     except discord.HTTPException:
                         try:
                             if ctx.guild:
