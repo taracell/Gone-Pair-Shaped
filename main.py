@@ -14,7 +14,9 @@ except FileNotFoundError:
 main_prefix = "$" if production else "£"
 cogs = [
   "jishaku",
-  "cogs.cah"
+  "cogs.cah",
+  "cogs.owner",
+  "cogs.errors"
 ]
 
 bot = commands.Bot(
