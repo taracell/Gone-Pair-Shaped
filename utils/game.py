@@ -76,7 +76,7 @@ class Game:
     await self.channel.send(embed=embed)
 
   async def quit(self, player):
-    embed = discord.Embed(description=f'{player.member} left the game',
+    embed = discord.Embed(description=f'{player.member} left the game, bye bye...',
                           color=discord.Color(0x8bc34a))
     self.players.remove(player)
     embed = await self.channel.send(embed=embed)
