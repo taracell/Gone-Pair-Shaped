@@ -22,7 +22,9 @@ class CardsAgainstHumanity(commands.Cog):
       "ex7": "The last expansion pack.",
       "pax": "The PAX convention pack.",
       "base2": "An additional base pack / alternative extension",
-      "anime": "Nani?"
+      "anime": "Nani?",
+      "discord": "A pack we made specially for you, containing cards that we wanted but couldn't quite make an excuse "
+                 "to put in the other packs",
     }
     self.packs = []
     for position, pack_data in enumerate(packs.items()):
