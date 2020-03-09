@@ -12,11 +12,12 @@ class Player:
     self.first_card = 0
     self.second_card = 0
     if len(game.answer_cards) < 10:
-      game.answer_cards += game.used_answer_cards
+      game.answer_cards += game.used_answer_cards.copy()
       game.used_answer_cards = []
-    self.cards.append(random.sample(game.answer_cards, 10))
+    self.cards += random.sample(game.answer_cards, 10)
     for card in self.cards:
       game.answer_cards.remove(card)
+      game.used_answer_cards.append(card)
     self.tsar_count = 0
 
 
@@ -51,6 +52,9 @@ class Game:
     # Create a Player for everyone who's playing
     self.players = [Player(member, self) for member in players]
     random.shuffle(self.players)
+
+    if self.answer_cards:
+      self.used_answer_cards = []
 
     # Initialize user-defined options, including the number of points to win
     self.score_to_win = score_to_win
@@ -127,7 +131,7 @@ class Game:
     for user in self.players:
       if user != tsar:
         cards = f"In {self.channel.mention}\n\n{question}\n" + \
-                "\n".join([f"{card_position + 1}: {card}" for card_position, card in enumerate(user.cards[0])])
+                "\n".join([f"{card_position + 1}: {card}" for card_position, card in enumerate(user.cards)])
         await user.member.send(
           embed=discord.Embed(
             title=f"Cards for {user.member}:", description=cards,
@@ -135,12 +139,15 @@ class Game:
         )
 
         async def wait_for_message(player_to_wait_for):
+          messages_to_ignore = []
+
           def wait_check(message: discord.Message):
             try:
+              print(messages_to_ignore)
               return 0 <= int(message.content) <= 10 \
-                     and message.author == player_to_wait_for.member \
-                     and message.guild is None \
-                     and message.content not in messages_to_ignore
+              and message.author == player_to_wait_for.member \
+              and message.guild is None \
+              and message.content not in messages_to_ignore
             except ValueError:
               return False
 
@@ -159,7 +166,8 @@ class Game:
             if player_to_wait_for.first_card != "0" \
             else "10"
             messages_to_ignore = [player_to_wait_for.first_card] if player_to_wait_for.first_card != "10" else \
-            ["0", "10"]
+              ["0", "10"]
+            print(messages_to_ignore)
           except asyncio.TimeoutError:
             await self.quit(player_to_wait_for)
             return await player_to_wait_for.member.send(
@@ -181,8 +189,8 @@ class Game:
                 await self.ctx.bot.wait_for('message', check=wait_check, timeout=150)
               ).content
               player_to_wait_for.second_card = player_to_wait_for.second_card \
-              if player_to_wait_for.second_card != "0" \
-              else "10"
+                if player_to_wait_for.second_card != "0" \
+                else "10"
             except asyncio.TimeoutError:
               await self.quit(player_to_wait_for)
               await player_to_wait_for.member.send(
@@ -217,11 +225,11 @@ class Game:
     responses = ""
     if question.count(r"\_\_") < 2:
       for user_position, user in enumerate(playing_users):
-        responses += f'{user_position + 1}: {user.cards[0][int(user.first_card) - 1]}\n'
+        responses += f'{user_position + 1}: {user.cards[int(user.first_card) - 1]}\n'
     else:
       for user_position, user in enumerate(playing_users):
-        responses += f'{user_position + 1}: {user.cards[0][int(user.first_card) - 1]} ' \
-                     f'| {user.cards[0][int(user.second_card) - 1]}\n'
+        responses += f'{user_position + 1}: {user.cards[int(user.first_card) - 1]} ' \
+                     f'| {user.cards[int(user.second_card) - 1]}\n'
 
     responses += "\n*(Player order is random)*"
 
@@ -270,8 +278,8 @@ class Game:
     await self.channel.send(
       embed=discord.Embed(
         title=f"The winner is:",
-        description=f'{winner.member}! :tada:\n{winner.cards[0][int(winner.first_card) - 1]}' + (
-          f" | {winner.cards[0][int(winner.second_card) - 1]}" if question.count(r"\_\_") == 2 else ""
+        description=f'{winner.member}! :tada:\n{winner.cards[int(winner.first_card) - 1]}' + (
+          f" | {winner.cards[int(winner.second_card) - 1]}" if question.count(r"\_\_") == 2 else ""
         ),
         color=discord.Color(0x8bc34a)
       )
@@ -280,26 +288,26 @@ class Game:
     if question.count(r"\_\_") < 2:
       for player in self.players:
         if player != tsar:
-          player.cards[0].pop(int(player.first_card) - 1)
+          player.cards.pop(int(player.first_card) - 1)
           if len(self.answer_cards) == 0:
             self.answer_cards = self.used_answer_cards.copy()
             self.used_answer_cards = []
           new_card = self.answer_cards.pop(random.randint(0, len(self.answer_cards) - 1))
-          player.cards[0].append(new_card)
+          player.cards.append(new_card)
           self.used_answer_cards.append(new_card)
     else:
       for player in self.players:
         if player != tsar:
-          self.used_answer_cards.append(player.cards[0].pop(int(player.first_card) - 1))
+          self.used_answer_cards.append(player.cards.pop(int(player.first_card) - 1))
           if int(player.first_card) < int(player.second_card):
-            player.cards[0].pop(int(player.second_card) - 2)
+            player.cards.pop(int(player.second_card) - 2)
           else:
-            self.used_answer_cards.append(player.cards[0].pop(int(player.second_card) - 1))
+            self.used_answer_cards.append(player.cards.pop(int(player.second_card) - 1))
           for _ in range(2):
             if len(self.answer_cards) == 0:
               self.answer_cards = self.used_answer_cards.copy()
               self.used_answer_cards = []
             new_card = self.answer_cards.pop(random.randint(0, len(self.answer_cards) - 1))
-            player.cards[0].append(new_card)
+            player.cards.append(new_card)
 
     await asyncio.sleep(10)
