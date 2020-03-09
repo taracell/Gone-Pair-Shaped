@@ -5,20 +5,25 @@ import typing
 
 
 class Player:
-  def __init__(self, member, available_cards):
+  def __init__(self, member, game):
     self.member = member
     self.score = 0
     self.cards = []
     self.first_card = 0
     self.second_card = 0
-    self.cards.append(random.sample(available_cards, 10))
+    if len(game.answer_cards) < 10:
+      game.answer_cards += game.used_answer_cards
+      game.used_answer_cards = []
+    self.cards.append(random.sample(game.answer_cards, 10))
+    for card in self.cards:
+      game.answer_cards.remove(card)
     self.tsar_count = 0
 
 
 class Game:
   def __init__(self, context, players, available_packs, enabled_packs, score_to_win: typing.Optional[int], min_players,
                max_players):
-    enabled_packs = enabled_packs or ["base"]
+    enabled_packs = [pack.lower() for pack in enabled_packs] or ["base"]
 
     # Initialize basic game variables (Round number, which turn the players are on, etc.)
     self.active = False
@@ -35,6 +40,8 @@ class Game:
     # Initialize our possible question and answer cards
     self.answer_cards = []
     self.question_cards = []
+    self.used_question_cards = []
+    self.used_answer_cards = []
 
     for pack, questions, answers, _ in available_packs:
       if (pack in enabled_packs or "all" in enabled_packs) and f"-{pack}" not in enabled_packs:
@@ -42,7 +49,7 @@ class Game:
         self.answer_cards += answers  # ...and do the same for answers
 
     # Create a Player for everyone who's playing
-    self.players = [Player(member, self.answer_cards) for member in players]
+    self.players = [Player(member, self) for member in players]
     random.shuffle(self.players)
 
     # Initialize user-defined options, including the number of points to win
@@ -87,8 +94,12 @@ class Game:
     return embed
 
   async def begin_round(self):
-    question = random.choice(self.question_cards)
-    tsar = sorted(self.players, key=lambda player: (player.tsar_count, random.random))[0]
+    if len(self.question_cards) == 0:
+      self.question_cards = self.used_question_cards.copy()
+      self.used_question_cards = []
+    question = self.question_cards.pop(random.randint(0, len(self.question_cards) - 1))
+    self.used_question_cards.append(question)
+    tsar = sorted(self.players, key=lambda plr: (plr.tsar_count, random.random))[0]
     tsar.tsar_count += 1
     scores = "\n".join(
       [
@@ -128,7 +139,8 @@ class Game:
             try:
               return 0 <= int(message.content) <= 10 \
                      and message.author == player_to_wait_for.member \
-                     and message.guild is None
+                     and message.guild is None \
+                     and message.content not in messages_to_ignore
             except ValueError:
               return False
 
@@ -146,6 +158,8 @@ class Game:
             player_to_wait_for.first_card = player_to_wait_for.first_card \
             if player_to_wait_for.first_card != "0" \
             else "10"
+            messages_to_ignore = [player_to_wait_for.first_card] if player_to_wait_for.first_card != "10" else \
+            ["0", "10"]
           except asyncio.TimeoutError:
             await self.quit(player_to_wait_for)
             return await player_to_wait_for.member.send(
@@ -265,16 +279,25 @@ class Game:
       for player in self.players:
         if player != tsar:
           player.cards[0].pop(int(player.first_card) - 1)
-          player.cards[0].append(random.choice(self.answer_cards))
+          if len(self.answer_cards) == 0:
+            self.answer_cards = self.used_answer_cards.copy()
+            self.used_answer_cards = []
+          new_card = self.answer_cards.pop(random.randint(0, len(self.answer_cards) - 1))
+          player.cards[0].append(new_card)
+          self.used_answer_cards.append(new_card)
     else:
       for player in self.players:
         if player != tsar:
-          player.cards[0].pop(int(player.first_card) - 1)
+          self.used_answer_cards.append(player.cards[0].pop(int(player.first_card) - 1))
           if int(player.first_card) < int(player.second_card):
             player.cards[0].pop(int(player.second_card) - 2)
           else:
-            player.cards[0].pop(int(player.second_card) - 1)
+            self.used_answer_cards.append(player.cards[0].pop(int(player.second_card) - 1))
           for _ in range(2):
-            player.cards[0].append(random.choice(self.answer_cards))
+            if len(self.answer_cards) == 0:
+              self.answer_cards = self.used_answer_cards.copy()
+              self.used_answer_cards = []
+            new_card = self.answer_cards.pop(random.randint(0, len(self.answer_cards) - 1))
+            player.cards[0].append(new_card)
 
     await asyncio.sleep(10)

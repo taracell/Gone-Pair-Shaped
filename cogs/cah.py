@@ -92,7 +92,7 @@ Optionally specify which packs to include (run %%packs to view all the options o
   @commands.guild_only()
   async def end(self, ctx, force=False):
     """End the game
-Optionally run '%%end True' to end the game instantly
+Optionally run '%%end True' to end the game instantly (WIP, doesn't work yet)
 Note- You must have manage channels or be playing to end the game"""
     channel_game = self.games.get(ctx.channel, None)
     if not channel_game:
