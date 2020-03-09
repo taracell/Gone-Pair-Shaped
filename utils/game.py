@@ -146,14 +146,14 @@ class Game:
 
           await player_to_wait_for.member.send(
             embed=discord.Embed(
-              title=f"Please select a card from 1 to 10. You have 1 minute to decide" +
+              title=f"Please select a card from 1 to 10. You have 2 and a half minutes to decide" +
                     (" (1/2)" if question.count(r"\_\_") == 2 else ""),
               color=discord.Color(0x212121)
             )
           )
           try:
             player_to_wait_for.first_card = (
-              await self.ctx.bot.wait_for('message', check=wait_check, timeout=60)
+              await self.ctx.bot.wait_for('message', check=wait_check, timeout=150)
             ).content
             player_to_wait_for.first_card = player_to_wait_for.first_card \
             if player_to_wait_for.first_card != "0" \
@@ -171,13 +171,14 @@ class Game:
           if question.count(r"\_\_") == 2:
             await player_to_wait_for.member.send(
               embed=discord.Embed(
-                title=f"Please select a card from 1 to 10. You have 1 minute to decide" + " (2/2)",
+                title=f"Please select a card from 1 to 10. You have 2 and a half minutes to decide, you also can't "
+                      f"pick the same card as your first card" + " (2/2)",
                 color=discord.Color(0x212121)
               )
             )
             try:
               player_to_wait_for.second_card = (
-                await self.ctx.bot.wait_for('message', check=wait_check, timeout=60)
+                await self.ctx.bot.wait_for('message', check=wait_check, timeout=150)
               ).content
               player_to_wait_for.second_card = player_to_wait_for.second_card \
               if player_to_wait_for.second_card != "0" \
@@ -231,7 +232,8 @@ class Game:
     )
     await self.channel.send(embed=embed)
     await tsar.member.send(embed=embed)
-    await self.channel.send(embed=discord.Embed(title=f"Please answer in your DM", color=discord.Color(0x8bc34a)))
+    await self.channel.send(embed=discord.Embed(title=f"Please answer in your DM within 5 minutes",
+                                                color=discord.Color(0x8bc34a)))
 
     def check(message: discord.Message):
       try:
@@ -243,7 +245,7 @@ class Game:
 
     try:
       winner = (
-        await self.ctx.bot.wait_for('message', check=check, timeout=120)
+        await self.ctx.bot.wait_for('message', check=check, timeout=300)
       ).content
       await tsar.member.send(
         embed=discord.Embed(
