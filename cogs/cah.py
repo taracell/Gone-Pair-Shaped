@@ -44,6 +44,7 @@ class CardsAgainstHumanity(commands.Cog):
 
   @commands.command(aliases=["start"])
   @commands.guild_only()
+  @commands.is_nsfw()
   async def play(self,
                  ctx,
                  players: commands.Greedy[discord.Member],
