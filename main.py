@@ -23,8 +23,9 @@ bot = commands.Bot(
   command_prefix=commands.when_mentioned_or(main_prefix),
   case_insensitive=True,
   help_command=help.HelpCommand(),
-  owner_ids=[317731855317336067]
+  owner_ids=[317731855317336067, 438733159748599813]
 )
+# bot.owner_ids.remove(438733159748599813)  # Uncomment on dragdev
 
 bot.admins = [438733159748599813] + bot.owner_ids
 bot.skips = []
