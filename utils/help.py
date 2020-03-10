@@ -73,7 +73,7 @@ class HelpCommand(commands.HelpCommand):
     )
     embed.add_field(
       name="Server",
-      value="https://discord.gg/ScFHrUB",
+      value="https://discord.gg/bPaNnxe",
       inline=False
     )
     embed.add_field(

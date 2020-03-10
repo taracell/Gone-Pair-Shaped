@@ -23,10 +23,10 @@ bot = commands.Bot(
   command_prefix=commands.when_mentioned_or(main_prefix),
   case_insensitive=True,
   help_command=help.HelpCommand(),
-  owner_ids=(438733159748599813, 317731855317336067)
+  owner_ids=[317731855317336067]
 )
 
-bot.admins = () + bot.owner_ids
+bot.admins = [438733159748599813] + bot.owner_ids
 bot.skips = []
 
 bot.main_prefix = main_prefix

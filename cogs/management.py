@@ -241,6 +241,12 @@ Run:
                               f"&permissions=8 to invite me to your server")
 
 
+    @commands.command()
+    @commands.check(checks.is_owner)
+    async def logout(self, ctx):
+        """Logout the bot, *YOU WILL NEED VPS ACCESS TO START IT UP AGAIN, DON'T DO THIS UNLESS YOU KNOW WHAT YOU'RE DOING*"""
+        await ctx.bot.logout()
+
 
 def setup(bot):
     # bot.add_check(Owner(bot).bot_check)
