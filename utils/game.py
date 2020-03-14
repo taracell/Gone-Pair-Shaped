@@ -24,7 +24,7 @@ class Player:
 class Game:
   def __init__(self, context, players, available_packs, enabled_packs, score_to_win: typing.Optional[int], min_players,
                max_players):
-    enabled_packs = [pack.lower() for pack in enabled_packs] or ["base"]
+    enabled_packs = [pack.lower() for pack in enabled_packs]
 
     # Initialize basic game variables (Round number, which turn the players are on, etc.)
     self.active = False
@@ -48,6 +48,12 @@ class Game:
       if (pack in enabled_packs or "all" in enabled_packs) and f"-{pack}" not in enabled_packs:
         self.question_cards += questions  # Add our questions to the possible questions...
         self.answer_cards += answers  # ...and do the same for answers
+
+    if len(self.answer_cards) < 15 or len(self.question_cards) == 0:
+      for pack, questions, answers, _ in available_packs:
+        if pack == "base":
+          self.question_cards += questions
+          self.answer_cards += answers
 
     # Create a Player for everyone who's playing
     self.players = [Player(member, self) for member in players]

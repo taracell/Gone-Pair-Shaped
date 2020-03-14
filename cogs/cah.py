@@ -8,6 +8,7 @@ class CardsAgainstHumanity(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
     self.games = {}  # type: typing.Dict[discord.TextChannel, game.Game]
+    bot.games = self.games
     self.maxPlayers = 15
     self.minPlayers = 3
     packs = {
@@ -45,13 +46,28 @@ class CardsAgainstHumanity(commands.Cog):
   @commands.command(aliases=["start"])
   @commands.guild_only()
   @commands.is_nsfw()
-  async def play(self,
-                 ctx,
-                 players: commands.Greedy[discord.Member],
-                 score_to_win: typing.Optional[int] = 7,
-                 *enabled_packs
-                 ):
+  async def play(self, ctx):
     """Play a game
+Options can be selected after running this command"""
+    embed = discord.Embed(
+      description=f'Waiting for players... If you want to join type `$join` in this channel',
+      color=discord.Color(0xf44336)
+    )
+    await ctx.channel.send(embed=embed)
+    while True:
+
+
+  @commands.command(aliases=["lstart", "legacyplay", "legacystart"])
+  @commands.guild_only()
+  @commands.is_nsfw()
+  async def lplay(self,
+                  ctx,
+                  players: commands.Greedy[discord.Member],
+                  score_to_win: typing.Optional[int] = 7,
+                  *enabled_packs
+                  ):
+    """The legacy play command...
+Play a game
 Run %%play [@ping as many players as you like] [number of rounds, or enter 0 for unlimited (default unlimited)] [packs]
 Optionally specify how many points a player needs to win (default is 7)
 Note: press 0 to have an endless game

@@ -64,4 +64,8 @@ async def on_ready():
     except Exception as e:
       print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
 
-bot.run(token[0])
+file = open('token.txt', 'r')
+bot.tokens = [line.strip() for line in file]
+file.close()
+
+bot.run(bot.tokens[0])
