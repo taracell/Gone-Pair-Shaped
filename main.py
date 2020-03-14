@@ -1,9 +1,13 @@
 import discord
 from discord.ext import commands
 from utils import help
+import dbl
 
 maxPlayers = 10
 minPlayers = 3
+
+with open('token.txt', 'r') as f:
+  token = [line.strip() for line in f]
 
 production = False
 try:
@@ -33,12 +37,20 @@ bot.skips = []
 bot.main_prefix = main_prefix
 
 @bot.event
-async def on_command_error(_, error):
+async def on_command_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.CommandNotFound):
         return
     elif isinstance(error, discord.ext.commands.errors.NoPrivateMessage):
         return
-    raise error
+    elif isinstance(error, discord.ext.commands.NSFWChannelRequired):
+      embed = discord.Embed(
+        title=f'This is not an NSFW channel.',
+        color=discord.Color(0xf44336)
+      )
+      await ctx.send(embed=embed)
+      return
+    else:
+      raise error
 
 @bot.event
 async def on_ready():
@@ -51,8 +63,5 @@ async def on_ready():
       print(f"Loaded {cog} (cog {position + 1}/{len(cogs)}, {success} successful)")
     except Exception as e:
       print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
-
-with open('token.txt', 'r') as f:
-  token = [line.strip() for line in f]
 
 bot.run(token[0])
