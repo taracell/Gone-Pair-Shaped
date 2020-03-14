@@ -8,6 +8,7 @@ class CardsAgainstHumanity(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
     self.games = {}  # type: typing.Dict[discord.TextChannel, game.Game]
+    bot.games = self.games
     self.maxPlayers = 15
     self.minPlayers = 3
     packs = {
