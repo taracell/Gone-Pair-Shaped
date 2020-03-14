@@ -43,21 +43,21 @@ class CardsAgainstHumanity(commands.Cog):
       question_cards_in_pack.close()
       answer_cards_in_pack.close()
 
-  @commands.command(aliases=["start"])
-  @commands.guild_only()
-  @commands.is_nsfw()
-  async def play(self, ctx):
-    """Play a game
-Options can be selected after running this command"""
-    embed = discord.Embed(
-      description=f'Waiting for players... If you want to join type `$join` in this channel',
-      color=discord.Color(0xf44336)
-    )
-    await ctx.channel.send(embed=embed)
-    while True:
+#  @commands.command(aliases=["start"])
+#  @commands.guild_only()
+#  @commands.is_nsfw()
+#  async def play(self, ctx):
+#    """Play a game
+#Options can be selected after running this command"""
+#    embed = discord.Embed(
+#      description=f'Waiting for players... If you want to join type `$join` in this channel',
+#      color=discord.Color(0xf44336)
+#    )
+#    await ctx.channel.send(embed=embed)
+#    while True:
 
 
-  @commands.command(aliases=["lstart", "legacyplay", "legacystart"])
+  @commands.command(name="play", aliases=["start", "lstart", "legacyplay", "legacystart"])
   @commands.guild_only()
   @commands.is_nsfw()
   async def lplay(self,
@@ -66,8 +66,7 @@ Options can be selected after running this command"""
                   score_to_win: typing.Optional[int] = 7,
                   *enabled_packs
                   ):
-    """The legacy play command...
-Play a game
+    """Play a game
 Run %%play [@ping as many players as you like] [number of rounds, or enter 0 for unlimited (default unlimited)] [packs]
 Optionally specify how many points a player needs to win (default is 7)
 Note: press 0 to have an endless game
