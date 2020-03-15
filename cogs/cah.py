@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import typing
-from utils import game
+from utils import game, checks
 from utils.miniutils.minidiscord import minictx
 import asyncio
 import time
@@ -90,7 +90,12 @@ Optionally specify how many points a player needs to win (default is 7)
 Note: press 0 to have an endless game
 Optionally specify which packs to include (run %%packs to view all the options or enter all to go crazy)"""
         if not self.bot.allowStart:
-            return False
+            return await ctx.send(
+                "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
+                "end, you can't start anything right now...",
+                title="Try again later...",
+                color=discord.Color(0xf44336)
+            )
         players = [user for user in players if not user.bot]
         players.append(ctx.author)
         players = set(players)
@@ -186,6 +191,32 @@ Note- You must have manage channels or be playing to end the game"""
             f'Members: {len(self.bot.users)}\n'
             f'Games being played: {len(self.games)}',
             title=f'Stats',
+            color=discord.Color(0xf44336)
+        )
+
+    @commands.command()
+    @minictx()
+    @commands.check(checks.is_owner)
+    async def endall(self, ctx):
+        """Shows the stats of the bot."""
+        self.bot.allowStart = False
+        for playingGame in self.games.values():
+            await playingGame.end(True)
+        await ctx.send(
+            f'Force-ended all games & disabled starting new ones',
+            title=f'Games will end soon',
+            color=discord.Color(0xf44336)
+        )
+
+    @commands.command()
+    @minictx()
+    @commands.check(checks.is_owner)
+    async def allowstart(self, ctx):
+        """Shows the stats of the bot."""
+        self.bot.allowStart = True
+        await ctx.send(
+            f'Games can be started again',
+            title=f'You can play again :tada:',
             color=discord.Color(0xf44336)
         )
 
