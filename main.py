@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from utils import help
-import dbl
 
 maxPlayers = 10
 minPlayers = 3
@@ -20,7 +19,8 @@ cogs = [
   "jishaku",
   "cogs.cah",
   "cogs.management",
-  "cogs.errors"
+  "cogs.errors",
+  "cogs.botlist"
 ]
 
 bot = commands.Bot(
