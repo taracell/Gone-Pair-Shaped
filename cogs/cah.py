@@ -198,7 +198,7 @@ Note- You must have manage channels or be playing to end the game"""
     @minictx()
     @commands.check(checks.is_owner)
     async def endall(self, ctx):
-        """Shows the stats of the bot."""
+        """Stops new games being created, and ends all current games."""
         self.bot.allowStart = False
         for playingGame in self.games.values():
             await playingGame.end(True)
@@ -212,7 +212,7 @@ Note- You must have manage channels or be playing to end the game"""
     @minictx()
     @commands.check(checks.is_owner)
     async def allowstart(self, ctx):
-        """Shows the stats of the bot."""
+        """Allows starting games again."""
         self.bot.allowStart = True
         await ctx.send(
             f'Games can be started again',
