@@ -290,7 +290,7 @@ class Game:
         if question.count(r"\\_\\_") == 1:
           card_in_context = card_in_context.replace("\\_\\_", winner.cards[int(winner.second_card) - 1], 1)
         await self.ctx.send(
-            card_in_context,
+            f"**{winner.member.mention}** with **{card_in_context}**",
             title=f"The winner is:",
             color=discord.Color(0x8bc34a)
         )
