@@ -14,6 +14,7 @@ class CardsAgainstHumanity(commands.Cog):
         bot.games = self.games
         self.maxPlayers = 25
         self.minPlayers = 3
+        bot.allowStart = False
         packs = {
             "base": "Just the basic, base pack",
             "spongebob": "SpongeBob themed cards!",
@@ -46,7 +47,7 @@ class CardsAgainstHumanity(commands.Cog):
             question_cards_in_pack.close()
             answer_cards_in_pack.close()
 
-    @commands.command(aliases=["start"])
+    #@commands.command(aliases=["start"])
     @minictx()
     @commands.guild_only()
     async def play(self, ctx):
@@ -73,7 +74,7 @@ Options can be selected after running this command"""
             color=discord.Color(0xf44336)
         )
 
-    @commands.command(aliases=["lstart", "legacyplay", "legacystart"])
+    @commands.command(name="play", aliases=["start", "lstart", "legacyplay", "legacystart"])
     @minictx()
     @commands.guild_only()
     async def lplay(self,
@@ -88,6 +89,8 @@ Run %%play [@ping as many players as you like] [number of rounds, or enter 0 for
 Optionally specify how many points a player needs to win (default is 7)
 Note: press 0 to have an endless game
 Optionally specify which packs to include (run %%packs to view all the options or enter all to go crazy)"""
+        if not self.bot.allowStart:
+            return False
         players = [user for user in players if not user.bot]
         players.append(ctx.author)
         players = set(players)
