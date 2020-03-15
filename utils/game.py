@@ -173,7 +173,6 @@ class Game:
                         messages_to_ignore = [
                             player_to_wait_for.first_card] if player_to_wait_for.first_card != "10" else \
                             ["0", "10"]
-                        print(messages_to_ignore)
                     except asyncio.TimeoutError:
                         await self.quit(player_to_wait_for)
                         return await player_to_wait_for.member.send(
