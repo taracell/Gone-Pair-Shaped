@@ -158,9 +158,13 @@ class Owner(commands.Cog, name="core"):
                                             len([u for u in guild.members if not u.bot]))
         default_perms = guild.default_role.permissions.value
         invites = len(await guild.invites()) if guild.me.guild_permissions.manage_guild else 'Not Available'
-        fmt = f"Owner: {owner} ({owner.mention})\nText channels: {text_channels}\nVoice Channels: {voice_channels}\n" \
-              f"Roles: {totalroles}\nBTHR: {bot_to_human_ratio}\n`@everyone` role permissions: {default_perms}\nInvites: " \
-              f"{invites}"
+        fmt = f"Owner: {owner} ({owner.mention})\n" \
+              f"Text channels: {text_channels}\n" \
+              f"Voice Channels: {voice_channels}\n" \
+              f"Roles: {totalroles}\n" \
+              f"BTHR: {bot_to_human_ratio}\n" \
+              f"`@everyone` role permissions: {default_perms}\n" \
+              f"Invites: {invites}"
         await ctx.send(fmt)
 
         paginator = commands.Paginator()
@@ -240,11 +244,11 @@ Run:
                               f"&scope=bot"
                               f"&permissions=8 to invite me to your server")
 
-
     @commands.command()
     @commands.check(checks.is_owner)
     async def logout(self, ctx):
-        """Logout the bot, *YOU WILL NEED VPS ACCESS TO START IT UP AGAIN, DON'T DO THIS UNLESS YOU KNOW WHAT YOU'RE DOING*"""
+        """Logout the bot, *YOU WILL NEED VPS ACCESS TO START IT UP AGAIN, DON'T DO THIS UNLESS YOU KNOW WHAT YOU'RE DO\
+ING*"""
         await ctx.bot.logout()
 
 

@@ -6,3 +6,5 @@ token.txt
 devmode
 venv/*
 .idea/*
+token.txt
+dbltoken.txt

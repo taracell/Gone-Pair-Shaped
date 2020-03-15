@@ -2,7 +2,7 @@ extern
 node_modules
 tmp
 vendor
+.idea/workspace.xml
+.idea/misc.xml
 token.txt
-devmode
-venv/*
-.idea/*
+dbltoken.txt

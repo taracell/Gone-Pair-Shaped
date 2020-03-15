@@ -51,7 +51,7 @@ class HelpCommand(commands.HelpCommand):
     }
     descriptions = {
       self.get_command_signature(command): (
-              command.help.replace("%%", self.context.bot.main_prefix) or "No help available"
+        (command.help or "No help available").replace("%%", self.context.bot.main_prefix)
       ) for command in filtered
     }
     for cmd, desc in custom_help_descriptions.items():
