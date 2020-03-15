@@ -1,9 +1,5 @@
 import dbl
-import discord
 from discord.ext import commands
-
-with open("dbltoken.txt", "r") as f:
-    token = f.readlines()[0]
 
 
 async def on_guild_post():
@@ -15,7 +11,9 @@ class TopGG(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.token = token
+        token_file = open("dbltoken.txt", "r")
+        self.token = token_file.read().strip()
+        token_file.close()
         self.dblpy = dbl.DBLClient(self.bot, self.token, autopost=True)
 
 

@@ -8,11 +8,12 @@ class HelpCommand(commands.HelpCommand):
     self.owners = [
       "PineappleFan#9955",
       "Minion3665#6456",
+      "TheCodedProf#2583",
     ]
     self.helpers = {
       "Waldigo#6969": "Programming help",
       "nwunder#4018": "Programming help",
-      "Mine#4200": "Tester & legend"
+      "Mine#4200": "Tester & legend",
     }
 
   def get_command_signature(self, command):

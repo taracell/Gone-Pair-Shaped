@@ -1,9 +1,5 @@
-import discord
 from discord.ext import commands
 from utils import help
-
-maxPlayers = 10
-minPlayers = 3
 
 with open('token.txt', 'r') as f:
   token = [line.strip() for line in f]
@@ -16,18 +12,11 @@ except FileNotFoundError:
 
 main_prefix = "$" if production else "£"
 cogs = [
-<<<<<<< HEAD
     "jishaku",
     "cogs.cah",
     "cogs.management",
-    "cogs.errors"
-=======
-  "jishaku",
-  "cogs.cah",
-  "cogs.management",
-  "cogs.errors",
-  "cogs.botlist"
->>>>>>> 2ab7ff3eb34b00155b9b80c34ffe7f7d96103a85
+    "cogs.errors",
+    "cogs.botlist"
 ]
 
 bot = commands.Bot(
@@ -36,31 +25,11 @@ bot = commands.Bot(
     help_command=help.HelpCommand(),
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201]
 )
-# bot.owner_ids.remove(438733159748599813)  # Uncomment on dragdev
 
-bot.admins = [438733159748599813] + bot.owner_ids
+bot.admins = [] + bot.owner_ids
 bot.skips = []
 
 bot.main_prefix = main_prefix
-
-<<<<<<< HEAD
-=======
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
-        return
-    elif isinstance(error, discord.ext.commands.errors.NoPrivateMessage):
-        return
-    elif isinstance(error, discord.ext.commands.NSFWChannelRequired):
-      embed = discord.Embed(
-        title=f'This is not an NSFW channel.',
-        color=discord.Color(0xf44336)
-      )
-      await ctx.send(embed=embed)
-      return
-    else:
-      raise error
->>>>>>> 2ab7ff3eb34b00155b9b80c34ffe7f7d96103a85
 
 @bot.event
 async def on_ready():
