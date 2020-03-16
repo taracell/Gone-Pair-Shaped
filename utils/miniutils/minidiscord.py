@@ -5,7 +5,7 @@ import functools
 class MiniContext(commands.Context):
     def __init__(self, context):
         commands.Context.__init__(self, **context.__dict__)
-        self.mention = self.channel.mention if self.channel.isinstance(discord.GuildChannel) else "No channel"
+        self.mention = self.channel.mention if isinstance(self.channel, discord.TextChannel) else "No channel"
 
     async def send(self,
                    description=None, *,
@@ -16,8 +16,8 @@ class MiniContext(commands.Context):
                    files=None,
                    delete_after=None,
                    nonce=None):
-        my_perms = self.channel.permissions_for(self.channel.guild.me)
-        if my_perms.embed_links:
+        my_perms = self.channel.permissions_for(self.channel.guild.me) if isinstance(self.channel, discord.TextChannel) else None
+        if not isinstance(self.channel, discord.TextChannel) or my_perms.embed_links:
             embed = discord.Embed(
                 title=title,
                 description=description,

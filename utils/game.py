@@ -2,6 +2,7 @@ import asyncio
 import random
 import discord
 import typing
+import re
 
 
 class Player:
@@ -159,7 +160,7 @@ class Game:
                     await player_to_wait_for.member.send(
                         embed=discord.Embed(
                             title=f"Please select a card from 1 to 10. You have 2 and a half minutes to decide" +
-                                  (" (1/2)" if question.count(r"\\_\\_") == 2 else ""),
+                                  (" (1/2)" if question.count(r"\_\_") == 2 else ""),
                             color=discord.Color(0x212121)
                         )
                     )
@@ -181,7 +182,7 @@ class Game:
                                 color=discord.Color(0x8bc34a)
                             )
                         )
-                    if question.count(r"\\_\\_") == 2:
+                    if question.count(r"\_\_") == 2:
                         await player_to_wait_for.member.send(
                             embed=discord.Embed(
                                 title=f"Please select a card from 1 to 10. You have 2 and a half minutes to decide, you"
@@ -211,7 +212,7 @@ class Game:
                             color=discord.Color(0x8bc34a)
                         )
                     )
-                    s = "s" if question.count(r'\\_\\_') == 2 else ""
+                    s = "s" if question.count(r'\_\_') == 2 else ""
                     await self.ctx.send(
                         f"{player_to_wait_for.member} has selected their card{s}",
                         color=discord.Color(0x8bc34a)
@@ -226,7 +227,7 @@ class Game:
         playing_users.sort(key=lambda user: random.random())
 
         responses = ""
-        if question.count(r"\\_\\_") < 2:
+        if question.count(r"\_\_") < 2:
             for user_position, user in enumerate(playing_users):
                 responses += f'{user_position + 1}: {user.cards[int(user.first_card) - 1]}\n'
         else:
@@ -242,6 +243,7 @@ class Game:
             color=discord.Color(0x212121)
         )
         await tsar.member.send(embed=embed)
+        await self.ctx.channel.send(embed=embed)
         await self.ctx.send(
           title=f"Please answer in your DM within 5 minutes",
           color=discord.Color(0x8bc34a)
@@ -285,16 +287,18 @@ class Game:
 
         winner.score += 1
 
-        card_in_context = question.replace("\\_\\_", winner.cards[int(winner.first_card) - 1], 1)
-        if question.count(r"\\_\\_") == 1:
-          card_in_context = card_in_context.replace("\\_\\_", winner.cards[int(winner.second_card) - 1], 1)
+        card_in_context = question
+        if question.count(r"\_\_") == 0:
+          card_in_context = card_in_context + " " + winner.cards[int(winner.first_card) - 1]
+        card_in_context = card_in_context.replace("\_\_", re.sub("\.$", "", winner.cards[int(winner.first_card) - 1]), 1)
+        card_in_context = card_in_context.replace("\_\_", re.sub("\.$", "", winner.cards[int(winner.second_card) - 1]), 1)
         await self.ctx.send(
             f"**{winner.member.mention}** with **{card_in_context}**",
             title=f"The winner is:",
             color=discord.Color(0x8bc34a)
         )
 
-        if question.count(r"\\_\\_") < 2:
+        if question.count(r"\_\_") < 2:
             for player in self.players:
                 if player != tsar:
                     player.cards.pop(int(player.first_card) - 1)

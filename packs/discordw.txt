@@ -7,17 +7,7 @@ Deja vu.
 <i>formatting issues.</i>
 A pie that tastes suspiciously of cream.
 ME!
-<<<<<<< HEAD
-My sister
-Your sister
-Children
-Inside your mom
-Inside your sister
-Deleting windows
-Windows 9
-Coronavirus
 Me saying 'no homo'
-=======
 My sister.
 Your sister.
 Children.
@@ -44,4 +34,3 @@ Lube and a cactus.
 That one hot teacher.
 The card Tsar.
 Fuck.
->>>>>>> 2ab7ff3eb34b00155b9b80c34ffe7f7d96103a85
