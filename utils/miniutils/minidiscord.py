@@ -5,7 +5,7 @@ import functools
 class MiniContext(commands.Context):
     def __init__(self, context):
         commands.Context.__init__(self, **context.__dict__)
-        self.mention = self.channel.mention
+        self.mention = self.channel.mention if self.channel.isinstance(discord.GuildChannel) else "No channel"
 
     async def send(self,
                    description=None, *,
