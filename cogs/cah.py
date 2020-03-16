@@ -14,7 +14,7 @@ class CardsAgainstHumanity(commands.Cog):
         bot.games = self.games
         self.maxPlayers = 25
         self.minPlayers = 3
-        bot.allowStart = False
+        bot.allowStart = True
         packs = {
             "base": "Just the basic, base pack",
             "spongebob": "SpongeBob themed cards!",
@@ -159,7 +159,7 @@ Note- You must have manage channels or be playing to end the game"""
     async def packs(self, ctx):
         """Shows a list of packs to enable and disable in the game
     They are added when using the %%play command"""
-        ctx.send(
+        await ctx.send(
             'Do $play {@ people} {packs} to activate specific packs. '
             'If no packs are chosen, base only will be selected. '
             'Alternatively, setting the pack to "all" will enable all packs.\n\n'

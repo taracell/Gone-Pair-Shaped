@@ -59,29 +59,16 @@ class HelpCommand(commands.HelpCommand):
       descriptions[self.context.bot.main_prefix + cmd] = desc
     embed = discord.Embed(
       title='Cards Against Humanity - Commands',
-      description="\n".join(
-        [f"```diff\n- {command}: {description}```" for command, description in
-         descriptions.items() if description]
-      ),
+      description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in self.owners) +
+                  "\n**Helpers (Good people):**\n" + "\n".join(
+                  "> " + user + ": " + reason for user, reason in self.helpers.items()) +
+                  "\n\n> **INVITE ME**\n[Press here]"
+                  "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048)" +
+                  "\n\n> **SERVER**\nhttps://discord.gg/bPaNnxe",
       color=discord.Color(0x8bc34a)
     )
-    embed.add_field(
-      name="Made by",
-      value="**Co-owners:**\n" + "\n".join("> " + user for user in self.owners) +
-            "\n**Helpers (Good people):**\n" + "\n".join(
-        "> " + user + ": " + reason for user, reason in self.helpers.items()),
-      inline=False
-    )
-    embed.add_field(
-      name="Server",
-      value="https://discord.gg/bPaNnxe",
-      inline=False
-    )
-    embed.add_field(
-      name="Invite me!",
-      value="[Press here]"
-            "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048)"
-            "\n*(Please note we need certain permissions, such as embed links, to function)*",
-      inline=False
-    )
+    for command, description in descriptions.items():
+        if not description:
+            continue
+        embed.add_field(name=command, value=description, inline=False)
     await self.context.send(embed=embed)

@@ -170,7 +170,7 @@ class ErrorHandler(commands.Cog):
                         await exceptions_channel.send(page)
                     await exceptions_channel.send(f"> **My permissions:** `{my_permissions_dict}`\n\n"
                                                   f"> **Their permissions:** `{author_permissions_dict}`\n\n"
-                                                  f"> **Guild:** {str(ctx.guild)} `ID: {str(ctx.guild.id)}`\n\n"
+                                                  f"> **Guild:** {str(ctx.guild or 'No guild')} `ID: {str(ctx.guild.id) if ctx.guild else 'No guild'}`\n\n"
                                                   f"> **User:** {str(ctx.author)} `ID: {str(ctx.author.id)}`\n\n"
                                                   f"> **Command:** {ctx.command.qualified_name} `"
                                                   f"Invoked with: {ctx.invoked_with}, "
