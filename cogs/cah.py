@@ -197,7 +197,7 @@ Note- You must have manage channels or be playing to end the game"""
             color=discord.Color(0xf44336)
         )
 
-    @commands.command(alias=["endall"])
+    @commands.command(aliases=["endall"])
     @minictx()
     @commands.check(checks.is_owner)
     async def nostart(self, ctx, endall: bool = False, force: bool = False):
