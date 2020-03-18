@@ -12,6 +12,7 @@ class Player:
         self.cards = []
         self.first_card = 0
         self.second_card = 0
+        self.coroutines = []
         if len(game.answer_cards) < 10:
             game.answer_cards += game.used_answer_cards.copy()
             game.used_answer_cards = []
@@ -74,6 +75,8 @@ class Game:
             self.round_number += 1
             self.skip_round = False
             await self.begin_round()
+            if self.active:
+                await asyncio.sleep(10)
         final_scores = "\n".join(
             [
                 f'{user.member}: {user.score}' for user in
@@ -86,16 +89,24 @@ class Game:
             color=discord.Color(0x3f51b5)
         )
 
-    async def end(self, _, __=False):
+    async def end(self, force, reason=None):
         if self.active:
             self.active = False
+            self.skip_round = force
+            for player in self.players:
+                for coroutine in player.coroutines:
+                    coroutine.cancel()
             await self.ctx.send(
-                '<a:blobleave:527721655162896397> The game will end after this round',
+                '<a:blobleave:527721655162896397> The game ' +
+                ('has suddenly ended' if force else 'will end after this round') +
+                (f" due to {reason}." if reason else "."),
                 color=discord.Color(0x8bc34a)
             )
 
     async def quit(self, player):
         self.players.remove(player)
+        for coroutine in player.coroutines:
+            coroutine.cancel()
         embed = await self.ctx.send(
             f'{player.member} left the game, bye bye...',
             color=discord.Color(0x8bc34a)
@@ -105,7 +116,7 @@ class Game:
                 f'There are too few players left to continue...',
                 color=discord.Color(0x8bc34a)
             )
-            await self.end(True)
+            await self.end(True, "there not being enough players")
         return embed
 
     async def begin_round(self):
@@ -138,13 +149,6 @@ class Game:
         coroutines = []
         for user in self.players:
             if user != tsar:
-                cards = f"In {self.ctx.mention}\n\n{question}\n" + \
-                        "\n".join([f"{card_position + 1}: {card}" for card_position, card in enumerate(user.cards)])
-                await user.member.send(
-                    embed=discord.Embed(
-                        title=f"Cards for {user.member}:", description=cards,
-                        color=discord.Color(0x212121))
-                )
 
                 async def wait_for_message(player_to_wait_for):
                     messages_to_ignore = []
@@ -152,9 +156,9 @@ class Game:
                     def wait_check(message: discord.Message):
                         try:
                             return 0 <= int(message.content) <= 10 \
-                            and message.author == player_to_wait_for.member \
-                            and message.guild is None \
-                            and message.content not in messages_to_ignore
+                                   and message.author == player_to_wait_for.member \
+                                   and message.guild is None \
+                                   and message.content not in messages_to_ignore
                         except ValueError:
                             return False
 
@@ -176,6 +180,7 @@ class Game:
                             player_to_wait_for.first_card] if player_to_wait_for.first_card != "10" else \
                             ["0", "10"]
                     except asyncio.TimeoutError:
+                        player_to_wait_for.coroutines = []
                         await self.quit(player_to_wait_for)
                         return await player_to_wait_for.member.send(
                             embed=discord.Embed(
@@ -218,11 +223,39 @@ class Game:
                         f"{player_to_wait_for.member} has selected their card{s}",
                         color=discord.Color(0x8bc34a)
                     )
-                    return None
+                    player_to_wait_for.coroutines = []
 
-                coroutines.append(wait_for_message(user))
+                wfm_user = wait_for_message(user)
+                coroutines.append(wfm_user)
+                user.coroutines.append(wfm_user)
+        if self.skip_round:
+            for player in self.players:
+                for coroutine in player.coroutines:
+                    coroutine.cancel()
+                player.coroutines = []
+            return
+        for user in self.players:
+            if user != tsar:
+                cards = f"In {self.ctx.mention}\n\n{question}\n" + \
+                        "\n".join([f"{card_position + 1}: {card}" for card_position, card in enumerate(user.cards)])
+                await user.member.send(
+                    embed=discord.Embed(
+                        title=f"Cards for {user.member}:", description=cards,
+                        color=discord.Color(0x212121))
+                )
+        if self.skip_round:
+            for player in self.players:
+                for coroutine in player.coroutines:
+                    coroutine.cancel()
+                player.coroutines = []
+            return
         await asyncio.gather(*coroutines)
-
+        if self.skip_round:
+            for player in self.players:
+                for coroutine in player.coroutines:
+                    coroutine.cancel()
+                player.coroutines = []
+            return
         playing_users = self.players.copy()
         playing_users.remove(tsar)
         playing_users.sort(key=lambda user: random.random())
@@ -246,8 +279,8 @@ class Game:
         await tsar.member.send(embed=embed)
         await self.ctx.channel.send(embed=embed)
         await self.ctx.send(
-          title=f"Please answer in your DM within 5 minutes",
-          color=discord.Color(0x8bc34a)
+            title=f"Please answer in your DM within 5 minutes",
+            color=discord.Color(0x8bc34a)
         )
 
         def check(message: discord.Message):
@@ -258,15 +291,17 @@ class Game:
             except ValueError:
                 return False
 
-        if not len(playing_users):
-            return await self.ctx.send(
-                title=f"Everyone who wasn't tsar left: everybody loses!",
-                color=discord.Color(0x8bc34a)
-            )
-
+        if self.skip_round:
+            for player in self.players:
+                for coroutine in player.coroutines:
+                    coroutine.cancel()
+                player.coroutines = []
+            return
         try:
+            wf_tsar = self.ctx.bot.wait_for('message', check=check, timeout=300)
+            tsar.coroutines.append(wf_tsar)
             winner = (
-                await self.ctx.bot.wait_for('message', check=check, timeout=300)
+                await wf_tsar
             ).content
             await tsar.member.send(
                 embed=discord.Embed(
@@ -290,9 +325,11 @@ class Game:
 
         card_in_context = question
         if question.count(r"\_\_") == 0:
-          card_in_context = card_in_context + " " + winner.cards[int(winner.first_card) - 1]
-        card_in_context = card_in_context.replace("\_\_", re.sub("\.$", "", winner.cards[int(winner.first_card) - 1]), 1)
-        card_in_context = card_in_context.replace("\_\_", re.sub("\.$", "", winner.cards[int(winner.second_card) - 1]), 1)
+            card_in_context = card_in_context + " " + winner.cards[int(winner.first_card) - 1]
+        card_in_context = card_in_context.replace(
+            "\_\_", re.sub("\.$", "", winner.cards[int(winner.first_card) - 1]), 1)
+        card_in_context = card_in_context.replace(
+            "\_\_", re.sub("\.$", "", winner.cards[int(winner.second_card) - 1]), 1)
         await self.ctx.send(
             f"**{winner.member.mention}** with **{card_in_context}**",
             title=f"The winner is:",
@@ -324,4 +361,7 @@ class Game:
                         new_card = self.answer_cards.pop(random.randint(0, len(self.answer_cards) - 1))
                         player.cards.append(new_card)
 
-        await asyncio.sleep(10)
+        for player in self.players:
+            for coroutine in player.coroutines:
+                coroutine.cancel()
+            player.coroutines = []

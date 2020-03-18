@@ -11,7 +11,6 @@ class CardsAgainstHumanity(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.games = {}  # type: typing.Dict[discord.TextChannel, game.Game]
-        bot.games = self.games
         self.maxPlayers = 25
         self.minPlayers = 3
         bot.allowStart = True
@@ -129,8 +128,10 @@ Optionally specify which packs to include (run %%packs to view all the options o
             self.minPlayers,
             self.maxPlayers
         )
+        self.bot.playing += 1
         await self.games[ctx.channel].start()
         del self.games[ctx.channel]
+        self.bot.playing -= 1
 
     @commands.command()
     @minictx()
@@ -174,7 +175,8 @@ Note- You must have manage channels or be playing to end the game"""
         """Shows all the legal notices about Cards Against Humanity Creative Commons. We know you won't do this."""
         embed = discord.Embed(
             title=f'Legal notices',
-            description='[✔ NonCommercial] Firstly, this bot is not designed to make money.\n'
+            description='**This bot is not associated with Cards Against Humanity LLC.**\n'
+                        '[✔ NonCommercial] Firstly, this bot is not designed to make money.\n'
                         '[✔ Attribution] This bot is based off the concept by Cards Against Humanity LLC. \n'
                         '[✔ ShareAlike] This bot uses the same licence as the original game, '
                         '[Creative Commons by-nc-sa 2.0](https://creativecommons.org/licenses/by-nc-sa/2.0/)',
@@ -189,22 +191,24 @@ Note- You must have manage channels or be playing to end the game"""
         await ctx.send(
             f'Servers: {len(self.bot.guilds)}\n'
             f'Members: {len(self.bot.users)}\n'
-            f'Games being played: {len(self.games)}',
+            f'Games being played: {ctx.bot.playing}\n',
+            f'Games on this version: {len(self.games)}',
             title=f'Stats',
             color=discord.Color(0xf44336)
         )
 
-    @commands.command()
+    @commands.command(alias=["endall"])
     @minictx()
     @commands.check(checks.is_owner)
-    async def endall(self, ctx):
+    async def nostart(self, ctx, endall: bool = False, force: bool = False):
         """Stops new games being created, and ends all current games."""
         self.bot.allowStart = False
-        for playingGame in self.games.values():
-            await playingGame.end(True)
+        if endall:
+            for playingGame in self.games.values():
+                await playingGame.end(force, "a maintenance break")
         await ctx.send(
-            f'Force-ended all games & disabled starting new ones',
-            title=f'Games will end soon',
+            f'Force-ended all games & disabled starting new ones' if endall else f'Disabled starting new games',
+            title=f'Games will end soon' if endall else 'Games will continue until they have run their course',
             color=discord.Color(0xf44336)
         )
 

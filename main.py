@@ -26,10 +26,12 @@ bot = commands.Bot(
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201]
 )
 
+bot.playing = 0
 bot.admins = [] + bot.owner_ids
 bot.skips = []
 
 bot.main_prefix = main_prefix
+
 
 @bot.event
 async def on_ready():
