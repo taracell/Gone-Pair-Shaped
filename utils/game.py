@@ -227,7 +227,7 @@ class Game:
                     player_to_wait_for.coroutines = []
                     return None
 
-                wfm_user = asyncio.create_task(wait_for_message(user))
+                wfm_user = self.ctx.bot.loop.create_task(wait_for_message(user))
                 coroutines.append(wfm_user)
                 user.coroutines.append(wfm_user)
         if self.skip_round:
@@ -302,7 +302,7 @@ class Game:
 
         winner = None
         try:
-            wf_tsar = asyncio.create_task(self.ctx.bot.wait_for('message', check=check, timeout=300))
+            wf_tsar = self.ctx.bot.loop.create_task(self.ctx.bot.wait_for('message', check=check, timeout=300))
             tsar.coroutines.append(wf_tsar)
             winner = (
                 await wf_tsar
