@@ -93,9 +93,10 @@ class Game:
         if self.active:
             self.active = False
             self.skip_round = force
-            for player in self.players:
-                for coroutine in player.coroutines:
-                    coroutine.cancel()
+            if force:
+                for player in self.players:
+                    for coroutine in player.coroutines:
+                        coroutine.cancel()
             await self.ctx.send(
                 '<a:blobleave:527721655162896397> The game ' +
                 ('has suddenly ended' if force else 'will end after this round') +
@@ -224,8 +225,9 @@ class Game:
                         color=discord.Color(0x8bc34a)
                     )
                     player_to_wait_for.coroutines = []
+                    return None
 
-                wfm_user = wait_for_message(user)
+                wfm_user = asyncio.create_task(wait_for_message(user))
                 coroutines.append(wfm_user)
                 user.coroutines.append(wfm_user)
         if self.skip_round:
@@ -249,7 +251,7 @@ class Game:
                     coroutine.cancel()
                 player.coroutines = []
             return
-        await asyncio.gather(*coroutines)
+        await asyncio.gather(*coroutines, return_exceptions=True)
         if self.skip_round:
             for player in self.players:
                 for coroutine in player.coroutines:
@@ -297,8 +299,10 @@ class Game:
                     coroutine.cancel()
                 player.coroutines = []
             return
+
+        winner = None
         try:
-            wf_tsar = self.ctx.bot.wait_for('message', check=check, timeout=300)
+            wf_tsar = asyncio.create_task(self.ctx.bot.wait_for('message', check=check, timeout=300))
             tsar.coroutines.append(wf_tsar)
             winner = (
                 await wf_tsar
@@ -318,6 +322,8 @@ class Game:
                     color=discord.Color(0x8bc34a)
                 )
             )
+        except asyncio.CancelledError:
+            return
 
         winner = playing_users[int(winner) - 1]
 
