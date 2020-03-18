@@ -191,7 +191,7 @@ Note- You must have manage channels or be playing to end the game"""
         await ctx.send(
             f'Servers: {len(self.bot.guilds)}\n'
             f'Members: {len(self.bot.users)}\n'
-            f'Games being played: {ctx.bot.playing}\n',
+            f'Games being played: {ctx.bot.playing}\n'
             f'Games on this version: {len(self.games)}',
             title=f'Stats',
             color=discord.Color(0xf44336)
