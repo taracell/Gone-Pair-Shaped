@@ -141,7 +141,7 @@ Optionally run '%%end True' to end the game instantly (WIP, doesn't work yet)
 Note- You must have manage channels or be playing to end the game"""
         channel_game = self.games.get(ctx.channel, None)
         if not channel_game:
-            await ctx.send(
+            return await ctx.send(
                 f"There isn't an active game in this channel",
                 color=discord.Color(0xf44336)
             )
