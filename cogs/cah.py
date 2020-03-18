@@ -211,6 +211,13 @@ Note- You must have manage channels or be playing to end the game"""
             title=f'Games will end soon' if endall else 'Games will continue until they have run their course',
             color=discord.Color(0xf44336)
         )
+        await self.bot.change_presence(
+            status=discord.Status.dnd,
+            activity=discord.Activity(
+                name="my developers in maintenance mode",
+                type=discord.ActivityType.listening,
+            )
+        )
 
     @commands.command()
     @minictx()
@@ -222,6 +229,13 @@ Note- You must have manage channels or be playing to end the game"""
             f'Games can be started again',
             title=f'You can play again :tada:',
             color=discord.Color(0xf44336)
+        )
+        await self.bot.change_presence(
+            status=discord.Status.online,
+            activity=discord.Activity(
+                name="your games of CAH",
+                type=discord.ActivityType.watching,
+            )
         )
 
 

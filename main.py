@@ -1,5 +1,6 @@
 from discord.ext import commands
 from utils import help
+import discord
 
 with open('token.txt', 'r') as f:
   token = [line.strip() for line in f]
@@ -23,7 +24,13 @@ bot = commands.Bot(
     command_prefix=commands.when_mentioned_or(main_prefix),
     case_insensitive=True,
     help_command=help.HelpCommand(),
-    owner_ids=[317731855317336067, 438733159748599813, 261900651230003201]
+    owner_ids=[317731855317336067, 438733159748599813, 261900651230003201],
+    activity=discord.Activity(
+        name="the whirr of my fans as I boot up and decide to invite GlobalBot shameless self promo from the developer "
+             "who put this in",
+        type=discord.ActivityType.listening
+    ),  # We create a discord activity to start up with
+    status=discord.Status.idle
 )
 
 bot.playing = 0
@@ -44,6 +51,13 @@ async def on_ready():
             print(f"Loaded {cog} (cog {position + 1}/{len(cogs)}, {success} successful)")
         except Exception as e:
             print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
+    await bot.change_presence(
+        status=discord.Status.online,
+        activity=discord.Activity(
+            name="your games of CAH",
+            type=discord.ActivityType.watching,
+        )
+    )
 
 
 file = open('token.txt', 'r')
