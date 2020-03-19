@@ -8,9 +8,9 @@ class MiniContext(commands.Context):
         self.mention = self.channel.mention if isinstance(self.channel, discord.TextChannel) else "No channel"
 
     async def send(self,
-                   description=None, *,
-                   title=None,
-                   color=None,
+                   description=discord.Embed.Empty, *,
+                   title=discord.Embed.Empty,
+                   color=discord.Embed.Empty,
                    tts=False,
                    file=None,
                    files=None,
