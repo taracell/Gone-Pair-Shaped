@@ -119,7 +119,11 @@ Options can be selected after running this command"""
         def check(message):
             return message.channel == ctx.channel and message.author == ctx.author
 
-        packs = (await ctx.bot.wait_for("message", check=check, timeout=20)).content.split(" ")
+        packs = []
+        try:
+            packs = (await ctx.bot.wait_for("message", check=check, timeout=20)).content.split(" ")
+        except asyncio.TimeoutError:
+            pass
 
         await ctx.send(
             f"How many points should you need in order to win? We recommend 7, but you can choose any number. "
@@ -136,7 +140,11 @@ Options can be selected after running this command"""
             except ValueError:
                 return False
 
-        points = int((await ctx.bot.wait_for("message", check=check, timeout=20)).content)
+        points = 7
+        try:
+            points = int((await ctx.bot.wait_for("message", check=check, timeout=20)).content)
+        except asyncio.TimeoutError:
+            pass
 
         if not self.bot.allowStart or not self.games.get(ctx.channel, None):
             return await ctx.send(
