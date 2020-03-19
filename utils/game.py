@@ -109,12 +109,15 @@ class Game:
         for coroutine in player.coroutines:
             coroutine.cancel()
         embed = await self.ctx.send(
-            f'{player.member} left the game, bye bye...',
+            f'<a:blobleave:527721655162896397> {player.member} left the game, bye bye...',
             color=discord.Color(0x8bc34a)
         )
         if len(self.players) < self.min:
+            if not self.active:
+                return embed
+            self.active = False
             embed = await self.ctx.send(
-                f'There are too few players left to continue...',
+                f'<a:blobleave:527721655162896397> There are too few players left to continue...',
                 color=discord.Color(0x8bc34a)
             )
             await self.end(True, "there not being enough players")
@@ -274,10 +277,16 @@ class Game:
         responses += "\n*(Player order is random)*"
 
         embed = discord.Embed(
-            title=f'Select the winner, {tsar.member.name}',
+            title=f'<a:blobcouncil:527721655162896397> Select the winner, {tsar.member.name}',
             description=f'{question}\n\n{responses}',
             color=discord.Color(0x212121)
         )
+        if self.skip_round:
+            for player in self.players:
+                for coroutine in player.coroutines:
+                    coroutine.cancel()
+                player.coroutines = []
+            return
         await tsar.member.send(embed=embed)
         await self.ctx.channel.send(embed=embed)
         await self.ctx.send(
@@ -340,7 +349,7 @@ class Game:
             "\_\_", re.sub("\.$", "", winner.cards[int(winner.second_card) - 1]), 1)
         await self.ctx.send(
             f"**{winner.member.mention}** with **{card_in_context}**",
-            title=f"The winner is:",
+            title=f"<a:blobcouncil:527721655162896397> The winner is:",
             color=discord.Color(0x8bc34a)
         )
 
