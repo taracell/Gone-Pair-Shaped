@@ -154,7 +154,7 @@ class Game:
         coroutines = []
         for user in self.players:
             if user != tsar:
-                cards = f"In {self.ctx.mention}\n\n{question}\nThe card tsar is {tsar.member.name}" + \
+                cards = f"In {self.ctx.mention}\n\n{question}\nThe card tsar is {tsar.member.name}\n\n" + \
                         "\n".join(
                             [f"{card_position + 1}: {card}" for card_position, card in enumerate(user.cards)]
                         )
