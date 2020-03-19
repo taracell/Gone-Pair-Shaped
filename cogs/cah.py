@@ -86,13 +86,13 @@ Options can be selected after running this command"""
         ]
 
         def check(message):
-            return message.channel == ctx.channel and (((message.content.lower() in [
-                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join", "iamin", "i am in", "iam in", "i amin"
+            return message.channel == ctx.channel and (((message.content.lower().strip() in [
+                "imin", "i'min", f"{self.bot.main_prefix}join", "iamin"
             ]) and (
                 not whitelist or message.author in whitelist) and message.author not in players
                                                         and not message.author.bot
             ) or (
-                message.content.lower() in begin and
+                message.content.lower().strip() in begin and
                 len(players) >= self.minPlayers and
                 message.author == ctx.author
             ))
@@ -103,7 +103,7 @@ Options can be selected after running this command"""
                 break
             try:
                 player_to_add = await ctx.bot.wait_for("message", check=check, timeout=expiry - time.time())
-                if player_to_add.content in begin:
+                if player_to_add.content.lower().strip() in begin:
                     break
                 players.append(player_to_add.author)
                 self.bot.loop.create_task(
