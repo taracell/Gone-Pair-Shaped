@@ -86,7 +86,7 @@ Options can be selected after running this command"""
             if len(players) >= self.maxPlayers:
                 break
             try:
-                player_to_add = await ctx.bot.wait_for("message", check=check, timeout=expiry)
+                player_to_add = await ctx.bot.wait_for("message", check=check, timeout=expiry - time.time())
                 players.append(player_to_add.author)
                 self.bot.loop.create_task(
                     ctx.send(
