@@ -90,7 +90,7 @@ async def info(ctx):
                     ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
         color=bot.colors["success"]
     )
-    await ctx.send(embed)
+    await ctx.send(embed=embed)
 
 
 file = open('token.txt', 'r')

@@ -288,7 +288,7 @@ Note- You must have manage channels or be playing to end the game"""
             f'Games being played: {ctx.bot.playing}\n'
             f'Games on this version: {len(self.games)}',
             title=f'Stats',
-            color=self.bot.colors["error"]
+            color=self.bot.colors["status"]
         )
 
     @commands.command(aliases=["endall"])
