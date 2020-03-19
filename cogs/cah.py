@@ -108,7 +108,8 @@ Options can be selected after running this command"""
 
         await ctx.send(
             f"What packs do you want to include? Type `all` to include every pack and `-` before a pack name to "
-            f"exclude that pack. Invalid packs will be ignored (run %%packs to see what packs are valid). "
+            f"exclude that pack. Invalid packs will be ignored "
+            f"(run {self.bot.main_prefix}packs to see what packs are valid). "
             f"If you don't choose any packs within 20 seconds, we'll hook you up with the `base` pack",
             title=f'<:blobidea:527721625563693066> The game has been created. Before we start, we need to get a few '
                   f'game settings...',
