@@ -5,16 +5,6 @@ from discord.ext import commands
 class HelpCommand(commands.HelpCommand):
   def __init__(self):
     commands.HelpCommand.__init__(self)
-    self.owners = [
-      "PineappleFan#9955",
-      "Minion3665#6456",
-      "TheCodedProf#2583",
-    ]
-    self.helpers = {
-      "Waldigo#6969": "Programming help",
-      "nwunder#4018": "Programming help",
-      "Mine#4200": "Tester & legend",
-    }
 
   def get_command_signature(self, command):
     """Retrieves the signature portion of the help page.
@@ -59,12 +49,12 @@ class HelpCommand(commands.HelpCommand):
       descriptions[self.context.bot.main_prefix + cmd] = desc
     embed = discord.Embed(
       title='Cards Against Humanity - Commands',
-      description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in self.owners) +
+      description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in self.context.bot.owners) +
                   "\n**Helpers (Good people):**\n" + "\n".join(
-                  "> " + user + ": " + reason for user, reason in self.helpers.items()) +
-                  "\n\n> **INVITE ME**\n[Press here]"
-                  "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048)" +
-                  "\n\n> **SERVER**\nhttps://discord.gg/bPaNnxe",
+                  "> " + user + ": " + reason for user, reason in self.context.bot.helpers.items()) +
+                  "\n\n> **INVITE ME**\n[discordapp.com]"
+                  "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048)"
+                  + "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
       color=discord.Color(0x8bc34a)
     )
     for command, description in descriptions.items():

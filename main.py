@@ -3,7 +3,7 @@ from utils import help
 import discord
 
 with open('token.txt', 'r') as f:
-  token = [line.strip() for line in f]
+    token = [line.strip() for line in f]
 
 production = False
 try:
@@ -39,6 +39,17 @@ bot.skips = []
 
 bot.main_prefix = main_prefix
 
+bot.owners = [
+    "PineappleFan#9955",
+    "Minion3665#6456",
+    "TheCodedProf#2583",
+]
+bot.helpers = {
+    "Waldigo#6969": "Programming help",
+    "nwunder#4018": "Programming help",
+    "Mine#4200": "Tester & legend",
+}
+
 
 @bot.event
 async def on_ready():
@@ -58,6 +69,21 @@ async def on_ready():
             type=discord.ActivityType.watching,
         )
     )
+
+
+@bot.command()
+async def info(ctx):
+    embed = discord.Embed(
+        title='Cards Against Humanity - Commands',
+        description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in bot.owners) +
+                    "\n**Helpers (Good people):**\n" + "\n".join(
+                    "> " + user + ": " + reason for user, reason in bot.helpers.items()) +
+                    "\n\n> **INVITE ME**\n[discordapp.com]"
+                    "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048"
+                    ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
+        color=discord.Color(0x8bc34a)
+    )
+    ctx.send(embed)
 
 
 file = open('token.txt', 'r')

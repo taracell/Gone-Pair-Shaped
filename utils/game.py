@@ -85,7 +85,7 @@ class Game:
         )
         await self.ctx.send(
             final_scores,
-            title=f"The game has ended! Here are the scores\nScoreboard:",
+            title=f"<:blobnitro:527721625659899904> The game has ended! Here are the scores\nScoreboard:",
             color=discord.Color(0x3f51b5)
         )
 
@@ -139,13 +139,13 @@ class Game:
         )
         await self.ctx.send(
             scores,
-            title=f"Scoreboard (before round {self.round_number}" +
+            title=f"<:blobnitro:527721625659899904> Scoreboard (before round {self.round_number}" +
                   (f", {self.score_to_win} points needed to win):" if self.score_to_win is not None else ")"),
             color=discord.Color(0x3f51b5)
         )
         await asyncio.sleep(5)
         await self.ctx.send(
-            f"{question}\n\nEveryone check your dms for your card list."
+            f"{question}\n\n<a:blobcouncil:527721654361522186> Everyone check your dms for your card list."
             f"The card tsar is {tsar.member.name}",
             color=discord.Color(0x212121)
         )
@@ -188,7 +188,8 @@ class Game:
                         await self.quit(player_to_wait_for)
                         return await player_to_wait_for.member.send(
                             embed=discord.Embed(
-                                title=f"You have been removed from the game for inactivity",
+                                title=f"<:blobconfused:527721625542590464> You have been removed from the game for "
+                                      f"inactivity",
                                 color=discord.Color(0x8bc34a)
                             )
                         )
@@ -211,7 +212,8 @@ class Game:
                             await self.quit(player_to_wait_for)
                             await player_to_wait_for.member.send(
                                 embed=discord.Embed(
-                                    title=f"You have been removed from the game for inactivity",
+                                    title=f"<:blobconfused:527721625542590464> You have been removed from the game for "
+                                          f"inactivity",
                                     color=discord.Color(0x8bc34a)
                                 )
                             )
@@ -274,8 +276,6 @@ class Game:
                 responses += f'{user_position + 1}: {user.cards[int(user.first_card) - 1]} ' \
                              f'| {user.cards[int(user.second_card) - 1]}\n'
 
-        responses += "\n*(Player order is random)*"
-
         embed = discord.Embed(
             title=f'<a:blobcouncil:527721655162896397> Select the winner, {tsar.member.name}',
             description=f'{question}\n\n{responses}',
@@ -290,7 +290,7 @@ class Game:
         await tsar.member.send(embed=embed)
         await self.ctx.channel.send(embed=embed)
         await self.ctx.send(
-            title=f"Please answer in your DM within 5 minutes",
+            title=f"<a:blobcouncil:527721654361522186> Please answer in your DM within 5 minutes",
             color=discord.Color(0x8bc34a)
         )
 
@@ -329,7 +329,7 @@ class Game:
             await self.quit(tsar)
             await tsar.member.send(
                 embed=discord.Embed(
-                    title=f"You have been removed from the game for inactivity",
+                    title=f"<:blobconfused:527721625542590464> You have been removed from the game for inactivity",
                     color=discord.Color(0x8bc34a)
                 )
             )
@@ -349,7 +349,7 @@ class Game:
             "\_\_", re.sub("\.$", "", winner.cards[int(winner.second_card) - 1]), 1)
         await self.ctx.send(
             f"**{winner.member.mention}** with **{card_in_context}**",
-            title=f"<a:blobcouncil:527721655162896397> The winner is:",
+            title=f"<:blobenjoy:527721625257508866> The winner is:",
             color=discord.Color(0x8bc34a)
         )
 
