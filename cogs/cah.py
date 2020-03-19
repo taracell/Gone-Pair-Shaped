@@ -177,7 +177,7 @@ Optionally specify which packs to include (run %%packs to view all the options o
             return await ctx.send(
                 "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
                 "end, you can't start anything right now...",
-                title="<:blobfrowningbig:527721625706168331> Try again later...",
+                title="<:bloboutage:527721625374818305> Try again later...",
                 color=self.bot.colors["error"]
             )
         players = [user for user in players if not user.bot]
