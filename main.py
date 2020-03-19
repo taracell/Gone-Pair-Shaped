@@ -88,7 +88,7 @@ async def info(ctx):
                     "\n\n> **INVITE ME**\n[discordapp.com]"
                     "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048"
                     ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
-        color=self.context.bot.colors["success"]
+        color=bot.colors["success"]
     )
     await ctx.send(embed)
 
