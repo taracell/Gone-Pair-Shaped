@@ -73,6 +73,7 @@ async def on_ready():
 
 @bot.command()
 async def info(ctx):
+    """View some information about the bot's owners"""
     embed = discord.Embed(
         title='Cards Against Humanity - Commands',
         description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in bot.owners) +
@@ -83,7 +84,7 @@ async def info(ctx):
                     ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
         color=discord.Color(0x8bc34a)
     )
-    ctx.send(embed)
+    await ctx.send(embed)
 
 
 file = open('token.txt', 'r')

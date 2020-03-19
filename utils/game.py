@@ -189,7 +189,7 @@ class Game:
                         return await player_to_wait_for.member.send(
                             embed=discord.Embed(
                                 title=f"<:blobconfused:527721625542590464> You have been removed from the game for "
-                                      f"inactivity",
+                                      f"inactivity.",
                                 color=discord.Color(0x8bc34a)
                             )
                         )
@@ -213,7 +213,7 @@ class Game:
                             await player_to_wait_for.member.send(
                                 embed=discord.Embed(
                                     title=f"<:blobconfused:527721625542590464> You have been removed from the game for "
-                                          f"inactivity",
+                                          f"inactivity.",
                                     color=discord.Color(0x8bc34a)
                                 )
                             )
@@ -329,7 +329,7 @@ class Game:
             await self.quit(tsar)
             await tsar.member.send(
                 embed=discord.Embed(
-                    title=f"<:blobconfused:527721625542590464> You have been removed from the game for inactivity",
+                    title=f"<:blobconfused:527721625542590464> You have been removed from the game for inactivity.",
                     color=discord.Color(0x8bc34a)
                 )
             )
