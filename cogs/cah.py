@@ -87,7 +87,7 @@ Options can be selected after running this command"""
 
         def check(message):
             return message.channel == ctx.channel and (((message.content.lower() in [
-                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join", "iamin", "i am in", "iam in",
+                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join", "iamin", "i am in", "iam in", "i amin"
             ]) and (
                 not whitelist or message.author in whitelist) and message.author not in players
                                                         and not message.author.bot
