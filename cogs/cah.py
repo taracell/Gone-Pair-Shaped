@@ -70,14 +70,15 @@ Options can be selected after running this command"""
         self.games[ctx.channel] = "setup"
 
         await ctx.send(
-            f"Waiting for players... If you want to join type `i'm in` in this channel",
+            f"Waiting for players... If you want to join type `{self.bot.main_prefix}join` in this channel",
             color=self.bot.colors["error"]
         )
         players = [ctx.author]
 
         def check(message):
-            return message.channel == ctx.channel and message.content.lower() in ["im in", "i'm in", "imin"] and \
-                   (not whitelist or message.author in whitelist) and message.author not in players \
+            return message.channel == ctx.channel and message.content.lower() in [
+                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join"
+            ] and (not whitelist or message.author in whitelist) and message.author not in players \
                    and not message.author.bot
 
         expiry = time.time() + 60

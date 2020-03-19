@@ -81,7 +81,7 @@ async def on_ready():
 async def info(ctx):
     """View some information about the bot's owners"""
     embed = discord.Embed(
-        title='Cards Against Humanity - Commands',
+        title='Cards Against Humanity - Owner information',
         description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in bot.owners) +
                     "\n**Helpers (Good people):**\n" + "\n".join(
                     "> " + user + ": " + reason for user, reason in bot.helpers.items()) +
