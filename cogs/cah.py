@@ -56,14 +56,14 @@ Options can be selected after running this command"""
             return await ctx.send(
                 "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
                 "end, you can't start anything right now...",
-                title="Try again later...",
+                title="<:bloboutage:527721625374818305> Try again later...",
                 color=self.bot.colors["error"]
             )
 
         if self.games.get(ctx.channel, None):
             return await ctx.send(
                 f"Please wait until it's finished before starting a new one...",
-                title=f"A game is already in progress",
+                title=f"<:blobfrowningbig:527721625706168331> A game is already in progress",
                 color=self.bot.colors["error"]
             )
 
@@ -136,11 +136,11 @@ Options can be selected after running this command"""
 
         points = int(await ctx.bot.wait_for("message", check=check, timeout=20).content)
 
-        if not self.bot.allowStart:
+        if not self.bot.allowStart or not self.games.get(ctx.channel, None):
             return await ctx.send(
                 "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
                 "end, you can't start anything right now...",
-                title="Try again later...",
+                title="<:bloboutage:527721625374818305> Try again later...",
                 color=self.bot.colors["error"]
             )
 
@@ -177,7 +177,7 @@ Optionally specify which packs to include (run %%packs to view all the options o
             return await ctx.send(
                 "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
                 "end, you can't start anything right now...",
-                title="Try again later...",
+                title="<:blobfrowningbig:527721625706168331> Try again later...",
                 color=self.bot.colors["error"]
             )
         players = [user for user in players if not user.bot]
@@ -185,14 +185,14 @@ Optionally specify which packs to include (run %%packs to view all the options o
         players = set(players)
         if len(players) < self.minPlayers:
             return await ctx.send(
-                f'There too few players in this game. '
+                f'<:blobfrowningbig:527721625706168331> There too few players in this game. '
                 f'Please ping a minimum of {self.minPlayers - 1} '
                 f'people for a {self.minPlayers} player game',
                 color=self.bot.colors["error"]
             )
         if len(players) > self.maxPlayers:
             return await ctx.send(
-                f'There too many players in this game. '
+                f'<:blobfrowningbig:527721625706168331> There too many players in this game. '
                 f'Please ping a maximum of {self.maxPlayers - 1} '
                 f'people for a {self.maxPlayers} player game',
                 color=self.bot.colors["error"]
@@ -200,7 +200,7 @@ Optionally specify which packs to include (run %%packs to view all the options o
 
         if self.games.get(ctx.channel, None):
             return await ctx.send(
-                f'A game is already in progress',
+                f'<:blobfrowningbig:527721625706168331>A game is already in progress',
                 color=self.bot.colors["error"]
             )
 
@@ -235,7 +235,8 @@ Note- You must have manage channels or be playing to end the game"""
                 channel_game.players and ctx.author not in [user.member for user in channel_game.players]
         ) and not ctx.author.permissions_in(ctx.channel).manage_channels:
             return await ctx.send(
-                "You aren't playing and you don't have manage channels, so you can't end this game...",
+                "<:blobfrowningbig:527721625706168331> You aren't playing and you don't have manage channels, so you "
+                "can't end this game...",
                 color=self.bot.colors["error"]
             )
         await channel_game.end(force)
@@ -291,10 +292,9 @@ Note- You must have manage channels or be playing to end the game"""
         if endall:
             for playingGame in self.games.values():
                 await playingGame.end(force, "a maintenance break")
-        for game in self.games
-            "setup"
+        self.games = {channel: value for channel, value in self.games.items() if value != "setup"}
         await ctx.send(
-            ((f'Force-e' if force else 'E') +
+            ((f'Forcefully e' if force else 'E') +
              f'nded all games & disabled starting new ones') if endall else f'Disabled starting new games',
             title=(f'All games have ended' if force else f'Games will end soon')
             if endall else 'Games will continue until they have run their course',
