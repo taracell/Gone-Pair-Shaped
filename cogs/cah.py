@@ -118,6 +118,7 @@ Options can be selected after running this command"""
                 break
 
         if len(players) < self.minPlayers:
+            del self.games[ctx.channel]
             return await ctx.send(
                 "Sadly there weren't enough players to start your game",
                 title="<:blobfrowningbig:527721625706168331> Oh dear!",
@@ -165,6 +166,10 @@ Options can be selected after running this command"""
             pass
 
         if not self.bot.allowStart or not self.games.get(ctx.channel, None):
+            try:
+                del self.games[ctx.channel]
+            except KeyError:
+                pass
             return await ctx.send(
                 "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
                 "end, you can't start anything right now...",
