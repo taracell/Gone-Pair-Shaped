@@ -76,11 +76,18 @@ Options can be selected after running this command"""
         )
         players = [ctx.author]
 
-        begin = [f"{self.bot.main_prefix}begin", f"{self.bot.main_prefix}go"]
+        begin = [
+            f"{self.bot.main_prefix}begin",
+            f"{self.bot.main_prefix}go",
+            f"{self.bot.main_prefix}forcestart",
+            f"{self.bot.main_prefix}b",
+            f"{self.bot.main_prefix}g",
+            f"{self.bot.main_prefix}fs"
+        ]
 
         def check(message):
             return message.channel == ctx.channel and (((message.content.lower() in [
-                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join",
+                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join", "iamin", "i am in", "iam in",
             ]) and (
                 not whitelist or message.author in whitelist) and message.author not in players
                                                         and not message.author.bot
