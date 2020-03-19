@@ -204,6 +204,14 @@ Optionally specify which packs to include (run %%packs to view all the options o
                 color=self.bot.colors["error"]
             )
 
+        if not self.bot.allowStart:
+            return await ctx.send(
+                "Unfortunately, we're about to go down and are in maintenance mode waiting for the last few games to "
+                "end, you can't start anything right now...",
+                title="<:bloboutage:527721625374818305> Try again later...",
+                color=self.bot.colors["error"]
+            )
+
         self.games[ctx.channel] = game.Game(
             ctx,
             players,
@@ -290,10 +298,9 @@ Note- You must have manage channels or be playing to end the game"""
         """Stops new games being created, and ends all current games."""
         self.bot.allowStart = False
         if endall:
-            for playingGame in self.games.values():
+            for playingGame in list(self.games.values()):
                 await playingGame.end(force, "a maintenance break")
-        games = {channel: value for channel, value in self.games.items() if value != "setup"}
-        self.games = games
+        self.games = {channel: value for channel, value in self.games.items() if value != "setup"}
         await ctx.send(
             ((f'Forcefully e' if force else 'E') +
              f'nded all games & disabled starting new ones') if endall else f'Disabled starting new games',
