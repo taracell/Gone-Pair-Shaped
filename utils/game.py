@@ -154,7 +154,7 @@ class Game:
         coroutines = []
         for user in self.players:
             if user != tsar:
-                cards = f"In {self.ctx.mention}\n\n{question}\n" + \
+                cards = f"In {self.ctx.mention}\n\n{question}\nThe card tsar is {tsar.member.name}" + \
                         "\n".join(
                             [f"{card_position + 1}: {card}" for card_position, card in enumerate(user.cards)]
                         )
@@ -246,6 +246,15 @@ class Game:
                 wfm_user = self.ctx.bot.loop.create_task(wait_for_message(user))
                 coroutines.append(wfm_user)
                 user.coroutines.append(wfm_user)
+            else:
+                await user.member.send(
+                    embed=discord.Embed(
+                        title=f"<a:blobhyperthinkfast:527721654353395713> You're the tsar this round",
+                        description="Sit tight and wait for everyone to pick their cards...",
+                        color=self.ctx.bot.colors["info"]
+                    )
+                )
+
         if self.skip_round:
             for player in self.players:
                 for coroutine in player.coroutines:
