@@ -207,8 +207,10 @@ Note- You must have manage channels or be playing to end the game"""
             for playingGame in self.games.values():
                 await playingGame.end(force, "a maintenance break")
         await ctx.send(
-            f'Force-ended all games & disabled starting new ones' if endall else f'Disabled starting new games',
-            title=f'Games will end soon' if endall else 'Games will continue until they have run their course',
+            ((f'Force-e' if force else 'E') +
+             f'nded all games & disabled starting new ones') if endall else f'Disabled starting new games',
+            title=(f'All games have ended' if force else f'Games will end soon')
+            if endall else 'Games will continue until they have run their course',
             color=discord.Color(0xf44336)
         )
         await self.bot.change_presence(
