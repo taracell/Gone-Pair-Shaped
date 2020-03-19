@@ -292,7 +292,8 @@ Note- You must have manage channels or be playing to end the game"""
         if endall:
             for playingGame in self.games.values():
                 await playingGame.end(force, "a maintenance break")
-        self.games = {channel: value for channel, value in self.games.items() if value != "setup"}
+        games = {channel: value for channel, value in self.games.items() if value != "setup"}
+        self.games = games
         await ctx.send(
             ((f'Forcefully e' if force else 'E') +
              f'nded all games & disabled starting new ones') if endall else f'Disabled starting new games',
