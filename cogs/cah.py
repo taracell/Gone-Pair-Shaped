@@ -70,16 +70,25 @@ Options can be selected after running this command"""
         self.games[ctx.channel] = "setup"
 
         await ctx.send(
-            f"Waiting for players... If you want to join type `{self.bot.main_prefix}join` in this channel",
-            color=self.bot.colors["error"]
+            f"Waiting for players... If you want to join type `{self.bot.main_prefix}join` in this channel. To start, "
+            f"either wait 1 minute or run `{self.bot.main_prefix}begin` when there are enough players",
+            color=self.bot.colors["status"]
         )
         players = [ctx.author]
 
+        begin = [f"{self.bot.main_prefix}begin", f"{self.bot.main_prefix}go"]
+
         def check(message):
-            return message.channel == ctx.channel and message.content.lower() in [
-                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join"
-            ] and (not whitelist or message.author in whitelist) and message.author not in players \
-                   and not message.author.bot
+            return message.channel == ctx.channel and (((message.content.lower() in [
+                "im in", "i'm in", "imin", f"{self.bot.main_prefix}join",
+            ]) and (
+                not whitelist or message.author in whitelist) and message.author not in players
+                                                        and not message.author.bot
+            ) or (
+                message.content.lower() in begin and
+                len(players) >= self.minPlayers and
+                message.author == ctx.author
+            ))
 
         expiry = time.time() + 60
         while True:
@@ -87,6 +96,8 @@ Options can be selected after running this command"""
                 break
             try:
                 player_to_add = await ctx.bot.wait_for("message", check=check, timeout=expiry - time.time())
+                if player_to_add.content in begin:
+                    break
                 players.append(player_to_add.author)
                 self.bot.loop.create_task(
                     ctx.send(
@@ -110,7 +121,7 @@ Options can be selected after running this command"""
             f"What packs do you want to include? Type `all` to include every pack and `-` before a pack name to "
             f"exclude that pack. Invalid packs will be ignored "
             f"(run {self.bot.main_prefix}packs to see what packs are valid). "
-            f"If you don't choose any packs within 20 seconds, we'll hook you up with the `base` pack",
+            f"If you don't choose any packs within 60 seconds, we'll hook you up with the `base` pack",
             title=f'<:blobidea:527721625563693066> The game has been created. Before we start, we need to get a few '
                   f'game settings...',
             color=self.bot.colors["info"]
@@ -121,14 +132,14 @@ Options can be selected after running this command"""
 
         packs = []
         try:
-            packs = (await ctx.bot.wait_for("message", check=check, timeout=20)).content.split(" ")
+            packs = (await ctx.bot.wait_for("message", check=check, timeout=60)).content.split(" ")
         except asyncio.TimeoutError:
             pass
 
         await ctx.send(
             f"How many points should you need in order to win? We recommend 7, but you can choose any number. "
             f"If you pick 0, we'll give you an infinite game (and you'll need to run `$end` to stop it). If you don't "
-            f"choose within 20 seconds, we'll bestow 7 points upon you",
+            f"choose within 60 seconds, we'll bestow 7 points upon you",
             title="<:blobidea:527721625563693066> How'dya win?",
             color=self.bot.colors["info"]
         )
@@ -142,7 +153,7 @@ Options can be selected after running this command"""
 
         points = 7
         try:
-            points = int((await ctx.bot.wait_for("message", check=check, timeout=20)).content)
+            points = int((await ctx.bot.wait_for("message", check=check, timeout=60)).content)
         except asyncio.TimeoutError:
             pass
 

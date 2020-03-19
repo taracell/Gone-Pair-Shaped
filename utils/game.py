@@ -140,7 +140,8 @@ class Game:
         await self.ctx.send(
             scores,
             title=f"<:blobnitro:527721625659899904> Scoreboard (before round {self.round_number}" +
-                  (f", {self.score_to_win} points needed to win):" if self.score_to_win is not None else ")"),
+                  (f", {self.score_to_win} point{'s' if self.score_to_win != 1 else ''}"
+                   f" needed to win):" if self.score_to_win is not None else ")"),
             color=self.ctx.bot.colors["status"]
         )
         await asyncio.sleep(5)
@@ -272,7 +273,7 @@ class Game:
                              f'| {user.cards[int(user.second_card) - 1]}\n'
 
         embed = discord.Embed(
-            title=f'<a:blobcouncil:527721655162896397> Select the winner, {tsar.member.name}',
+            title=f'<a:blobcouncil:527721654361522186> Select the winner, {tsar.member.name}',
             description=f'{question}\n\n{responses}',
             color=self.ctx.bot.colors["info"]
         )
