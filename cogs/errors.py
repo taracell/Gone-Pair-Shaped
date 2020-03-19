@@ -187,7 +187,7 @@ class ErrorHandler(commands.Cog):
                                               f"sent to our developers, if you want more help with this command please"
                                               f" report the **Case ID `{str(ctx.message.id)[-4:-1]}`** to our [support "
                                               f"team](https://discord.gg/bPaNnxe)",
-                                  color=discord.Color.red())
+                                  color=ctx.bot.colors["error"])
                 e.set_footer(text=f"{str(error)}",
                              icon_url='https://cdn.discordapp.com/emojis/459634743181574144.png?v=1')
                 try:

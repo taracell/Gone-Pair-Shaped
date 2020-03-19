@@ -49,6 +49,13 @@ bot.helpers = {
     "Mine#4200": "Tester & legend",
 }
 
+bot.colors = {
+    "error": discord.Color(0xf44336),
+    "success": discord.Color(0x8bc34a),
+    "status": discord.Color(0x3f51b5),
+    "info": discord.Color(0x212121)
+}
+
 
 @bot.event
 async def on_ready():
@@ -81,7 +88,7 @@ async def info(ctx):
                     "\n\n> **INVITE ME**\n[discordapp.com]"
                     "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048"
                     ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
-        color=discord.Color(0x8bc34a)
+        color=self.context.bot.colors["success"]
     )
     await ctx.send(embed)
 
