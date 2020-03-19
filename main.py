@@ -15,7 +15,6 @@ main_prefix = "$" if production else "£"
 cogs = [
     "jishaku",
     "cogs.cah",
-    "guildmanager.cog",
     "cogs.errors",
     "cogs.botlist"
 ]
