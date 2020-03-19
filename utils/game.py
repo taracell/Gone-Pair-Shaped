@@ -92,8 +92,8 @@ class Game:
     async def end(self, force, reason=None):
         if self.active:
             self.active = False
-            self.skip_round = force
             if force:
+                self.skip_round = True
                 for player in self.players:
                     for coroutine in player.coroutines:
                         coroutine.cancel()
@@ -262,6 +262,9 @@ class Game:
                 player.coroutines = []
             return
         await asyncio.gather(*coroutines, return_exceptions=True)
+        await self.ctx.send(
+            "Everyone has submitted their cards"
+        )
         if self.skip_round:
             for player in self.players:
                 for coroutine in player.coroutines:
@@ -306,6 +309,9 @@ class Game:
                        and message.guild is None
             except ValueError:
                 return False
+
+        if not playing_users:
+            return
 
         if self.skip_round:
             for player in self.players:
