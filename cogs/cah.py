@@ -92,7 +92,7 @@ Options can be selected after running this command"""
                         f"{player_to_add.author.mention} you've been added to the game, "
                         f"there are now {len(players)} (out of a possible {self.maxPlayers}) players",
                         title="<:blobfingerguns:527721625605636099> Welcome!",
-                        color=self.bot.colors["error"]
+                        color=self.bot.colors["success"]
                     )
                 )
             except asyncio.TimeoutError:
@@ -234,7 +234,7 @@ Optionally specify which packs to include (run %%packs to view all the options o
 Optionally run '%%end True' to end the game instantly - NEW :tada:
 Note- You must have manage channels or be playing to end the game"""
         channel_game = self.games.get(ctx.channel, None)
-        if not channel_game:
+        if not channel_game or isinstance(channel_game, str):
             return await ctx.send(
                 f"There isn't an active game in this channel",
                 color=self.bot.colors["error"]
@@ -297,10 +297,10 @@ Note- You must have manage channels or be playing to end the game"""
     async def nostart(self, ctx, endall: bool = False, force: bool = False):
         """Stops new games being created, and ends all current games."""
         self.bot.allowStart = False
+        self.games = {channel: value for channel, value in self.games.items() if value != "setup"}
         if endall:
             for playingGame in list(self.games.values()):
                 await playingGame.end(force, "a maintenance break")
-        self.games = {channel: value for channel, value in self.games.items() if value != "setup"}
         await ctx.send(
             ((f'Forcefully e' if force else 'E') +
              f'nded all games & disabled starting new ones') if endall else f'Disabled starting new games',
