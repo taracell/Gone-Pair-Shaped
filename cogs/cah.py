@@ -114,7 +114,7 @@ Optionally specify which packs to include (run %%packs to view all the options o
             )
 
         if self.games.get(ctx.channel, None):
-            await ctx.send(
+            return await ctx.send(
                 f'A game is already in progress',
                 color=discord.Color(0xf44336)
             )

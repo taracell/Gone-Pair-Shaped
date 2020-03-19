@@ -314,6 +314,8 @@ class Game:
                 )
             )
         except asyncio.TimeoutError:
+            if not playing_users:
+                return
             winner = random.randint(1, len(playing_users))
             await self.quit(tsar)
             await tsar.member.send(
