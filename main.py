@@ -25,8 +25,8 @@ bot = commands.Bot(
     help_command=help.HelpCommand(),
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201],
     activity=discord.Activity(
-        name="the whirr of my fans as I boot up and decide to invite GlobalBot shameless self promo from the developer "
-             "who put this in",
+        name="the whirr of my fans as I boot up and check the status of the website at https://cahdiscord.glitch.me "
+             "shameless plug.",
         type=discord.ActivityType.listening
     ),  # We create a discord activity to start up with
     status=discord.Status.idle
