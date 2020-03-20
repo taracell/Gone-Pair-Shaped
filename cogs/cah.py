@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 import typing
 from utils import game, checks
-from utils.miniutils.minidiscord import minictx
+from utils.miniutils.minidiscord.minidiscord import minictx
 import asyncio
 import time
 
