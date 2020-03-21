@@ -1,6 +1,7 @@
 from discord.ext import commands
 from utils import help
 import discord
+from utils.miniutils import minidiscord
 
 with open('token.txt', 'r') as f:
     token = [line.strip() for line in f]
@@ -20,7 +21,8 @@ cogs = [
     "cogs.botlist"
 ]
 
-bot = commands.Bot(
+
+bot = minidiscord.Bot(
     command_prefix=commands.when_mentioned_or(main_prefix),
     case_insensitive=True,
     help_command=help.HelpCommand(),

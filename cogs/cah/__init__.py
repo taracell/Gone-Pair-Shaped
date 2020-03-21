@@ -1,7 +1,8 @@
 from discord.ext import commands
 import discord
 import typing
-from utils import game, checks
+from utils import checks
+from cogs.cah.objects import game
 from utils.miniutils.minidiscord.minidiscord import minictx
 import asyncio
 import time
