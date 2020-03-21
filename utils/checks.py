@@ -8,7 +8,7 @@ from discord.ext import commands
 # outside of this module but still allow it
 def bot_mod(ctx):
     mod_users = []
-    mod_roles = [686310450618695703]
+    mod_roles = [686310450618695703, 684493117017161963]
     if ctx.author is None:
         return False
     if ctx.author.id in mod_users:

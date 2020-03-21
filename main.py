@@ -1,14 +1,15 @@
-from discord.ext import commands
-from utils import help
 import discord
-from utils.miniutils import minidiscord
+from discord.ext import commands
 
-with open('token.txt', 'r') as f:
+from utils import help, checks
+from utils.miniutils import minidiscord, data
+
+with open('token.txt') as f:
     token = [line.strip() for line in f]
 
 production = False
 try:
-    open("devmode", "r").close()
+    open("devmode").close()
 except FileNotFoundError:
     production = True
 
@@ -18,12 +19,23 @@ cogs = [
     "cogs.cah",
     "guildmanager.cog",
     "cogs.errors",
-    "cogs.botlist"
+    "cogs.botlist",
+    "utils.constants",
 ]
+
+prefixes = data.Json("prefixes")
+
+
+def get_command_prefix(_bot, message):
+    if message.guild:
+        custom_prefixes = prefixes.read_key(message.guild.id)
+        if custom_prefixes:
+            return commands.when_mentioned_or(*custom_prefixes)(_bot, message)
+    return commands.when_mentioned_or(main_prefix)(_bot, message)
 
 
 bot = minidiscord.Bot(
-    command_prefix=commands.when_mentioned_or(main_prefix),
+    command_prefix=get_command_prefix,
     case_insensitive=True,
     help_command=help.HelpCommand(),
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201],
@@ -51,25 +63,10 @@ bot.helpers = {
     "Mine#4200": "Tester & legend",
 }
 
-bot.colors = {
-    "error": discord.Color(0xf44336),
-    "success": discord.Color(0x8bc34a),
-    "status": discord.Color(0x3f51b5),
-    "info": discord.Color(0x212121)
-}
-
 
 @bot.event
 async def on_ready():
     print(f'Logged in successfully as {bot.user}')
-    success = 0
-    for position, cog in enumerate(cogs):
-        try:
-            bot.load_extension(cog)
-            success += 1
-            print(f"Loaded {cog} (cog {position + 1}/{len(cogs)}, {success} successful)")
-        except Exception as e:
-            print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
     await bot.change_presence(
         status=discord.Status.online,
         activity=discord.Activity(
@@ -80,24 +77,64 @@ async def on_ready():
 
 
 @bot.command()
+@commands.guild_only()
+@checks.bypass_check(checks.has_permissions_predicate, manage_guild=True)
+async def setprefix(ctx, *new_prefixes):
+    """Changes the prefixes of the bot in this guild. Pass as many prefixes as you like separated by spaces"""
+    prefixes.save_key(
+        ctx.guild.id,
+        new_prefixes
+    )
+    await ctx.send(
+        "\n".join(f"- `{prefix}`" for prefix in prefixes.read_key(ctx.guild.id)),
+        title="Here are your fancy new prefixes!"
+    )
+
+
+@bot.command()
+@commands.guild_only()
+async def getprefix(ctx):
+    """Shows the bots prefix in the current guild"""
+    custom_prefixes = prefixes.read_key(ctx.guild.id)
+    if custom_prefixes:
+        await ctx.send(
+            "\n".join(f"- `{prefix}`" for prefix in prefixes.read_key(ctx.guild.id)),
+            title="Here are your prefixes!"
+        )
+    else:
+        await ctx.send(
+            "There's nothing to show you here...",
+            title="You don't have any custom prefixes"
+        )
+
+
+@bot.command()
 async def info(ctx):
     """View some information about the bot's owners"""
     embed = discord.Embed(
         title='Cards Against Humanity - Owner information',
         description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in bot.owners) +
                     "\n**Helpers (Good people):**\n" + "\n".join(
-                    "> " + user + ": " + reason for user, reason in bot.helpers.items()) +
-                    "\n\n> **INVITE ME**\n[discordapp.com]"
-                    "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048"
-                    ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
+            "> " + user + ": " + reason for user, reason in bot.helpers.items()) +
+        "\n\n> **INVITE ME**\n[discordapp.com]"
+        "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048"
+        ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
         color=bot.colors["success"]
     )
     await ctx.send(embed=embed)
 
 
-file = open('token.txt', 'r')
+file = open('token.txt')
 bot.tokens = [line.strip() for line in file]
 file.close()
 
-bot.run(bot.tokens[0])
+success = 0
+for position, cog in enumerate(cogs):
+    try:
+        bot.load_extension(cog)
+        success += 1
+        print(f"Loaded {cog} (cog {position + 1}/{len(cogs)}, {success} successful)")
+    except Exception as e:
+        print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
 
+bot.run(bot.tokens[0])

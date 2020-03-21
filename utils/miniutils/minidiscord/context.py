@@ -5,8 +5,8 @@ import typing
 
 
 class MiniContext(commands.Context):
-    def __init__(self, context):
-        commands.Context.__init__(self, **context.__dict__)
+    def __init__(self, **kwargs):
+        commands.Context.__init__(self, **kwargs)
         self.mention = self.channel.mention if isinstance(self.channel, discord.TextChannel) else "No channel"
 
     async def send(self,
@@ -57,6 +57,14 @@ class MiniContext(commands.Context):
                 nonce=nonce,
             )
         else:
+            title = commands.clean_content().convert(
+                self,
+                description
+            )
+            description = commands.clean_content().convert(
+                self,
+                description
+            )
             return await self.channel.send(
                 (f"> **{title}**" if title is not None else "") +
                 (f"\n{description}" if description is not None else ""),
@@ -68,8 +76,8 @@ class MiniContext(commands.Context):
             )
 
     def input(self,
-              title: typing.Union[str, discord.Embed.Empty] = discord.Embed.Empty,
-              prompt: typing.Union[str, discord.Embed.Empty] = discord.Embed.Empty,
+              title: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,
+              prompt: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,
               required_type: type = str,
               timeout: int = 60,
               check: callable = lambda message: True,
@@ -86,6 +94,7 @@ class MiniContext(commands.Context):
         :raises: discord.HTTPException - sending the message failed
         :raises: discord.Forbidden - you don't have permissions to do this
         """
+
         async def message_check(message):
             try:
                 if self.author == message.author and self.channel == message.channel:
