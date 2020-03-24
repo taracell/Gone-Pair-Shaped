@@ -29,7 +29,7 @@ class HelpCommand(commands.HelpCommand):
         else:
             alias = command.name if not parent else parent + ' ' + command.name
 
-        return '%s%s %s' % (self.context.bot.main_prefix, alias, command.signature)
+        return '%s%s %s' % (self.context.bot.get_main_custom_prefix(self.context.message), alias, command.signature)
 
     async def send_bot_help(self, mapping):
         unfiltered = []
@@ -42,24 +42,39 @@ class HelpCommand(commands.HelpCommand):
         }
         descriptions = {
             self.get_command_signature(command): (
-                (command.help or "No help available").replace("%%", self.context.bot.main_prefix)
+                (command.help or "No help available").replace(
+                    "%%",
+                    self.context.bot.get_main_custom_prefix(
+                        self.context.message
+                    )
+                )
             ) for command in filtered
         }
         for cmd, desc in custom_help_descriptions.items():
-            descriptions[self.context.bot.main_prefix + cmd] = desc
-        embed = discord.Embed(
-            title='Cards Against Humanity - Commands',
-            description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in self.context.bot.owners) +
-                        "\n**Helpers (Good people):**\n" + "\n".join(
-                "> " + user + ": " + reason for user, reason in self.context.bot.helpers.items()
-            ) +
-            "\n\n> **INVITE ME**\n[discordapp.com]"
-            "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048)"
-            + "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
-            color=self.context.bot.colors["success"]
-        )
-        for command, description in descriptions.items():
-            if not description:
-                continue
-            embed.add_field(name=command, value=description, inline=False)
-        await self.context.send(embed=embed)
+            descriptions[self.context.bot.get_main_custom_prefix(self.context.message) + cmd] = desc
+        if self.context.permissions_for(self.context.guild.me).embed_links:
+            embed = discord.Embed(
+                title='Cards Against Humanity - Commands',
+                description="> **STAFF**\n**Co-owners:**\n" + "\n"
+                            .join("> " + user for user in self.context.bot.owners) +
+                            "\n**Helpers (Good people):**\n" + "\n".join(
+                                "> " + user + ": " + reason for user, reason in self.context.bot.helpers.items()
+                            ) + "\n\n> **INVITE ME**\n[discordapp.com]"
+                                "(https://discordapp.com/oauth2/authorize?"
+                                "client_id=679361555732627476&scope=bot&permissions=130048)"
+                                "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
+                color=self.context.bot.colors["success"]
+            )
+            for command, description in descriptions.items():
+                if not description:
+                    continue
+                embed.add_field(name=command, value=description, inline=False)
+            await self.context.send(embed=embed)
+        else:
+            message = "> **Cards Against Humanity - Commands**"
+            for command, description in descriptions.items():
+                if not description:
+                    continue
+                message += f"\n`{command}`\n{description}\n"
+            message += f"Run `{self.context.bot.get_main_custom_prefix(self.context.message)}info` to see owner information"
+            await self.context.send(message)

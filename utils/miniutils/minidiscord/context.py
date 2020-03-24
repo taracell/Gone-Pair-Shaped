@@ -18,7 +18,8 @@ class MiniContext(commands.Context):
                    files=None,
                    delete_after=None,
                    nonce=None,
-                   embed=None):
+                   embed=None,
+                   paginate_by: typing.Optional[str] = None):
         """
         :param description: The description of the embed
         :param title: The title of the embed
@@ -31,49 +32,61 @@ class MiniContext(commands.Context):
         This is typically non-important.
         :param embed: A fully-formed embed to send.
         IF THIS IS SET IT IS ASSUMED YOU HAVE ALREADY DONE PERMISSION CHECKS. THE EMBED WILL BE SENT AS IS
+        :param paginate_by: What character do you want to paginate by? Only the description will be paginated
         :return: Returns a discord message object
         :raises: discord.HTTPException - sending the message failed
         :raises: discord.Forbidden - you don't have permissions to do this
         :raises: discord.InvalidArgument - both files & file were specified, or files wasn't of a valid length
         """
+        description_parts = (description.split(paginate_by)
+                             if paginate_by is not None and description != embed.Empty else
+                             [description])
+        merged_description_parts = []
+        next_description_part = ""
+        for part in description_parts:
+            if part == embed.Empty:
+                next_description_part = part
+            if len(next_description_part) + len(part) > 2000:
+                merged_description_parts.append(next_description_part)
+                next_description_part = ""
+            next_description_part += part
+        if next_description_part != "":
+            merged_description_parts.append(next_description_part)
+
         if embed:
             return await self.channel.send(
                 embed=embed
             )
         my_perms = self.channel.permissions_for(self.channel.guild.me) \
             if isinstance(self.channel, discord.TextChannel) else None
+        messages = []
         if not isinstance(self.channel, discord.TextChannel) or my_perms.embed_links:
-            embed = discord.Embed(
-                title=title,
-                description=description,
-                color=color,
-            )
-            return await self.channel.send(
-                embed=embed,
-                tts=tts,
-                file=file,
-                files=files,
-                delete_after=delete_after,
-                nonce=nonce,
-            )
+            for part in merged_description_parts:
+                embed = discord.Embed(
+                    title=title,
+                    description=part,
+                    color=color,
+                )
+                messages.append(await self.channel.send(
+                    embed=embed,
+                    tts=tts,
+                    file=file,
+                    files=files,
+                    delete_after=delete_after,
+                    nonce=nonce,
+                ))
         else:
-            title = commands.clean_content().convert(
-                self,
-                description
-            )
-            description = commands.clean_content().convert(
-                self,
-                description
-            )
-            return await self.channel.send(
-                (f"> **{title}**" if title is not None else "") +
-                (f"\n{description}" if description is not None else ""),
-                tts=tts,
-                file=file,
-                files=files,
-                delete_after=delete_after,
-                nonce=nonce,
-            )
+            for part in merged_description_parts:
+                messages.append(await self.channel.send(
+                    (f"> **{title}**" if title != discord.Embed.Empty else "") +
+                    (f"\n{part}" if part != discord.Embed.Empty else ""),
+                    tts=tts,
+                    file=file,
+                    files=files,
+                    delete_after=delete_after,
+                    nonce=nonce,
+                ))
+        return messages[0] if paginate_by is None else messages
 
     def input(self,
               title: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,

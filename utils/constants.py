@@ -19,5 +19,6 @@ def setup(bot):
         "enter": "<a:blobjoin:527721655041261579>",
         "tsar": "<:blobfingerguns:527721625605636099>",
         "settings": "<:blobidea:527721625563693066>",
-        "uhoh": "<a:blobnervous:527721653795291136>"
+        "uhoh": "<a:blobnervous:527721653795291136>",
+        "winner": "<a:blobparty:527721653673918474>",
     }

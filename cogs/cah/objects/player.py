@@ -1,7 +1,7 @@
 import random
 import discord
 from . import game
-from utils.miniutils import minidiscord
+from utils.miniutils import minidiscord, decorators
 import asyncio
 import typing
 
@@ -48,7 +48,7 @@ class Player:
                            f"The question is **{question}**\n"
                            f"Your cards are:\n"
                            f"\n".join([f'{position + 1}- **{card}**' for position, card in enumerate(self.cards)]),
-                    timeout=60 * 2.5,
+                    timeout=self.game.timeout,
                     check=lambda message: 0 <= int(message.content) <= len(self.cards),
                     error=f"That isn't a number from 1 to {len(self.cards)}"
                 )
@@ -57,6 +57,7 @@ class Player:
                 self.game.used_answer_cards.append(card)
             except asyncio.TimeoutError:
                 await self.quit(
+                    None,
                     timed_out=True
                 )
                 return False
@@ -66,10 +67,12 @@ class Player:
 
     async def quit(self, ctx, timed_out=False):
         if self not in self.game.players:
-            return await self.member.send(
-                f"I wasn't able to make you leave the game. Perhaps you left already?",
-                title="Huh? That's odd..."
-            )
+            if not timed_out:
+                return await ctx.send(
+                    f"{self.member}, I wasn't able to make you leave the game. Perhaps you left already?",
+                    title="Huh? That's odd..."
+                )
+            return
         self.game.players.remove(self)
         for coro in self.coros:
             coro.cancel()
@@ -84,4 +87,6 @@ class Player:
                 title="Bye"
             )
         if len(self.game.players) < self.game.minimumPlayers:
-            await self.game.end()
+            await self.game.end(
+                instantly=True
+            )
