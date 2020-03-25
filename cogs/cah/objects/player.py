@@ -10,7 +10,9 @@ class Player:
     def __init__(self, game_instance: game.Game, member: discord.Member):
         # Save information about the game and who's playing it
         self.game = game_instance
-        self.member: minidiscord.Context = await game_instance.context.copy_context_with(channel=member, author=member)
+        self.member: minidiscord.Context = await game_instance.context.copy_context_with(
+            channel=member.dm_channel or member.create_dm(), author=member
+        )
         self.points = 0
 
         # Save information about the cards

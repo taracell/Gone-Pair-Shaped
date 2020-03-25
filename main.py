@@ -1,3 +1,8 @@
+import asyncio
+asyncio.set_event_loop(asyncio.new_event_loop())
+# ^ Needed in pythonista to reset the event loop after we close it
+# This shouldn't affect other platforms
+
 import discord
 from discord.ext import commands
 
@@ -42,7 +47,7 @@ def get_main_custom_prefix(message):
     return bot.main_prefix
 
 
-bot = minidiscord.Bot(
+bot = minidiscord.AutoShardedBot(
     command_prefix=get_command_prefix,
     case_insensitive=True,
     help_command=help.HelpCommand(),
