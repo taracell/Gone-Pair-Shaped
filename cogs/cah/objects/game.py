@@ -84,22 +84,17 @@ class Game:
             title="The options are...",
             paginate_by="\n"
         )
-        await tsar.member.send(
-            options,
-            title="Pick a card",
-        )
 
-        def check(message) -> bool:
-            if message.author == tsar.member and message.channel == tsar.member.dm_channel:
-                with contextlib.suppress(ValueError):
-                    if 0 < int(message.content) <= len(players):
-                        return True
-            return False
-
-        self.coro = asyncio.create_task(self.context.bot.wait_for("message", check=check, timeout=self.tsar_timeout))
+        self.coro = asyncio.create_task(tsar.member.input(
+            title="Pick a card by typing its number",
+            prompt=options
+            required_type=int,
+            check=lambda message: 0 < int(message.content) <= len(players), 
+            timeout=self.tsar_timeout
+        ))
         with self.skip_if_skipping():
             try:
-                winner = players[int((await self.coro).content) - 1]
+                winner = players[(await self.coro)[0] - 1]
             except asyncio.TimeoutError:
                 await tsar.quit()
         self.coro = None
