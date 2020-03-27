@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from utils.miniutils import decorators
 
 
 class HelpCommand(commands.HelpCommand):
@@ -31,6 +32,7 @@ class HelpCommand(commands.HelpCommand):
 
         return '%s%s %s' % (self.context.bot.get_main_custom_prefix(self.context.message), alias, command.signature)
 
+    @decorators.debug
     async def send_bot_help(self, mapping):
         unfiltered = []
         for cmd_map in mapping.values():
@@ -55,14 +57,18 @@ class HelpCommand(commands.HelpCommand):
         if self.context.permissions_for(self.context.guild.me).embed_links:
             embed = discord.Embed(
                 title='Cards Against Humanity - Commands',
-                description="> **STAFF**\n**Co-owners:**\n" + "\n"
-                            .join("> " + user for user in self.context.bot.owners) +
-                            "\n**Helpers (Good people):**\n" + "\n".join(
-                                "> " + user + ": " + reason for user, reason in self.context.bot.helpers.items()
-                            ) + "\n\n> **INVITE ME**\n[discordapp.com]"
-                                "(https://discordapp.com/oauth2/authorize?"
-                                "client_id=679361555732627476&scope=bot&permissions=130048)"
-                                "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
+                description="> **STAFF**\n**Co-owners:**\n" + "\n".join(
+                    "> " + user for user in self.context.bot.owners
+                ) + "\n**Translators:**\n" + "\n".join(
+                    "> " + user + " translated " + reason for user, reason in
+                    self.context.bot.translators.items()
+                ) + ("\n**Helpers (Good people):**\n" + "\n".join(
+                    "> " + user + ": " + reason for user, reason in self.context.bot.helpers.items())) + (
+                    "\n\n> **INVITE ME**\n[discordapp.com]"
+                    "(https://discordapp.com/oauth2/authorize?"
+                    "client_id=679361555732627476&scope=bot&permissions=130048)"
+                    "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
+                ),
                 color=self.context.bot.colors["success"]
             )
             for command, description in descriptions.items():
@@ -76,5 +82,6 @@ class HelpCommand(commands.HelpCommand):
                 if not description:
                     continue
                 message += f"\n`{command}`\n{description}\n"
-            message += f"Run `{self.context.bot.get_main_custom_prefix(self.context.message)}info` to see owner information"
+            message += f"Run `{self.context.bot.get_main_custom_prefix(self.context.message)}info` to see owner " \
+                       f"information"
             await self.context.send(message)

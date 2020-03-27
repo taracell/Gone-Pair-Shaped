@@ -1,13 +1,9 @@
-import asyncio
-asyncio.set_event_loop(asyncio.new_event_loop())
-# ^ Needed in pythonista to reset the event loop after we close it
-# This shouldn't affect other platforms
-
 import discord
 from discord.ext import commands
-
+import sys
 from utils import help, checks
 from utils.miniutils import minidiscord, data
+import traceback
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -51,7 +47,7 @@ bot = minidiscord.AutoShardedBot(
     command_prefix=get_command_prefix,
     case_insensitive=True,
     help_command=help.HelpCommand(),
-    owner_ids=[317731855317336067, 438733159748599813, 261900651230003201],
+    owner_ids=[317731855317336067, 438733159748599813, 261900651230003201, 421698654189912064],
     activity=discord.Activity(
         name="discord go by.",
         type=discord.ActivityType.watching
@@ -67,17 +63,6 @@ bot.admins = [] + bot.owner_ids
 bot.skips = []
 
 bot.main_prefix = main_prefix
-
-bot.owners = [
-    "PineappleFan#9955",
-    "Minion3665#6456",
-    "TheCodedProf#2583",
-]
-bot.helpers = {
-    "Waldigo#6969": "Programming help",
-    "nwunder#4018": "Programming help",
-    "Mine#4200": "Tester & legend",
-}
 
 
 @bot.event
@@ -138,22 +123,26 @@ async def getprefix(ctx):
 async def info(ctx):
     """View some information about the bot's owners"""
     embed = discord.Embed(
-        title='Cards Against Humanity - Owner information',
-        description="> **STAFF**\n**Co-owners:**\n" + "\n".join("> " + user for user in bot.owners) +
-                    "\n**Helpers (Good people):**\n" + "\n".join(
-            "> " + user +
-            ": " + reason for user, reason in bot.helpers.items()
-        ) + "\n\n> **INVITE ME**\n[discordapp.com]"
-            "(https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048"
-            ")\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)",
+        title='Cards Against Humanity - Commands',
+        description="> **STAFF**\n**Co-owners:**\n" + "\n".join(
+            "> " + user for user in bot.owners
+        ) + "\n**Translators:**\n" + "\n".join(
+            "> " + user + " translated " + reason for user, reason in
+            bot.translators.items()
+        ) + ("\n**Helpers (Good people):**\n" + "\n".join(
+            "> " + user + ": " + reason for user, reason in bot.helpers.items())) + (
+                        "\n\n> **INVITE ME**\n[discordapp.com]"
+                        "(https://discordapp.com/oauth2/authorize?"
+                        "client_id=679361555732627476&scope=bot&permissions=130048)"
+                        "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
+                    ),
         color=bot.colors["success"]
     )
     await ctx.send(embed=embed)
 
 
-file = open('token.txt')
-bot.tokens = [line.strip() for line in file]
-file.close()
+with open('token.txt') as tokens:
+    bot.tokens = dict(line.strip().split(":", 1) for line in tokens.readlines())
 
 bot.loaded = 0
 for position, cog in enumerate(cogs):
@@ -162,6 +151,8 @@ for position, cog in enumerate(cogs):
         bot.loaded += 1
         print(f"Loaded {cog} (cog {position + 1}/{len(cogs)}, {bot.loaded} successful)")
     except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
         print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
+        print("- [x] " + "".join(traceback.format_tb(exc_traceback)).replace("\n", "\n- [x] "))
 
-bot.run(bot.tokens[0])
+bot.run(bot.tokens["discord"])

@@ -8,12 +8,13 @@ class MiniContext(commands.Context):
     def __init__(self, **kwargs):
         commands.Context.__init__(self, **kwargs)
         self.mention = self.channel.mention if isinstance(self.channel, discord.TextChannel) else "No channel"
-        
+        self._cleaner = commands.clean_content()
+
     def permissions_for(self, *args, **kwargs):
         return self.channel.permissions_for(*args, *kwargs)
-    
+
     async def send(self,
-                   description=discord.Embed.Empty, *,
+                   content=discord.Embed.Empty, *,
                    title=discord.Embed.Empty,
                    color=discord.Embed.Empty,
                    tts=False,
@@ -24,7 +25,7 @@ class MiniContext(commands.Context):
                    embed=None,
                    paginate_by: typing.Optional[str] = None):
         """
-        :param description: The description of the embed
+        :param content: The description of the embed
         :param title: The title of the embed
         :param color: The color of the embed
         :param tts: Should we send with TTS?
@@ -41,9 +42,9 @@ class MiniContext(commands.Context):
         :raises: discord.Forbidden - you don't have permissions to do this
         :raises: discord.InvalidArgument - both files & file were specified, or files wasn't of a valid length
         """
-        description_parts = (description.split(paginate_by)
-                             if paginate_by is not None and description != embed.Empty else
-                             [description])
+        description_parts = (content.split(paginate_by)
+                             if paginate_by is not None and content != embed.Empty else
+                             [content])
         merged_description_parts = []
         next_description_part = ""
         for part in description_parts:
@@ -81,6 +82,7 @@ class MiniContext(commands.Context):
                 ))
         else:
             for part in merged_description_parts:
+                part = await self._cleaner.convert(self, part) if part != discord.Embed.Empty else part
                 messages.append(await self.channel.send(
                     (f"> **{title}**" if title != discord.Embed.Empty else "") +
                     (f"\n{part}" if part != discord.Embed.Empty else ""),
@@ -167,8 +169,13 @@ class MiniContext(commands.Context):
 class MiniContextBot(commands.Bot):
     async def get_context(self, message, *, cls=MiniContext):
         return await super().get_context(message, cls=cls)
-        
-    
+
+    def set(self, key, value):
+        self.__dict__[key] = value
+
 class AutoShardedMiniContextBot(commands.AutoShardedBot):
     async def get_context(self, message, *, cls=MiniContext):
         return await super().get_context(message, cls=cls)
+
+    def set(self, key, value):
+        self.__dict__[key] = value
