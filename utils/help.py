@@ -57,14 +57,11 @@ class HelpCommand(commands.HelpCommand):
         if self.context.permissions_for(self.context.guild.me).embed_links:
             embed = discord.Embed(
                 title='Cards Against Humanity - Commands',
-                description="> **STAFF**\n**Co-owners:**\n" + "\n".join(
-                    "> " + user for user in self.context.bot.owners
-                ) + "\n**Translators:**\n" + "\n".join(
-                    "> " + user + " translated " + reason for user, reason in
-                    self.context.bot.translators.items()
-                ) + ("\n**Helpers (Good people):**\n" + "\n".join(
-                    "> " + user + ": " + reason for user, reason in self.context.bot.helpers.items())) + (
-                    "\n\n> **INVITE ME**\n[discordapp.com]"
+                description=
+                (
+                    "*Tip: Owner + Staff information has moved to "
+                    f"`{self.context.bot.get_main_custom_prefix(self.context.message)}info`*\n\n"
+                    "**INVITE ME**\n[discordapp.com]"
                     "(https://discordapp.com/oauth2/authorize?"
                     "client_id=679361555732627476&scope=bot&permissions=130048)"
                     "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"

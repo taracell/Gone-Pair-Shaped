@@ -4,10 +4,11 @@ from utils.miniutils import minidiscord
 import random
 import contextlib
 from ..errors import errors
+from . import player
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, context, advanced_setup, whitelist):
         self.question_cards = []
         self.answer_cards = []
 
@@ -15,7 +16,8 @@ class Game:
         self.used_answer_cards = []
         self.dealt_answer_cards = []
 
-        self.context = None  # type: minidiscord.Context
+        self.context = context  # type: minidiscord.Context
+        self.owner = context.author
 
         self.players = []
         self.minimumPlayers = 3
@@ -34,10 +36,10 @@ class Game:
         self.round_delay = 15
 
     def skip(self):
+        self.skipping = True
+
         if self.coro:
             self.coro.cancel()
-
-        self.skipping = True
 
     @contextlib.contextmanager
     def skip_if_skipping(self):
@@ -47,7 +49,39 @@ class Game:
         if self.skipping:
             raise errors.SkippedError
 
-    def round(self):
+    async def begin(self):
+        self.active = True
+        while self.active:
+            with contextlib.suppress(errors.SkippedError):
+                await self.render_leaderboard()
+                await self.round()
+        await self.render_leaderboard(
+            final=True
+        )
+
+    async def add_player(self, member):
+        new_player = player.Player(self, member)
+        self.players.append(
+            new_player
+        )
+        await self.context.send(
+            f"Welcome {member} to the game! "
+            f"(There are now {len(self.players)} of a possible {self.maximumPlayers} in the game)",
+            title="Someone joined!"
+        )
+        return new_player
+
+    async def end(self, instantly, reason=True):
+        self.active = False
+        if instantly:
+            self.skip()
+        await self.context.send(
+            f"The game {'has ended' if instantly else 'will end after this round'}"
+            f"{' because' + reason if reason else ''}...",
+            title="Your game evaporates into a puff of smoke"
+        )
+
+    async def round(self):
         self.skipping = False
         players = sorted(self.players, key=lambda _player: (_player.tsar_count, random.random()))
 
@@ -61,8 +95,8 @@ class Game:
         self.used_question_cards.append(question)
 
         coros = []
-        for player in players:
-            coros.append(asyncio.create_task(player.pick_cards(question, tsar)))
+        for _player in players:
+            coros.append(asyncio.create_task(_player.pick_cards(question, tsar)))
 
         self.coro = asyncio.gather(*coros, return_exceptions=True)
         with self.skip_if_skipping():
@@ -73,11 +107,11 @@ class Game:
         for position, result in enumerate(results):
             if not result:
                 to_remove.append(players[position])
-        for player in to_remove:
-            players.remove(player)
+        for _player in to_remove:
+            players.remove(_player)
 
-        options = "\n".join(str(position + 1) + "- **" + "** | **".join(player.picked) + "**"
-                            for position, player in enumerate(players))
+        options = "\n".join(str(position + 1) + "- **" + "** | **".join(_player.picked) + "**"
+                            for position, _player in enumerate(players))
 
         await self.context.send(
             options,
@@ -87,9 +121,9 @@ class Game:
 
         self.coro = asyncio.create_task(tsar.member.input(
             title="Pick a card by typing its number",
-            prompt=options
+            prompt=options,
             required_type=int,
-            check=lambda message: 0 < int(message.content) <= len(players), 
+            check=lambda message: 0 < int(message.content) <= len(players),
             timeout=self.tsar_timeout
         ))
         with self.skip_if_skipping():
@@ -111,4 +145,21 @@ class Game:
             title=f"{self.context.bot.emojis['winner']} We have a winner!"
         )
 
-        await asyncio.sleep(self.round_delay)
+        self.coro = asyncio.sleep(self.round_delay)
+        with self.skip_if_skipping():
+            await self.coro
+        self.coro = None
+
+    async def render_leaderboard(self, final=False):
+        players = sorted(self.players, key=lambda _player: _player.points, reverse=True)
+        players = (
+            ("🏆 " if _player.points == players[0].points else "🃏 ")
+            + str(_player)
+            + ": "
+            + str(_player.points)
+            + " " for _player in players
+        )
+        await self.context.send(
+            "\n".join(players),
+            title=f"Here's the {'final ' if final else ''}leaderboard{':' if final else ' so far...'}"
+        )

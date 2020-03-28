@@ -72,10 +72,11 @@ def bypass_check(
         except Exception as e:
             if bot_mod(ctx) and ctx.author in ctx.bot.skips:
                 try:
-                    bypass_message = await ctx.send(
+                    await ctx.send(
                         "Sadly the check " + ctx.command.qualified_name + "." + predicate.__name__ +
                         " failed (Error: " + str(e) +
-                        "), but as you're a bot moderator you can skip this check! Do you want to skip? (y/n)"
+                        "), but as you're a bot moderator you can skip this check! Do you want to skip? (y/n)",
+                        delete_after=30
                     )
 
                     def message_check(message):

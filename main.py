@@ -4,6 +4,7 @@ import sys
 from utils import help, checks
 from utils.miniutils import minidiscord, data
 import traceback
+import contextlib
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -122,23 +123,46 @@ async def getprefix(ctx):
 @bot.command()
 async def info(ctx):
     """View some information about the bot's owners"""
+    staff = ""
+    with contextlib.suppress(AttributeError):
+        if bot.constants_initialized:
+            members = set()
+            for title, role in bot.staff_roles.items():
+                unique_members = set(role.members).difference(members)
+                staff += (f"\n**{title}**\n" + "\n".join(
+                    "> " + str(user) for user in unique_members
+                ) if unique_members else "")
+                members = members.union(unique_members)
+            if staff:
+                staff = "> **STAFF**" + staff + "\n\n"
     embed = discord.Embed(
         title='Cards Against Humanity - Commands',
-        description="> **STAFF**\n**Co-owners:**\n" + "\n".join(
-            "> " + user for user in bot.owners
-        ) + "\n**Translators:**\n" + "\n".join(
-            "> " + user + " translated " + reason for user, reason in
-            bot.translators.items()
-        ) + ("\n**Helpers (Good people):**\n" + "\n".join(
-            "> " + user + ": " + reason for user, reason in bot.helpers.items())) + (
-                        "\n\n> **INVITE ME**\n[discordapp.com]"
-                        "(https://discordapp.com/oauth2/authorize?"
-                        "client_id=679361555732627476&scope=bot&permissions=130048)"
-                        "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
-                    ),
+        description=staff + (
+            "> **INVITE ME**\n[discordapp.com]"
+            "(https://discordapp.com/oauth2/authorize?"
+            "client_id=679361555732627476&scope=bot&permissions=130048)"
+            "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
+        ),
         color=bot.colors["success"]
     )
     await ctx.send(embed=embed)
+
+@bot.command()
+@commands.check(checks.bot_mod)
+async def skip(ctx):
+    """Begin skipping bot checks, like permission checks and maintenance checks"""
+    if ctx.author in bot.skips:
+        bot.skips.remove(ctx.author)
+        await ctx.send(
+            "Run this command again to undo",
+            title="You're now not skipping checks"
+        )
+    else:
+        bot.skips.append(ctx.author)
+        await ctx.send(
+            "Run this command again to undo",
+            title="You're now skipping checks"
+        )
 
 
 with open('token.txt') as tokens:

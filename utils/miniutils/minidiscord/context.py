@@ -83,15 +83,17 @@ class MiniContext(commands.Context):
         else:
             for part in merged_description_parts:
                 part = await self._cleaner.convert(self, part) if part != discord.Embed.Empty else part
-                messages.append(await self.channel.send(
-                    (f"> **{title}**" if title != discord.Embed.Empty else "") +
-                    (f"\n{part}" if part != discord.Embed.Empty else ""),
-                    tts=tts,
-                    file=file,
-                    files=files,
-                    delete_after=delete_after,
-                    nonce=nonce,
-                ))
+                messages.append(
+                    await self.channel.send(
+                        (f"> **{title}**" if title != discord.Embed.Empty else "") +
+                        (f"\n{part}" if part != discord.Embed.Empty else ""),
+                        tts=tts,
+                        file=file,
+                        files=files,
+                        delete_after=delete_after,
+                        nonce=nonce
+                    )
+                )
         return messages[0] if paginate_by is None else messages
 
     def input(self,

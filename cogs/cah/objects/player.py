@@ -90,5 +90,6 @@ class Player:
             )
         if len(self.game.players) < self.game.minimumPlayers:
             await self.game.end(
-                instantly=True
+                instantly=True,
+                reason="There aren't enough players to continue"
             )
