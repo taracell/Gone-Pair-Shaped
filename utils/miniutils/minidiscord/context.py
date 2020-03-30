@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import copy
 import typing
+import asyncio
 
 
 class MiniContext(commands.Context):
@@ -42,21 +43,23 @@ class MiniContext(commands.Context):
         :raises: discord.Forbidden - you don't have permissions to do this
         :raises: discord.InvalidArgument - both files & file were specified, or files wasn't of a valid length
         """
-        description_parts = (content.split(paginate_by)
-                             if paginate_by is not None and content != embed.Empty else
-                             [content])
-        merged_description_parts = []
-        next_description_part = ""
-        for part in description_parts:
-            if part == discord.Embed.Empty:
-                next_description_part = part
-                continue
-            if len(next_description_part) + len(part) > 2000:
+        if paginate_by is not None:
+            description_parts = content.split(paginate_by)
+            merged_description_parts = []
+            next_description_part = ""
+            for pos, part in enumerate(description_parts):
+                if part == discord.Embed.Empty:
+                    next_description_part = ""
+                    merged_description_parts.append(part)
+                    continue
+                if len(next_description_part) + len(paginate_by) + len(part) > 2000:
+                    merged_description_parts.append(next_description_part)
+                    next_description_part = ""
+                next_description_part += (paginate_by if pos > 0 else "") + part
+            if next_description_part != "":
                 merged_description_parts.append(next_description_part)
-                next_description_part = ""
-            next_description_part += part
-        if next_description_part != "":
-            merged_description_parts.append(next_description_part)
+        else:
+            merged_description_parts = [content]
 
         if embed:
             return await self.channel.send(
@@ -96,16 +99,18 @@ class MiniContext(commands.Context):
                 )
         return messages[0] if paginate_by is None else messages
 
-    def input(self,
-              title: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,
-              prompt: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,
-              required_type: type = str,
-              timeout: int = 60,
-              check: callable = lambda message: True,
-              error: str = "That isn't a valid message"):
+    async def input(self,
+                    title: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,
+                    prompt: typing.Union[str, discord.embeds._EmptyEmbed] = discord.Embed.Empty,
+                    paginate_by: typing.Optional[str] = None,
+                    required_type: type = str,
+                    timeout: int = 60,
+                    check: callable = lambda message: True,
+                    error: str = "That isn't a valid message"):
         """
         :param title: Set the title of the prompt embed
         :param prompt: Set the description of the prompt embed
+        :param paginate_by: Same as send.paginate_by
         :param required_type: Set what type is required, for example int or bool
         :param timeout:
         :param check:
@@ -116,37 +121,39 @@ class MiniContext(commands.Context):
         :raises: discord.Forbidden - you don't have permissions to do this
         """
 
-        async def message_check(message):
+        def message_check(message):
             try:
                 if self.author == message.author and self.channel == message.channel:
                     required_type(message.content)
                     if check(message):
                         return True
                     else:
-                        await self.send(
+                        asyncio.create_task(self.send(
                             error,
                             title="Oops"
-                        )
-                        return False
+                        ))
             except ValueError:
-                await self.send(
+                asyncio.create_task(self.send(
                     error,
                     title="Oops"
-                )
+                ))
+            return False
 
-        self.bot.create_task(
+        asyncio.create_task(
             self.send(
                 prompt,
                 title=title,
+                paginate_by=paginate_by,
             )
         )
-        response = self.bot.wait_for(
+        response = await self.bot.wait_for(
             "message",
             check=message_check,
             timeout=timeout
         )
         if required_type == bool:
-            return response.content.lower() in ["true", "yes", "y", "t", "1", "+", "accept", "allow", "a"], response
+            return response.content.lower().replace(" ", "") \
+                   in ["true", "yes", "y", "t", "1", "+", "accept", "allow", "a"], response
         else:
             return required_type(response.content), response
 
@@ -174,6 +181,7 @@ class MiniContextBot(commands.Bot):
 
     def set(self, key, value):
         self.__dict__[key] = value
+
 
 class AutoShardedMiniContextBot(commands.AutoShardedBot):
     async def get_context(self, message, *, cls=MiniContext):

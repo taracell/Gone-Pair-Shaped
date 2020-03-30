@@ -1,18 +1,18 @@
 import random
 import discord
-from . import game
-from utils.miniutils import minidiscord, decorators
 import asyncio
 import typing
+import sys
+import traceback
+from utils.miniutils import decorators
 
 
 class Player:
-    def __init__(self, game_instance: game.Game, member: discord.Member):
+    def __init__(self, game_instance, member: discord.Member):
         # Save information about the game and who's playing it
         self.game = game_instance
-        self.member: minidiscord.Context = await game_instance.context.copy_context_with(
-            channel=member.dm_channel or member.create_dm(), author=member
-        )
+        self.user = member
+        self.member = None
         self.points = 0
 
         # Save information about the cards
@@ -23,6 +23,21 @@ class Player:
 
         # Save information about the coroutines the player is currently running
         self.coros = []
+
+        self.tsar_count = 0
+
+    def __str__(self):
+        return "???" if self.game.anon else str(self.user)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.user == other.user and self.game == other.game
+        return self.user == other
+
+    async def advanced_init(self):
+        self.member = await self.game.context.copy_context_with(
+            channel=self.user.dm_channel or await self.user.create_dm(), author=self.user
+        )
 
     def deal_cards(self):
         for _ in range(self.game.hand_size - len(self.cards)):
@@ -38,18 +53,21 @@ class Player:
             self.game.dealt_answer_cards.append(card)
             self.cards.append(card)
 
+    @decorators.debug
     async def pick_cards(self, question, tsar) -> typing.Optional[typing.List[str]]:
         cards = question.count(r"\_\_") or 1
-        for cardNumber in range(question.count(r"\_\_")):
+        for cardNumber in range(cards):
             if not self.cards:
                 return False
             try:
                 card, _ = await self.member.input(
-                    title=f"Pick a card from 1 to {len(self.cards)} ({cardNumber}/{cards})",
-                    prompt=f"The tsar is **{tsar}**\n"
-                           f"The question is **{question}**\n"
-                           f"Your cards are:\n"
-                           f"\n".join([f'{position + 1}- **{card}**' for position, card in enumerate(self.cards)]),
+                    title=f"Pick a card from 1 to {len(self.cards)} ({cardNumber + 1}/{cards})",
+                    prompt=f"**The tsar is** {tsar.user}\n"
+                           f"**The question is** {question}\n"
+                           f"**Your cards are:**\n" +
+                           f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards)]),
+                    paginate_by="\n",
+                    required_type=int,
                     timeout=self.game.timeout,
                     check=lambda message: 0 <= int(message.content) <= len(self.cards),
                     error=f"That isn't a number from 1 to {len(self.cards)}"
@@ -59,19 +77,28 @@ class Player:
                 self.game.used_answer_cards.append(card)
             except asyncio.TimeoutError:
                 await self.quit(
-                    None,
                     timed_out=True
                 )
                 return False
             except asyncio.CancelledError:
                 return False
+            except Exception as e:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print(f"An error occurred, {e}")
+                print("- [x] " + "".join(traceback.format_tb(exc_traceback)).replace("\n", "\n- [x] "))
+
+        self.deal_cards()
+        await self.game.context.send(
+            f"{self.user} has chosen their cards...",
+            title="Picked!"
+        )
         return True
 
-    async def quit(self, ctx, timed_out=False):
+    async def quit(self, ctx=None, timed_out=False):
         if self not in self.game.players:
-            if not timed_out:
+            if not timed_out and ctx is not None:
                 return await ctx.send(
-                    f"{self.member}, I wasn't able to make you leave the game. Perhaps you left already?",
+                    f"{self.user}, I wasn't able to make you leave the game. Perhaps you left already?",
                     title="Huh? That's odd..."
                 )
             return
@@ -80,7 +107,7 @@ class Player:
             coro.cancel()
         self.coros.clear()
         await self.game.context.send(
-            f"{self.member.mention} has left the game",
+            f"{self.user.mention} has left the game",
             title="Man down!"
         )
         if timed_out:
@@ -91,5 +118,5 @@ class Player:
         if len(self.game.players) < self.game.minimumPlayers:
             await self.game.end(
                 instantly=True,
-                reason="There aren't enough players to continue"
+                reason="there weren't enough players to continue"
             )

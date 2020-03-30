@@ -71,7 +71,11 @@ class HelpCommand(commands.HelpCommand):
             for command, description in descriptions.items():
                 if not description:
                     continue
-                embed.add_field(name=command, value=description, inline=False)
+                embed.add_field(
+                    name=command,
+                    value=description if len(description) <= 1024 else description[:1021] + "...",
+                    inline=False
+                )
             await self.context.send(embed=embed)
         else:
             message = "> **Cards Against Humanity - Commands**"
@@ -81,4 +85,7 @@ class HelpCommand(commands.HelpCommand):
                 message += f"\n`{command}`\n{description}\n"
             message += f"Run `{self.context.bot.get_main_custom_prefix(self.context.message)}info` to see owner " \
                        f"information"
-            await self.context.send(message)
+            await self.context.send(
+                message,
+                paginate_by="\n"
+            )
