@@ -5,7 +5,7 @@ import contextlib
 from utils import checks
 import asyncio
 import os
-from .errors import errors
+from . import errors
 import typing
 
 

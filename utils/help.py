@@ -56,7 +56,7 @@ class HelpCommand(commands.HelpCommand):
             descriptions[self.context.bot.get_main_custom_prefix(self.context.message) + cmd] = desc
         if self.context.permissions_for(self.context.guild.me).embed_links:
             embed = discord.Embed(
-                title='Cards Against Humanity - Commands',
+                title=f"{self.context.bot.emotes['status']} Cards Against Humanity - Commands",
                 description=
                 (
                     "*Tip: Owner + Staff information has moved to "
@@ -78,7 +78,7 @@ class HelpCommand(commands.HelpCommand):
                 )
             await self.context.send(embed=embed)
         else:
-            message = "> **Cards Against Humanity - Commands**"
+            message = f"> {self.context.bot.emotes['status']} **Cards Against Humanity - Commands**"
             for command, description in descriptions.items():
                 if not description:
                     continue

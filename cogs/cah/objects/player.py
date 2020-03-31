@@ -61,8 +61,8 @@ class Player:
                 return False
             try:
                 card, _ = await self.member.input(
-                    title=f"{self.context.bot.emotes['choice']} Pick a card from 1 to " + \
-                    "{len(self.cards)} ({cardNumber + 1}/{cards})",
+                    title=f"{self.game.context.bot.emotes['choice']} Pick a card from 1 to "
+                          f"{len(self.cards)} ({cardNumber + 1}/{cards})",
                     prompt=f"**The tsar is:** {tsar.user}\n"
                            f"**The question is:** {question}\n"
                            f"**Your cards are:**\n" +
@@ -84,7 +84,8 @@ class Player:
                 return False
             except asyncio.CancelledError:
                 return False
-            except discord.Forbidden:
+            except discord.Forbidden as e:
+                raise e
                 await self.quit(
                     reason="I can't DM them"
                 )
@@ -97,12 +98,12 @@ class Player:
         self.deal_cards()
         await self.member.send(
             f"Your cards have been chosen, the game will continue in {self.game.context.channel.mention}",
-            title="{self.context.bot.emotes['tsar']} Sit tight!",
+            title=f"{self.game.context.bot.emotes['tsar']} Sit tight!",
             color=self.game.context.bot.colors["success"]
         )
         await self.game.context.send(
             f"{self.user} has chosen their cards...",
-            title="{self.context.bot.emotes['success']} Picked!",
+            title=f"{self.game.context.bot.emotes['success']} Picked!",
             color=self.game.context.bot.colors["info"]
         )
         return True
@@ -112,7 +113,7 @@ class Player:
             if not reason and ctx is not None:
                 return await ctx.send(
                     f"{self.user}, I wasn't able to make you leave the game. Perhaps you left already?",
-                    title=f"{self.context.bot.emotes['valueerror']} Huh? That's odd...",
+                    title=f"{self.game.context.bot.emotes['valueerror']} Huh? That's odd...",
                     color=ctx.bot.colors["error"]
                 )
             return
@@ -122,7 +123,7 @@ class Player:
         self.coros.clear()
         await self.game.context.send(
             f"{self.user.mention} has left the game" + (" because " + reason + "." if reason else "."),
-            title=f"{self.context.bot.emotes['leave']} Man down!",
+            title=f"{self.game.context.bot.emotes['leave']} Man down!",
             color=self.game.context.bot.colors["status"]
         )
         if len(self.game.players) < self.game.minimumPlayers:

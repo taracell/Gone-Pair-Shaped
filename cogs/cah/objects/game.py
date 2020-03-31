@@ -58,7 +58,7 @@ class Game:
                 required_type=int,
                 timeout=setting_timeout,
                 check=lambda message: 0 <= int(message.content) <= 100,
-                error="That's not a number from `0` to `100`... Try again"
+                error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `100`... Try again"
             ))[0]
         with contextlib.suppress(asyncio.TimeoutError):
             packs = (await self.context.input(
@@ -96,7 +96,7 @@ class Game:
                            f"let other players know who you are.",
                     required_type=bool,
                     timeout=setting_timeout,
-                    error="Pick either `yes` or `no`"
+                    error=f"{self.context.bot.emotes['valueerror']} Pick either `yes` or `no`"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.hand_size = (await self.context.input(
@@ -106,10 +106,10 @@ class Game:
                     required_type=bool,
                     timeout=setting_timeout,
                     check=lambda message: 1 <= int(message.content) <= 25,
-                    error="That's not a number from 1 to 25"
+                    error=f"{self.context.bot.emotes['valueerror']} That's not a number from 1 to 25"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
-                self.maxPoints = (await self.context.input(
+                self.maxRounds = (await self.context.input(
                     title=f"{self.context.bot.emotes['settings']} How many rounds should I end after?",
                     prompt=f"After this many rounds, the game will stop. Just like that. This number must be between "
                            f"0 and 200 Press `0` to have unlimited rounds. If you don't select within {setting_timeout}"
@@ -117,7 +117,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 0 <= int(message.content) <= 200,
-                    error="That's not a number from `0` to `200`... Try again"
+                    error=f"{self.context.bot.emotes['valueerror']}  That's not a number from `0` to `200`... Try again"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.timeout = (await self.context.input(
@@ -128,7 +128,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 10 <= int(message.content) <= 600,
-                    error="That's not a number from `10` to `600`... Try again"
+                    error=f"{self.context.bot.emotes['valueerror']} That's not a number from `10` to `600`... Try again"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.tsar_timeout = (await self.context.input(
@@ -138,7 +138,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 10 <= int(message.content) <= 600,
-                    error="That's not a number from `10` to `600`... Try again"
+                    error=f"{self.context.bot.emotes['valueerror']} That's not a number from `10` to `600`... Try again"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.round_delay = (await self.context.input(
@@ -148,7 +148,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 0 <= int(message.content) <= 150,
-                    error="That's not a number from `0` to `150`... Try again"
+                    error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `150`... Try again"
                 ))[0]
 
         basew = all_packs.get("gb", {}).get("basew", ["???"])
@@ -211,7 +211,7 @@ class Game:
         if len(self.players) >= self.minimumPlayers:
             await self.context.send(
                 f"Your setup is complete, hold tight while we press the start button...",
-                title="{self.context.bot.emotes['settings']} You're good to go",
+                title=f"{self.context.bot.emotes['settings']} You're good to go",
                 color=self.context.bot.colors["status"]
             )
             return True
@@ -251,8 +251,8 @@ class Game:
             new_player
         )
         await self.context.send(
-            f"Welcome {member} to the game! " + \
-            "(There are now {len(self.players)} of a possible {self.maximumPlayers} in the game)",
+            f"Welcome {member} to the game! "
+            f"(There are now {len(self.players)} of a possible {self.maximumPlayers} in the game)",
             title=f"{self.context.bot.emotes['enter']} Someone joined!",
             color=self.context.bot.colors["success"]
         )
@@ -265,7 +265,7 @@ class Game:
         if instantly:
             self.skip()
         await self.context.send(
-            f"The game {'ended' if instantly else 'will end after this round'} " + \
+            f"The game {'ended' if instantly else 'will end after this round'} " +
             f"{' because ' + reason if reason else ''}...",
             title=f"{self.context.bot.emotes['status']} Your game evaporates into a puff of smoke",
             color=self.context.bot.colors["status"]
@@ -324,7 +324,7 @@ class Game:
 
         await self.context.send(
             options,
-            title=f"{self.context.bot.emotes['choice']} The options are...",
+            title=f"{self.context.bot.emotes['choice']} The options are... (Tsar, pick in your DM)",
             paginate_by="\n",
             color=self.context.bot.colors["info"]
         )
@@ -337,11 +337,12 @@ class Game:
                 check=lambda message: 0 < int(message.content) <= len(players),
                 timeout=self.tsar_timeout,
                 paginate_by="\n",
-                color=self.context.bot.colors["status"]
+                color=self.context.bot.colors["status"],
+                error=f"{self.context.bot.emotes['valueerror']} That isn't a valid card"
             ))[0] - 1]
             await tsar.member.send(
                 f"The winner has been chosen, the crowning will commence instantly in {self.context.channel.mention}",
-                title=f"{self.context.bot.emotes['status']} Sit tight!",
+                title=f"{self.context.bot.emotes['status']} Eyyyyyyyyyyyyyyyyyy!",
                 color=self.context.bot.colors["success"]
             )
         except asyncio.TimeoutError:
@@ -374,8 +375,8 @@ class Game:
     async def render_leaderboard(self, final=False):
         players = sorted(self.players, key=lambda _player: _player.points, reverse=True)
         lb = (
-            (self.context.bot.emotes["trophy"] + " " if _player.points == players[0].points else "- ")
-            + str(_player)
+            (self.context.bot.emotes["trophy"] + " " if _player.points == players[0].points else "")
+            + str(_player.user)
             + ": "
             + str(_player.points)
             + " " for _player in players

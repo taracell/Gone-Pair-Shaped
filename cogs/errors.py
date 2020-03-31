@@ -4,7 +4,7 @@ from utils.converters import fix_time
 from discord.ext.commands.core import Group, Command
 import traceback
 import asyncio
-import cogs.cah.errors.errors as cah_errors
+import cogs.cah.errors as cah_errors
 
 exceptions_channel_id = 686285252817059881
 
