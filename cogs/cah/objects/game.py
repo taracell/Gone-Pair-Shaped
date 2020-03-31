@@ -34,7 +34,7 @@ class Game:
 
         self.coro = None
         self.skipping = False
-        self.active = False
+        self.active = True
 
         self.timeout = 150
         self.tsar_timeout = 300
@@ -175,7 +175,6 @@ class Game:
         with contextlib.suppress(asyncio.TimeoutError):
             begin_messages = [
                 self.context.bot.get_main_custom_prefix(self.context) + "begin",
-                self.context.bot.get_main_custom_prefix(self.context) + "start",
                 "juststartalready"
             ]
             while expiry >= time.time() and len(self.players) < self.maximumPlayers:
@@ -220,7 +219,6 @@ class Game:
         return False
 
     async def begin(self):
-        self.active = True
         while self.active and (not self.maxRounds or self.completed_rounds < self.maxRounds):
             with contextlib.suppress(asyncio.CancelledError, discord.HTTPException):
                 if not self.anon and not self.skipping:
@@ -255,6 +253,8 @@ class Game:
         return new_player
 
     async def end(self, instantly, reason=True):
+        if not self.active:
+            return
         self.active = False
         if instantly:
             self.skip()
@@ -267,6 +267,9 @@ class Game:
     async def round(self):
         self.skipping = False
         players = sorted(self.players, key=lambda _player: (_player.tsar_count, random.random()))
+
+        for _player in players:
+            _player.picked = []
 
         tsar = players.pop(0)
         tsar.tsar_count += 1
@@ -282,12 +285,12 @@ class Game:
             coros.append(_player.pick_cards(question, tsar))
 
         await tsar.member.send(
-            f"**The other players are answering** {question}",
+            f"**The other players are answering:** {question}",
             title=f"You're the tsar this round"
         )
 
         await self.context.send(
-            f"**The question is**{question}\n**The tsar is** {tsar.user}",
+            f"**The question is:** {question}\n**The tsar is:** {tsar.user}",
             title=f"Round {self.completed_rounds + 1}" +
                   (f" of {self.maxRounds}" if self.maxRounds else "") +
                   (f" ({self.maxPoints} points to win)" if self.maxPoints else "")
@@ -307,8 +310,8 @@ class Game:
         if not players:
             raise asyncio.CancelledError
 
-        options = "\n".join(str(position + 1) + "- **" + "** | **".join(_player.picked) + "**"
-                            for position, _player in enumerate(players))
+        options = question + "\n\n" + "\n".join(str(position + 1) + "- **" + "** | **".join(_player.picked) + "**"
+                                                for position, _player in enumerate(players))
 
         await self.context.send(
             options,
@@ -322,30 +325,36 @@ class Game:
                 prompt=options,
                 required_type=int,
                 check=lambda message: 0 < int(message.content) <= len(players),
-                timeout=self.tsar_timeout
+                timeout=self.tsar_timeout,
+                paginate_by="\n"
             ))[0] - 1]
+            await tsar.member.send(
+                f"The winner has been chosen, the crowning will commence instantly in {self.context.channel.mention}",
+                title="Sit tight!"
+            )
         except asyncio.TimeoutError:
             await tsar.quit(timed_out=True)
             return await self.skip()
 
         picked = (re.sub(r'\.$', '', card) for card in winner.picked)
-        if r"\_\_" in picked:
+        if r"\_\_" in question:
             for card in winner.picked:
                 question = question.replace(r"\_\_", f"**{card}**")
         else:
-            question += f" **{picked.__next__()}**"
+            question += f" **{next(picked)}**"
 
         await self.context.send(
             f"**{winner}**: {question}",
-            title=f"{self.context.bot.emojis['winner']} We have a winner!"
+            title=f"{self.context.bot.emotes['winner']} We have a winner!"
         )
+        winner.points += 1
 
         await asyncio.sleep(self.round_delay)
 
     async def render_leaderboard(self, final=False):
         players = sorted(self.players, key=lambda _player: _player.points, reverse=True)
         lb = (
-            ("🏆 " if _player.points == players[0].points else "🃏 ")
+            (self.context.bot.emotes["trophy"] + " " if _player.points == players[0].points else "- ")
             + str(_player)
             + ": "
             + str(_player.points)

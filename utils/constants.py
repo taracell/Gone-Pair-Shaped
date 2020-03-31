@@ -23,6 +23,7 @@ class Constants(commands.Cog):
             "Moderators": 686310450618695703,
             "Helpers": 686317204752302091,
             "Translators": 691778934471131136,
+            "Shard Namers": 694271523363488176
         }
 
         self.bot.set(
@@ -70,7 +71,7 @@ def setup(bot):
     )
 
     bot.set(
-        "emojis",
+        "emotes",
         {
             "choice": "<a:blobcouncil:527721654361522186>",
             "success": "<:blobenjoy:527721625257508866>",
@@ -83,7 +84,26 @@ def setup(bot):
             "settings": "<:blobidea:527721625563693066>",
             "uhoh": "<a:blobnervous:527721653795291136>",
             "winner": "<a:blobparty:527721653673918474>",
+            "trophy": "<:hypesquad:527721625450315798>"
         }
+    )
+
+    bot.set(
+        "shard_names",
+        [
+            "Minion",
+            "Pineapple",
+            "Coded",
+            "Eeeeeeeeeeek",
+            "Doge",
+            "Cheese",
+            "Humanity",
+            "Cards",
+            "Hyper",
+            "Tsar",
+            "Gg",
+            "That one round where you throwaway a card"
+        ]
     )
 
     bot.add_cog(

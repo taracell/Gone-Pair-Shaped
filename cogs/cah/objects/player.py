@@ -62,8 +62,8 @@ class Player:
             try:
                 card, _ = await self.member.input(
                     title=f"Pick a card from 1 to {len(self.cards)} ({cardNumber + 1}/{cards})",
-                    prompt=f"**The tsar is** {tsar.user}\n"
-                           f"**The question is** {question}\n"
+                    prompt=f"**The tsar is:** {tsar.user}\n"
+                           f"**The question is:** {question}\n"
                            f"**Your cards are:**\n" +
                            f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards)]),
                     paginate_by="\n",
@@ -72,6 +72,7 @@ class Player:
                     check=lambda message: 0 <= int(message.content) <= len(self.cards),
                     error=f"That isn't a number from 1 to {len(self.cards)}"
                 )
+                card = card - 1
                 card = self.cards.pop(card)
                 self.picked.append(card)
                 self.game.used_answer_cards.append(card)
@@ -88,6 +89,10 @@ class Player:
                 print("- [x] " + "".join(traceback.format_tb(exc_traceback)).replace("\n", "\n- [x] "))
 
         self.deal_cards()
+        await self.member.send(
+            f"Your cards have been chosen, the game will continue in {self.game.context.channel.mention}",
+            title="Sit tight!"
+        )
         await self.game.context.send(
             f"{self.user} has chosen their cards...",
             title="Picked!"

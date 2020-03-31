@@ -4,6 +4,7 @@ from utils.converters import fix_time
 from discord.ext.commands.core import Group, Command
 import traceback
 import asyncio
+import cogs.cah.errors as cah_errors
 
 exceptions_channel_id = 686285252817059881
 
@@ -113,6 +114,12 @@ class ErrorHandler(commands.Cog):
                 for owner in self.bot.owner_ids[1:]:
                     owner_names = owner_names + " or " + str(self.bot.get_user(owner))
                 return await ctx.send(f"You must be {owner_names} to run this command!")
+
+            elif isinstance(error, cah_errors.CantPlayNow):
+                return await ctx.send(
+                    f"{' '.join(error.args)}",
+                    title="You can't play now..."
+                )
 
             elif isinstance(error, commands.CommandOnCooldown):
                 rem = fix_time(error.retry_after)

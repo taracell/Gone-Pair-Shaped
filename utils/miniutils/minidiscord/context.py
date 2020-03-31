@@ -73,8 +73,10 @@ class MiniContext(commands.Context):
                 embed = discord.Embed(
                     title=title,
                     description=part,
-                    color=color,
+                    color=color
                 )
+                if file:
+                    embed.set_image(url="attachment://" + file.filename)
                 messages.append(await self.channel.send(
                     embed=embed,
                     tts=tts,

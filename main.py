@@ -5,6 +5,9 @@ from utils import help, checks
 from utils.miniutils import minidiscord, data
 import traceback
 import contextlib
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import io
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -162,6 +165,54 @@ async def skip(ctx):
         await ctx.send(
             "Run this command again to undo",
             title="You're now skipping checks"
+        )
+
+@bot.command(aliases=["statistics", "status"])
+async def stats(ctx):
+    shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
+    shard_name = "???"
+    with contextlib.suppress(IndexError):
+        shard_name = bot.shard_names[shard_id]
+    statistics = f"**Servers:** {len(bot.guilds)}\n" \
+                 f"**Members:** {len(bot.users)}\n" \
+                 f"**Emojis:** {len(bot.emojis)}\n" \
+                 f"**Average Ping:** {round(bot.latency, 2)}ms\n" \
+                 f"**Shard Ping:** {round(dict(bot.latencies)[shard_id], 2)}ms\n" \
+                 f"**Your Shard:** {shard_name} ({shard_id + 1}/{len(bot.shards)})"
+    with contextlib.suppress(AttributeError):
+        statistics += f"\n**Games in progress:** {bot.running_cah_games}"
+    if ctx.guild is None or ctx.channel.permissions_for(ctx.guild.me).attach_files:
+        x_values = sorted(server.me.joined_at for server in bot.guilds if server.me.joined_at)
+        plt.grid(True)
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        ax.plot(x_values, tuple(range(1, len(x_values) + 1)), 'k', lw=2)
+        if ctx.guild is not None:
+            ax.scatter([ctx.guild.me.joined_at], x_values.index(ctx.guild.me.joined_at) + 1, lw=4)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%a %d-%m-%Y"))
+        ax.xaxis.set_major_locator(mdates.DayLocator(interval=((x_values[-1] - x_values[0]) / 7).days or 1))
+
+        fig.autofmt_xdate()
+
+        plt.title("Bot growth")
+        plt.xlabel('Time')
+        plt.ylabel('Servers')
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png')
+        buf.seek(0)
+        await ctx.send(
+            statistics,
+            title="Bot statistics",
+            file=discord.File(buf, filename="growth.png"),
+            paginate_by="\n"
+        )
+        buf.close()
+        plt.close()
+    else:
+        await ctx.send(
+            statistics,
+            title="Bot statistics",
+            paginate_by="\n"
         )
 
 
