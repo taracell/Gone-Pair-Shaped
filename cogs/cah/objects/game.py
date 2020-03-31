@@ -52,7 +52,7 @@ class Game:
         all_packs = self.context.bot.cah_packs.copy()
         with contextlib.suppress(asyncio.TimeoutError):
             self.maxPoints = (await self.context.input(
-                title="How do you win?",
+                title=f"{self.context.bot.emotes['settings']} How do you win?",
                 prompt="How many points should someone need to win? Select a number from `0`-`100` (`0` is infinite). "
                        f"If you don't pick within {setting_timeout} seconds we'll pick the default of 7 rounds.",
                 required_type=int,
@@ -62,7 +62,7 @@ class Game:
             ))[0]
         with contextlib.suppress(asyncio.TimeoutError):
             packs = (await self.context.input(
-                title="What packs would you like?",
+                title=f"{self.context.bot.emotes['settings']} What packs would you like?",
                 prompt=f"Run `{self.context.bot.get_main_custom_prefix(self.context)}packs` after this game to choose "
                        f"your language and see available packs. "
                        f"Separate individual packs with spaces, say `all` for every pack or put a `-` before a pack to "
@@ -90,7 +90,7 @@ class Game:
         if self.advanced:
             with contextlib.suppress(asyncio.TimeoutError):
                 self.anon = (await self.context.input(
-                    title="Want to be anonymous?",
+                    title=f"{self.context.bot.emotes['settings']} Want to be anonymous?",
                     prompt=f"If you choose `yes`, we won't let you know who's winning throughout the game, and we won't"
                            f" show you the leaderboard. If you don't answer within {setting_timeout} seconds we'll "
                            f"let other players know who you are.",
@@ -100,7 +100,7 @@ class Game:
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.hand_size = (await self.context.input(
-                    title="How big should your hand be?",
+                    title=f"{self.context.bot.emotes['settings']} How big should your hand be?",
                     prompt=f"Pick anywhere from 1 to 25 cards. If you don't answer within {setting_timeout} seconds "
                            f"we'll select the default of 10.",
                     required_type=bool,
@@ -110,7 +110,7 @@ class Game:
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.maxPoints = (await self.context.input(
-                    title="How many rounds should I end after?",
+                    title=f"{self.context.bot.emotes['settings']} How many rounds should I end after?",
                     prompt=f"After this many rounds, the game will stop. Just like that. This number must be between "
                            f"0 and 200 Press `0` to have unlimited rounds. If you don't select within {setting_timeout}"
                            f" seconds we'll let you continue forever.",
@@ -121,7 +121,7 @@ class Game:
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.timeout = (await self.context.input(
-                    title="How long should you get to pick your cards?",
+                    title=f"{self.context.bot.emotes['settings']} How long should you get to pick your cards?",
                     prompt=f"Pick a number of seconds from 10 to 600. You will get this amount of time for __each__ "
                            f"card you need to pick on your turn. If you don't decide within {setting_timeout} seconds "
                            f"we'll give you 150 seconds.",
@@ -132,7 +132,7 @@ class Game:
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.tsar_timeout = (await self.context.input(
-                    title="How long should the tsar get to pick the best card?",
+                    title=f"{self.context.bot.emotes['settings']} How long should the tsar get to pick the best card?",
                     prompt=f"Pick a number of seconds from 10 to 600.  If you don't decide within {setting_timeout} "
                            f"seconds we'll give you 300 seconds.",
                     required_type=int,
@@ -142,7 +142,7 @@ class Game:
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.round_delay = (await self.context.input(
-                    title="How long should we wait between rounds?",
+                    title=f"{self.context.bot.emotes['settings']} How long should we wait between rounds?",
                     prompt=f"Pick a number of seconds from 0 to 150.  If you don't decide within {setting_timeout} "
                            f"seconds we'll give you 15 seconds.",
                     required_type=int,
@@ -163,14 +163,14 @@ class Game:
         )
         asyncio.create_task(
             self.context.send(
-                f"{self.context.bot.emotes['success']} We've created your game, now let's get some players! "
+                f"We've created your game, now let's get some players! "
                 f"Type `{self.context.bot.get_main_custom_prefix(self.context)}join` to join this game." + (
                     " Only whitelisted players can join." if self.whitelisted_players else ""
                 ) +
                 f" Once {self.minimumPlayers} have joined, you can begin by typing "
                 f"`{self.context.bot.get_main_custom_prefix(self.context)}begin`, alternatively we'll start in 1 minute"
                 f" or when there are {self.maximumPlayers} players.",
-                title="Great!",
+                title=f"{self.context.bot.emotes['success']} Great!",
                 color=self.context.bot.colors["status"]
             )
         )
@@ -210,15 +210,15 @@ class Game:
                     )
         if len(self.players) >= self.minimumPlayers:
             await self.context.send(
-                "Your setup is complete, hold tight while we press the start button...",
-                title="You're good to go",
+                f"Your setup is complete, hold tight while we press the start button...",
+                title="{self.context.bot.emotes['settings']} You're good to go",
                 color=self.context.bot.colors["status"]
             )
             return True
 
         await self.context.send(
-            "Not enough players joined to start the game. ",
-            title="Awwwwww, guess we can't play now...",
+            f"Not enough players joined to start the game. ",
+            title=f"{self.context.bot.emotes['uhoh']} Awwwwww, guess we can't play now...",
             color=self.context.bot.colors["error"]
         )
         return False
@@ -251,9 +251,9 @@ class Game:
             new_player
         )
         await self.context.send(
-            f"Welcome {member} to the game! "
-            f"(There are now {len(self.players)} of a possible {self.maximumPlayers} in the game)",
-            title="Someone joined!",
+            f"Welcome {member} to the game! " + \
+            "(There are now {len(self.players)} of a possible {self.maximumPlayers} in the game)",
+            title=f"{self.context.bot.emotes['enter']} Someone joined!",
             color=self.context.bot.colors["success"]
         )
         return new_player
@@ -265,9 +265,9 @@ class Game:
         if instantly:
             self.skip()
         await self.context.send(
-            f"The game {'ended' if instantly else 'will end after this round'}"
+            f"The game {'ended' if instantly else 'will end after this round'} " + \
             f"{' because ' + reason if reason else ''}...",
-            title="Your game evaporates into a puff of smoke",
+            title=f"{self.context.bot.emotes['status']} Your game evaporates into a puff of smoke",
             color=self.context.bot.colors["status"]
         )
 
@@ -293,13 +293,13 @@ class Game:
 
         await tsar.member.send(
             f"**The other players are answering:** {question}",
-            title=f"You're the tsar this round",
+            title=f"{self.context.bot.emotes['tsar']} You're the tsar this round",
             color=self.context.bot.colors["status"]
         )
 
         await self.context.send(
             f"**The question is:** {question}\n**The tsar is:** {tsar.user}",
-            title=f"Round {self.completed_rounds + 1}" +
+            title=f"{self.context.bot.emotes['status']}  Round {self.completed_rounds + 1}" +
                   (f" of {self.maxRounds}" if self.maxRounds else "") +
                   (f" ({self.maxPoints} points to win)" if self.maxPoints else ""),
             color=self.context.bot.colors["info"]
@@ -324,14 +324,14 @@ class Game:
 
         await self.context.send(
             options,
-            title="The options are...",
+            title=f"{self.context.bot.emotes['choice']} The options are...",
             paginate_by="\n",
             color=self.context.bot.colors["info"]
         )
 
         try:
             winner = players[(await tsar.member.input(
-                title="Pick a card by typing its number",
+                title=f"{self.context.bot.emotes['choice']} Pick a card by typing its number",
                 prompt=options,
                 required_type=int,
                 check=lambda message: 0 < int(message.content) <= len(players),
@@ -341,7 +341,7 @@ class Game:
             ))[0] - 1]
             await tsar.member.send(
                 f"The winner has been chosen, the crowning will commence instantly in {self.context.channel.mention}",
-                title="Sit tight!",
+                title=f"{self.context.bot.emotes['status']} Sit tight!",
                 color=self.context.bot.colors["success"]
             )
         except asyncio.TimeoutError:
@@ -382,7 +382,7 @@ class Game:
         )
         await self.context.send(
             "\n".join(lb),
-            title=f"{'The game has ended! ' if final else ''}"
+            title=f"{self.context.bot.emotes['status']} {'The game has ended! ' if final else ''}"
                   f"Here's the {'final ' if final else ''}leaderboard{':' if final else ' so far...'}",
             color=self.context.bot.colors["status"]
         )
