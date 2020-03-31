@@ -1,3 +1,3 @@
 # Clever of you coming here....
-But the competition is based on the rewrite branch which we've temporarily moved to a private repo
+But the competition is based on the rewrite branch which we've temporarily moved to a private repo<br/>
 Sorry 'bout that :/
