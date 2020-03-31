@@ -161,16 +161,19 @@ class Game:
         await self.add_player(
             self.context.author
         )
-        asyncio.create_task(self.context.send(
-            "We've created your game, now let's get some players! "
-            f"Type `{self.context.bot.get_main_custom_prefix(self.context)}join` to join this game." + (
-                " Only whitelisted players can join." if self.whitelisted_players else ""
-            ) +
-            f" Once {self.minimumPlayers} have joined, you can begin by typing "
-            f"`{self.context.bot.get_main_custom_prefix(self.context)}begin`, alternatively we'll start in 1 minute"
-            f" or when there are {self.maximumPlayers} players.",
-            title="Great!"
-        ))
+        asyncio.create_task(
+            self.context.send(
+                f"{self.context.bot.emotes['success']} We've created your game, now let's get some players! "
+                f"Type `{self.context.bot.get_main_custom_prefix(self.context)}join` to join this game." + (
+                    " Only whitelisted players can join." if self.whitelisted_players else ""
+                ) +
+                f" Once {self.minimumPlayers} have joined, you can begin by typing "
+                f"`{self.context.bot.get_main_custom_prefix(self.context)}begin`, alternatively we'll start in 1 minute"
+                f" or when there are {self.maximumPlayers} players.",
+                title="Great!",
+                color=self.context.bot.colors["status"]
+            )
+        )
         expiry = time.time() + 60
         with contextlib.suppress(asyncio.TimeoutError):
             begin_messages = [
@@ -208,13 +211,15 @@ class Game:
         if len(self.players) >= self.minimumPlayers:
             await self.context.send(
                 "Your setup is complete, hold tight while we press the start button...",
-                title="You're good to go"
+                title="You're good to go",
+                color=self.context.bot.colors["status"]
             )
             return True
 
         await self.context.send(
             "Not enough players joined to start the game. ",
-            title="Awwwwww, guess we can't play now..."
+            title="Awwwwww, guess we can't play now...",
+            color=self.context.bot.colors["error"]
         )
         return False
 
@@ -248,7 +253,8 @@ class Game:
         await self.context.send(
             f"Welcome {member} to the game! "
             f"(There are now {len(self.players)} of a possible {self.maximumPlayers} in the game)",
-            title="Someone joined!"
+            title="Someone joined!",
+            color=self.context.bot.colors["success"]
         )
         return new_player
 
@@ -261,7 +267,8 @@ class Game:
         await self.context.send(
             f"The game {'ended' if instantly else 'will end after this round'}"
             f"{' because ' + reason if reason else ''}...",
-            title="Your game evaporates into a puff of smoke"
+            title="Your game evaporates into a puff of smoke",
+            color=self.context.bot.colors["status"]
         )
 
     async def round(self):
@@ -286,14 +293,16 @@ class Game:
 
         await tsar.member.send(
             f"**The other players are answering:** {question}",
-            title=f"You're the tsar this round"
+            title=f"You're the tsar this round",
+            color=self.context.bot.colors["status"]
         )
 
         await self.context.send(
             f"**The question is:** {question}\n**The tsar is:** {tsar.user}",
             title=f"Round {self.completed_rounds + 1}" +
                   (f" of {self.maxRounds}" if self.maxRounds else "") +
-                  (f" ({self.maxPoints} points to win)" if self.maxPoints else "")
+                  (f" ({self.maxPoints} points to win)" if self.maxPoints else ""),
+            color=self.context.bot.colors["info"]
         )
 
         results = await asyncio.gather(*coros, return_exceptions=True)
@@ -316,7 +325,8 @@ class Game:
         await self.context.send(
             options,
             title="The options are...",
-            paginate_by="\n"
+            paginate_by="\n",
+            color=self.context.bot.colors["info"]
         )
 
         try:
@@ -326,14 +336,23 @@ class Game:
                 required_type=int,
                 check=lambda message: 0 < int(message.content) <= len(players),
                 timeout=self.tsar_timeout,
-                paginate_by="\n"
+                paginate_by="\n",
+                color=self.context.bot.colors["status"]
             ))[0] - 1]
             await tsar.member.send(
                 f"The winner has been chosen, the crowning will commence instantly in {self.context.channel.mention}",
-                title="Sit tight!"
+                title="Sit tight!",
+                color=self.context.bot.colors["success"]
             )
         except asyncio.TimeoutError:
-            await tsar.quit(timed_out=True)
+            await tsar.quit(
+                reason="they took too long to answer"
+            )
+            return await self.skip()
+        except discord.Forbidden:
+            await tsar.quit(
+                reason="I can't DM them"
+            )
             return await self.skip()
 
         picked = (re.sub(r'\.$', '', card) for card in winner.picked)
@@ -345,7 +364,8 @@ class Game:
 
         await self.context.send(
             f"**{winner}**: {question}",
-            title=f"{self.context.bot.emotes['winner']} We have a winner!"
+            title=f"{self.context.bot.emotes['winner']} We have a winner!",
+            color=self.context.bot.colors["status"]
         )
         winner.points += 1
 
@@ -363,5 +383,6 @@ class Game:
         await self.context.send(
             "\n".join(lb),
             title=f"{'The game has ended! ' if final else ''}"
-                  f"Here's the {'final ' if final else ''}leaderboard{':' if final else ' so far...'}"
+                  f"Here's the {'final ' if final else ''}leaderboard{':' if final else ' so far...'}",
+            color=self.context.bot.colors["status"]
         )

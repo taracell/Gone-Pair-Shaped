@@ -108,7 +108,8 @@ class MiniContext(commands.Context):
                     required_type: type = str,
                     timeout: int = 60,
                     check: callable = lambda message: True,
-                    error: str = "That isn't a valid message"):
+                    error: str = "That isn't a valid message",
+                    color=discord.Embed.Empty):
         """
         :param title: Set the title of the prompt embed
         :param prompt: Set the description of the prompt embed
@@ -117,6 +118,7 @@ class MiniContext(commands.Context):
         :param timeout:
         :param check:
         :param error:
+        :param color: Same as the send color argument
         :return: The input from the user
         :raises: Raises a TimeoutError if the timeout is exceeded
         :raises: discord.HTTPException - sending the message failed
@@ -146,6 +148,7 @@ class MiniContext(commands.Context):
                 prompt,
                 title=title,
                 paginate_by=paginate_by,
+                color=color
             )
         )
         response = await self.bot.wait_for(

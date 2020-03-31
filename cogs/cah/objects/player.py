@@ -78,10 +78,15 @@ class Player:
                 self.game.used_answer_cards.append(card)
             except asyncio.TimeoutError:
                 await self.quit(
-                    timed_out=True
+                    reason="they took too long to answer"
                 )
                 return False
             except asyncio.CancelledError:
+                return False
+            except discord.Forbidden:
+                await self.quit(
+                    reason="I can't DM them"
+                )
                 return False
             except Exception as e:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -91,20 +96,23 @@ class Player:
         self.deal_cards()
         await self.member.send(
             f"Your cards have been chosen, the game will continue in {self.game.context.channel.mention}",
-            title="Sit tight!"
+            title="Sit tight!",
+            color=self.game.context.bot.colors["success"]
         )
         await self.game.context.send(
             f"{self.user} has chosen their cards...",
-            title="Picked!"
+            title="Picked!",
+            color=self.game.context.bot.colors["info"]
         )
         return True
 
-    async def quit(self, ctx=None, timed_out=False):
+    async def quit(self, ctx=None, reason=""):
         if self not in self.game.players:
-            if not timed_out and ctx is not None:
+            if not reason and ctx is not None:
                 return await ctx.send(
                     f"{self.user}, I wasn't able to make you leave the game. Perhaps you left already?",
-                    title="Huh? That's odd..."
+                    title="Huh? That's odd...",
+                    color=ctx.bot.colors["error"]
                 )
             return
         self.game.players.remove(self)
@@ -112,16 +120,12 @@ class Player:
             coro.cancel()
         self.coros.clear()
         await self.game.context.send(
-            f"{self.user.mention} has left the game",
-            title="Man down!"
+            f"{self.user.mention} has left the game" + (" because " + reason + "." if reason else "."),
+            title="Man down!",
+            color=self.game.context.bot.colors["status"]
         )
-        if timed_out:
-            await self.member.send(
-                f"You've been timed out for inactivity",
-                title="Bye"
-            )
         if len(self.game.players) < self.game.minimumPlayers:
             await self.game.end(
                 instantly=True,
-                reason="there weren't enough players to continue"
+                reason="there weren't enough players to continue",
             )

@@ -94,7 +94,8 @@ If you want a multi-word prefix enclose it in speech marks or quotation marks"""
         )
         await ctx.send(
             "\n".join(f"- `{prefix}`" for prefix in prefixes.read_key(ctx.guild.id)),
-            title="Here are your fancy new prefixes!"
+            title="Here are your fancy new prefixes!",
+            color=bot.colors["status"]
         )
     else:
         prefixes.remove_key(
@@ -102,7 +103,8 @@ If you want a multi-word prefix enclose it in speech marks or quotation marks"""
         )
         await ctx.send(
             f"You're back to default prefix of {bot.main_prefix}",
-            title="Your custom prefixes have been removed!"
+            title="Your custom prefixes have been removed!",
+            color=bot.colors["status"]
         )
 
 
@@ -114,12 +116,14 @@ async def getprefix(ctx):
     if custom_prefixes:
         await ctx.send(
             "\n".join(f"- `{prefix}`" for prefix in prefixes.read_key(ctx.guild.id)),
-            title="Here are your prefixes!"
+            title="Here are your prefixes!",
+            color=bot.colors["status"]
         )
     else:
         await ctx.send(
             "There's nothing to show you here...",
-            title="You don't have any custom prefixes"
+            title="You don't have any custom prefixes",
+            color=bot.colors["status"]
         )
 
 
@@ -138,17 +142,17 @@ async def info(ctx):
                 members = members.union(unique_members)
             if staff:
                 staff = "> **STAFF**" + staff + "\n\n"
-    embed = discord.Embed(
-        title='Cards Against Humanity - Commands',
-        description=staff + (
+    await ctx.send(
+        staff + (
             "> **INVITE ME**\n[discordapp.com]"
             "(https://discordapp.com/oauth2/authorize?"
             "client_id=679361555732627476&scope=bot&permissions=130048)"
             "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
         ),
-        color=bot.colors["success"]
+        title='Cards Against Humanity - Credits',
+        color=bot.colors["info"],
+        paginate_by="\n"
     )
-    await ctx.send(embed=embed)
 
 @bot.command()
 @commands.check(checks.bot_mod)
@@ -158,13 +162,15 @@ async def skip(ctx):
         bot.skips.remove(ctx.author)
         await ctx.send(
             "Run this command again to undo",
-            title="You're now not skipping checks"
+            title="You're now not skipping checks",
+            color=bot.colors["status"]
         )
     else:
         bot.skips.append(ctx.author)
         await ctx.send(
             "Run this command again to undo",
-            title="You're now skipping checks"
+            title="You're now skipping checks",
+            color=bot.colors["status"]
         )
 
 @bot.command(aliases=["statistics", "status"])
@@ -187,7 +193,7 @@ async def stats(ctx):
         fig, ax = plt.subplots(figsize=(10, 6))
 
         ax.plot(x_values, tuple(range(1, len(x_values) + 1)), 'k', lw=2)
-        if ctx.guild is not None:
+        if ctx.guild is not None and ctx.guild.me.joined_at is not None:
             ax.scatter([ctx.guild.me.joined_at], x_values.index(ctx.guild.me.joined_at) + 1, lw=4)
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%a %d-%m-%Y"))
         ax.xaxis.set_major_locator(mdates.DayLocator(interval=((x_values[-1] - x_values[0]) / 7).days or 1))
@@ -204,7 +210,8 @@ async def stats(ctx):
             statistics,
             title="Bot statistics",
             file=discord.File(buf, filename="growth.png"),
-            paginate_by="\n"
+            paginate_by="\n",
+            color=bot.colors["status"]
         )
         buf.close()
         plt.close()
@@ -212,7 +219,8 @@ async def stats(ctx):
         await ctx.send(
             statistics,
             title="Bot statistics",
-            paginate_by="\n"
+            paginate_by="\n",
+            color=bot.colors["status"]
         )
 
 
