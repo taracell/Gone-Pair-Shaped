@@ -42,8 +42,8 @@ class Player:
     def deal_cards(self):
         for _ in range(self.game.hand_size - len(self.cards)):
             if not self.game.answer_cards:
-                self.game.answer_cards = self.game.used_answer_cards.copy()
-                self.game.used_answer_cards.clear()
+                self.game.answer_cards = self.game.used_answer_cards
+                self.game.used_answer_cards = []
             card = self.game.answer_cards.pop(
                 random.randint(
                     1,
@@ -77,6 +77,11 @@ class Player:
                 card = self.cards.pop(card)
                 self.picked.append(card)
                 self.game.used_answer_cards.append(card)
+            except discord.Forbidden:
+                await self.quit(
+                    reason="I can't DM them"
+                )
+                return False
             except asyncio.TimeoutError:
                 await self.quit(
                     reason="they took too long to answer"
@@ -84,20 +89,14 @@ class Player:
                 return False
             except asyncio.CancelledError:
                 return False
-            except discord.Forbidden as e:
-                raise e
-                await self.quit(
-                    reason="I can't DM them"
-                )
-                return False
             except Exception as e:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
                 print(f"An error occurred, {e}")
-                print("- [x] " + "".join(traceback.format_tb(exc_traceback)).replace("\n", "\n- [x] "))
+                print("- [x] " + "".join(traceback.format_exc()).replace("\n", "\n- [x] "))
 
         self.deal_cards()
         await self.member.send(
-            f"Your cards have been chosen, the game will continue in {self.game.context.channel.mention}",
+            f"Your card{'s' if cards == 1 else ''} have been chosen, "
+            f"the game will continue in {self.game.context.channel.mention}",
             title=f"{self.game.context.bot.emotes['tsar']} Sit tight!",
             color=self.game.context.bot.colors["success"]
         )
@@ -124,7 +123,7 @@ class Player:
         await self.game.context.send(
             f"{self.user.mention} has left the game" + (" because " + reason + "." if reason else "."),
             title=f"{self.game.context.bot.emotes['leave']} Man down!",
-            color=self.game.context.bot.colors["status"]
+            color=self.game.context.bot.colors["error"]
         )
         if len(self.game.players) < self.game.minimumPlayers:
             await self.game.end(

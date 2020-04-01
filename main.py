@@ -176,15 +176,15 @@ async def skip(ctx):
 @bot.command(aliases=["statistics", "status"])
 async def stats(ctx):
     shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
-    shard_name = "???"
+    _shard_name = "???"
     with contextlib.suppress(IndexError):
-        shard_name = bot.shard_names[shard_id]
+        _shard_name = bot.shard_names[shard_id]
     statistics = f"**Servers:** {len(bot.guilds)}\n" \
                  f"**Members:** {len(bot.users)}\n" \
                  f"**Emojis:** {len(bot.emojis)}\n" \
                  f"**Average Ping:** {round(bot.latency, 2)}ms\n" \
                  f"**Shard Ping:** {round(dict(bot.latencies)[shard_id], 2)}ms\n" \
-                 f"**Your Shard:** {shard_name} ({shard_id + 1}/{len(bot.shards)})"
+                 f"**Your Shard:** {_shard_name} ({shard_id + 1}/{len(bot.shards)})"
     with contextlib.suppress(AttributeError):
         statistics += f"\n**Games in progress:** {bot.running_cah_games}"
     if ctx.guild is None or ctx.channel.permissions_for(ctx.guild.me).attach_files:
@@ -223,6 +223,38 @@ async def stats(ctx):
             color=bot.colors["status"]
         )
 
+@bot.command(aliases=["pong", "pingpong", "shards"])
+async def ping(ctx):
+    shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
+    shard_name = "???"
+    with contextlib.suppress(IndexError):
+        shard_name = bot.shard_names[shard_id]
+    number_of_shards = len(bot.shards)
+    average_latency = bot.latency * 1000
+    shard_names = iter(bot.shard_names)
+    content = (
+        f"> You are currently on shard {shard_name} ({shard_id + 1}/{len(bot.shards)})\n"
+        f"> The average latency is {round(average_latency, 2)}\n"
+        f"**All Shards:**"
+    )
+    for shard, latency in bot.latencies:
+        lag_difference = round(latency * 1000 - average_latency, 2)
+        lag_difference_symbol = ''
+        if lag_difference == 0:
+            lag_difference_symbol = '±'
+        elif lag_difference > 0:
+            lag_difference_symbol = '+'
+        # Minus signs will already be included in the float
+        content += (
+            f"\n{next(shard_names, '???')} - {round(latency * 1000, 2)} "
+            f"({shard + 1}/{number_of_shards}, {lag_difference_symbol}{lag_difference} from average)"
+        )
+    await ctx.send(
+        content,
+        title="Shard pings",
+        paginate_by="\n"
+    )
+
 
 with open('token.txt') as tokens:
     bot.tokens = dict(line.strip().split(":", 1) for line in tokens.readlines())
@@ -234,8 +266,7 @@ for position, cog in enumerate(cogs):
         bot.loaded += 1
         print(f"Loaded {cog} (cog {position + 1}/{len(cogs)}, {bot.loaded} successful)")
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
         print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
-        print("- [x] " + "".join(traceback.format_tb(exc_traceback)).replace("\n", "\n- [x] "))
+        print("- [x] " + "".join(traceback.format_exc()).replace("\n", "\n- [x] "))
 
 bot.run(bot.tokens["discord"])

@@ -25,7 +25,7 @@ class Game:
 
         self.players = []
         self.minimumPlayers = 3
-        self.maximumPlayers = 25
+        self.maximumPlayers = 50
 
         self.maxRounds = 0
         self.maxPoints = 7
@@ -35,6 +35,7 @@ class Game:
         self.coro = None
         self.skipping = False
         self.active = True
+        self.joined = False
 
         self.timeout = 150
         self.tsar_timeout = 300
@@ -49,7 +50,7 @@ class Game:
 
     async def setup(self):
         setting_timeout = 30
-        all_packs = self.context.bot.cah_packs.copy()
+        all_packs = self.context.bot.cah_packs
         with contextlib.suppress(asyncio.TimeoutError):
             self.maxPoints = (await self.context.input(
                 title=f"{self.context.bot.emotes['settings']} How do you win?",
@@ -70,9 +71,10 @@ class Game:
                        f"If you don't pick within {setting_timeout * 2} seconds we'll give you the `base` pack.",
                 timeout=setting_timeout * 2,
             ))[0].lower().split(" ")
-            if not all_packs.get(self.lang, None):
+            lang_packs = all_packs.get(self.lang, None)["packs"]
+            if not lang_packs:
                 self.lang = "gb"
-            lang_packs = all_packs.get(self.lang, None)
+                lang_packs = all_packs.get(self.lang, None)["packs"]
             for pack in packs:
                 if not "-" + pack in packs:
                     question_cards_in_pack = lang_packs.get(pack + "b", [])
@@ -209,6 +211,7 @@ class Game:
                         response.author
                     )
         if len(self.players) >= self.minimumPlayers:
+            self.joined = True
             await self.context.send(
                 f"Your setup is complete, hold tight while we press the start button...",
                 title=f"{self.context.bot.emotes['settings']} You're good to go",
@@ -282,14 +285,10 @@ class Game:
         tsar.tsar_count += 1
 
         if not self.question_cards:
-            self.question_cards = self.used_question_cards.copy()
-            self.used_question_cards.clear()
+            self.question_cards = self.used_question_cards
+            self.used_question_cards = []
         question = self.question_cards.pop(random.randint(0, len(self.question_cards) - 1))
         self.used_question_cards.append(question)
-
-        coros = []
-        for _player in players:
-            coros.append(_player.pick_cards(question, tsar))
 
         await tsar.member.send(
             f"**The other players are answering:** {question}",
@@ -304,6 +303,10 @@ class Game:
                   (f" ({self.maxPoints} points to win)" if self.maxPoints else ""),
             color=self.context.bot.colors["info"]
         )
+
+        coros = []
+        for _player in players:
+            coros.append(_player.pick_cards(question, tsar))
 
         results = await asyncio.gather(*coros, return_exceptions=True)
 
@@ -359,7 +362,8 @@ class Game:
         picked = (re.sub(r'\.$', '', card) for card in winner.picked)
         if r"\_\_" in question:
             for card in winner.picked:
-                question = question.replace(r"\_\_", f"**{card}**")
+                card = re.sub(r'\.$', '', card)
+                question = question.replace(r"\_\_", f"**{card}**", 1)
         else:
             question += f" **{next(picked)}**"
 

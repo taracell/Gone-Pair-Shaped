@@ -56,16 +56,51 @@ class CAH(commands.Cog):
             title="Complete!"
         )
 
+    @commands.command(aliases=["listpacks", "list"])
+    async def packs(self, ctx):
+        lang = "gb"
+
+        packs = "*(The :flag_gb: English `base` pack will always be included if there are not enough cards for you to" \
+                " play a game)*"
+
+        lang_packs = self.bot.cah_packs.get(lang, None)
+        if not lang_packs:
+            lang = "gb"
+            lang_packs = self.bot.cah_packs.get(lang, None)
+
+        for pack in lang_packs["packs"]:
+            if pack.endswith("w"):
+                packs += f"\n~ **{pack[:-1]}** - {lang_packs['descriptions'].get(pack[:-1], 'No description found')}"
+
+        await ctx.send(
+            packs,
+            title=f":flag_{lang}: All the packs available for your language",
+            paginate_by="\n",
+            color=ctx.bot.colors["info"]
+        )
+
     def _load_packs(self):
         packs = {}
         for path, _, files in os.walk("packs"):
             lang = path.replace("\\", "/").split("/")[-1]
             if files:
-                lang_packs = {}
+                lang_packs = {
+                    "packs": {},
+                    "descriptions": {}
+                }
                 for pack in files:
-                    pack_name = ".".join(pack.split(".")[:-1])
                     with open(os.path.join(path, pack)) as file:
-                        lang_packs[pack_name] = [card.strip() for card in file.readlines()]
+                        if pack == "-descriptions.txt":
+                            descriptions = [
+                                desc.strip().split(
+                                    ":", 1
+                                ) for desc in file.readlines() if len(desc.strip().split(
+                                    ":", 1
+                                ))
+                            ]
+                            lang_packs["descriptions"] = dict(descriptions)
+                        pack_name = ".".join(pack.split(".")[:-1])
+                        lang_packs["packs"][pack_name] = [card.strip() for card in file.readlines()]
                 packs[lang] = lang_packs
         self.bot.set(
             "cah_packs",
@@ -94,12 +129,68 @@ class CAH(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
+    @commands.max_concurrency(1, commands.BucketType.channel, wait=True)
+    async def join(self, ctx):
+        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        if _game is None:
+            return await ctx.send(
+                "There doesn't seem to be a game in this channel",
+                title=f"{ctx.bot.emotes['valueerror']} No game",
+                color=ctx.bot.colors["error"]
+            )
+        if _game.whitelisted_players and ctx.author not in _game.whitelisted_players:
+            return await ctx.send(
+                "You aren't whitelisted so you can't join this game",
+                title=f"{ctx.bot.emotes['valueerror']} Couldn't join...",
+                color=ctx.bot.colors["error"]
+            )
+        if len(_game.players) >= _game.maximumPlayers:
+            return await ctx.send(
+                f"For safe social distancing we can't have more than {_game.maximumPlayers} in this game",
+                # TODO: ^ Change this when corona becomes irrelevant
+                title=f"{ctx.bot.emotes['valueerror']} It's a bit busy round here...",
+                color=ctx.bot.colors["error"]
+            )
+        if any(_player == ctx.author for _player in _game.players):
+            return await ctx.send(
+                f"You're already in this game, I haven't added you but you're still in there anyway...",
+                title=f"{ctx.bot.emotes['valueerror']} *Confused applause*",
+                color=ctx.bot.colors["error"]
+            )
+        if _game.joined:
+            await _game.add_player(ctx.author)
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.max_concurrency(1, commands.BucketType.channel, wait=True)
+    async def leave(self, ctx):
+        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        if _game is None:
+            return await ctx.send(
+                "There doesn't seem to be a game in this channel",
+                title=f"{ctx.bot.emotes['valueerror']} No game",
+                color=ctx.bot.colors["error"]
+            )
+        for player in _game.players:
+            if player == ctx.author:
+                await _game.remove_player(player)
+                break
+        else:
+            return await ctx.send(
+                f"You're not in this game... I couldn't remove you but I guess that doesn't matter much",
+                title=f"{ctx.bot.emotes['valueerror']} *Confused applause*",
+                color=ctx.bot.colors["error"]
+            )
+
+    @commands.command()
+    @commands.guild_only()
     async def end(self, ctx, instantly: typing.Optional[bool] = False):
         old_game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         if not (ctx.author.permissions_in(ctx.channel).manage_channels or ctx.author == old_game.context.author):
             return await ctx.send(
                 "You didn't start this game, and you can't manage this channel",
-                title="You don't have permission to do that"
+                title=f"{ctx.bot.emotes['valueerror']} You don't have permission to do that",
+                color=ctx.bot.colors["error"]
             )
         if old_game is not None:
             with contextlib.suppress(Exception):
@@ -109,7 +200,8 @@ class CAH(commands.Cog):
         else:
             await ctx.send(
                 "Has it already been ended?",
-                title="We couldn't find a game in this channel..."
+                title=f"{ctx.bot.emotes['valueerror']} We couldn't find a game in this channel...",
+                color=ctx.bot.colors["error"]
             )
 
     @commands.command(aliases=["bc", "sall"])
@@ -120,7 +212,8 @@ class CAH(commands.Cog):
             with contextlib.suppress(Exception):
                 await _game.context.send(
                     message,
-                    title="Developer broadcast - Because you're playing CAH here..."
+                    title="Developer broadcast - Because you're playing CAH here...",
+                    color=ctx.bot.colors["dev"]
                 )
         await ctx.send(
             message,

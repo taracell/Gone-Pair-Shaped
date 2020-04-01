@@ -3,6 +3,7 @@ from discord.ext import commands
 import copy
 import typing
 import asyncio
+from .. import decorators
 
 
 class MiniContext(commands.Context):
@@ -77,14 +78,17 @@ class MiniContext(commands.Context):
                 )
                 if file:
                     embed.set_image(url="attachment://" + file.filename)
-                messages.append(await self.channel.send(
-                    embed=embed,
-                    tts=tts,
-                    file=file,
-                    files=files,
-                    delete_after=delete_after,
-                    nonce=nonce,
-                ))
+                try:
+                    messages.append(await self.channel.send(
+                        embed=embed,
+                        tts=tts,
+                        file=file,
+                        files=files,
+                        delete_after=delete_after,
+                        nonce=nonce,
+                    ))
+                except discord.HTTPException as e:
+                    raise e
         else:
             for part in merged_description_parts:
                 part = await self._cleaner.convert(self, part) if part != discord.Embed.Empty else part
@@ -143,13 +147,11 @@ class MiniContext(commands.Context):
                 ))
             return False
 
-        asyncio.create_task(
-            self.send(
-                prompt,
-                title=title,
-                paginate_by=paginate_by,
-                color=color
-            )
+        await self.send(
+            prompt,
+            title=title,
+            paginate_by=paginate_by,
+            color=color
         )
         response = await self.bot.wait_for(
             "message",
