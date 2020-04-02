@@ -21,8 +21,8 @@ except FileNotFoundError:
 main_prefix = "$" if production else "£"
 cogs = [
     "jishaku",
-    "cogs.cah",
     "guildmanager.cog",
+    "cogs.cah",
     "cogs.errors",
     "cogs.botlist",
     "utils.constants",
@@ -154,6 +154,7 @@ async def info(ctx):
         paginate_by="\n"
     )
 
+
 @bot.command()
 @commands.check(checks.bot_mod)
 async def skip(ctx):
@@ -173,8 +174,11 @@ async def skip(ctx):
             color=bot.colors["status"]
         )
 
+
 @bot.command(aliases=["statistics", "status"])
 async def stats(ctx):
+    """Shows the bot's current statistics
+    """
     shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
     _shard_name = "???"
     with contextlib.suppress(IndexError):
@@ -223,8 +227,11 @@ async def stats(ctx):
             color=bot.colors["status"]
         )
 
+
 @bot.command(aliases=["pong", "pingpong", "shards"])
 async def ping(ctx):
+    """Gets the current response time of the bot.
+    """
     shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
     shard_name = "???"
     with contextlib.suppress(IndexError):

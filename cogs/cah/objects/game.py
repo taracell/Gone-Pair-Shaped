@@ -37,6 +37,7 @@ class Game:
         self.skipping = False
         self.active = True
         self.joined = False
+        self.chosen_options = False
 
         self.timeout = 150
         self.tsar_timeout = 300
@@ -170,6 +171,7 @@ class Game:
         await self.add_player(
             self.context.author
         )
+        self.chosen_options = True
         asyncio.create_task(
             self.context.send(
                 f"We've created your game, now let's get some players! "
@@ -187,7 +189,11 @@ class Game:
         with contextlib.suppress(asyncio.TimeoutError):
             begin_messages = [
                 self.context.bot.get_main_custom_prefix(self.context) + "begin",
-                "juststartalready"
+                "juststartalready",
+                "justfuckingstart",
+                "justfuckinstart",
+                "justfuckingstartalready",
+                "justfuckinstartalready"
             ]
             while expiry >= time.time() and len(self.players) < self.maximumPlayers:
                 response = await self.context.bot.wait_for(
@@ -281,7 +287,7 @@ class Game:
         await self.context.send(
             f"The game {'ended' if instantly else 'will end after this round'} " +
             f"{' because ' + reason if reason else ''}...",
-            title=f"{self.context.bot.emotes['status']} Your game evaporates into a puff of smoke",
+            title=f"{self.context.bot.emotes['uhoh']} Your game evaporates into a puff of smoke",
             color=self.context.bot.colors["status"]
         )
 

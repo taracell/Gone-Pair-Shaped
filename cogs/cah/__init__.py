@@ -51,14 +51,19 @@ class CAH(commands.Cog):
     @commands.command(aliases=["reloadpacks", "rpacks"])
     @commands.check(checks.bot_mod)
     async def loadpacks(self, ctx):
+        """Reloads all packs.
+        """
         self._load_packs()
         await ctx.send(
             "I've reloaded all the packs",
-            title="Complete!"
+            title=f"{ctx.bot.emotes['success']} Complete!",
+            color=ctx.bot.colors["info"]
         )
 
     @commands.command(aliases=["listpacks", "list"])
     async def packs(self, ctx):
+        """Shows a list of packs avaliable in your language.
+        """
         lang = "gb"
 
         packs = "*Language switching is currently in beta while we wait on our translators and give the commands a " \
@@ -113,25 +118,32 @@ class CAH(commands.Cog):
     @checks.bypass_check(allow_runs)
     @commands.guild_only()
     async def play(self, ctx, advanced: typing.Optional[bool] = False, whitelist: commands.Greedy[discord.Member] = ()):
+        """Starts the game.
+        `%%play` will start a game, and allow players to join using the %%join command, or do %%play True for even more
+        game options.
+        """
         self.bot.running_cah_games += 1
-        _game = game.Game(
-            context=ctx,
-            advanced_setup=advanced,
-            whitelist=whitelist,
-        )
-        self.bot.running_cah_game_objects[ctx.channel] = _game
-        with contextlib.suppress(asyncio.CancelledError):
-            _game.coro = asyncio.create_task(_game.setup())
-            if await _game.coro:
-                await _game.begin()
-        with contextlib.suppress(KeyError):
-            del self.bot.running_cah_game_objects[ctx.channel]
+        with contextlib.suppress(Exception):
+            _game = game.Game(
+                context=ctx,
+                advanced_setup=advanced,
+                whitelist=whitelist,
+            )
+            self.bot.running_cah_game_objects[ctx.channel] = _game
+            with contextlib.suppress(asyncio.CancelledError):
+                _game.coro = asyncio.create_task(_game.setup())
+                if await _game.coro:
+                    await _game.begin()
+            with contextlib.suppress(KeyError):
+                del self.bot.running_cah_game_objects[ctx.channel]
         self.bot.running_cah_games -= 1
 
     @commands.command()
     @commands.guild_only()
     @commands.max_concurrency(1, commands.BucketType.channel, wait=True)
     async def join(self, ctx):
+        """Joins an active game in the channel. This can be during the 1m period when starting a game, or midway through.
+        """
         _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         if _game is None:
             return await ctx.send(
@@ -161,10 +173,12 @@ class CAH(commands.Cog):
         if _game.joined:
             await _game.add_player(ctx.author)
 
-    @commands.command()
+    @commands.command(aliases=["leave"])
     @commands.guild_only()
-    @commands.max_concurrency(1, commands.BucketType.channel, wait=True)
-    async def leave(self, ctx):
+    @commands.max_concurrency(1, commands.BucketType.channel)
+    async def exit(self, ctx):
+        """Removes the player who ran it from the current game in that channel.
+        """
         _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         if _game is None:
             return await ctx.send(
@@ -172,9 +186,14 @@ class CAH(commands.Cog):
                 title=f"{ctx.bot.emotes['valueerror']} No game",
                 color=ctx.bot.colors["error"]
             )
+        if not _game.chosen_options:
+            return await ctx.send(
+                "This game isn't setup yet",
+                title=f"{ctx.bot.emotes['valueerror']} I'm not ready yet...",
+                color=ctx.bot.colors["error"]
+            )
         for player in _game.players:
             if player == ctx.author:
-                print(f"Found {ctx.author}")
                 await player.quit()
                 break
         else:
@@ -187,6 +206,8 @@ class CAH(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def end(self, ctx, instantly: typing.Optional[bool] = False):
+        """Ends the current game in that channel.
+        """
         old_game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         if not (ctx.author.permissions_in(ctx.channel).manage_channels or ctx.author == old_game.context.author):
             return await ctx.send(
@@ -208,6 +229,8 @@ class CAH(commands.Cog):
     @commands.command(aliases=["bc", "sall"])
     @commands.check(checks.is_owner)
     async def broadcast(self, ctx, nostart: typing.Optional[bool] = True, *, message):
+        """Broadcasts a message to every currently active game channel.
+        """
         self.bot.allow_running_cah_games = False if nostart else self.bot.allow_running_cah_games
         for _game in self.bot.running_cah_game_objects.values():
             with contextlib.suppress(Exception):
@@ -224,6 +247,8 @@ class CAH(commands.Cog):
     @commands.command(aliases=["denystart", "stopstart"])
     @commands.check(checks.is_owner)
     async def nostart(self, ctx, end: typing.Optional[bool] = False, instantly: typing.Optional[bool] = True):
+        """Stops games from being played
+        """
         self.bot.allow_running_cah_games = False
         if end:
             for _game in self.bot.running_cah_game_objects.values():
@@ -243,6 +268,8 @@ class CAH(commands.Cog):
     @commands.command(aliases=["allowstart", "startstart", 'yestart'])
     @commands.check(checks.is_owner)
     async def yesstart(self, ctx):
+        """Allows games to be started.
+        """
         self.bot.allow_running_cah_games = True
         await ctx.send(
             "Games can be started again",

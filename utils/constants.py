@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+
 class NotInGuildError(Exception):
     def __init__(self, *args):
         print(
@@ -8,6 +9,7 @@ class NotInGuildError(Exception):
         )
         for arg in args:
             print(repr(arg))
+
 
 class Constants(commands.Cog):
     def __init__(self, bot):
