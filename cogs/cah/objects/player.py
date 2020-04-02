@@ -107,6 +107,7 @@ class Player:
         )
         return True
 
+    @decorators.debug
     async def quit(self, ctx=None, reason=""):
         if self not in self.game.players:
             if not reason and ctx is not None:
@@ -125,7 +126,7 @@ class Player:
             title=f"{self.game.context.bot.emotes['leave']} Man down!",
             color=self.game.context.bot.colors["error"]
         )
-        if len(self.game.players) < self.game.minimumPlayers:
+        if len(self.game.players) < self.game.minimumPlayers and self.game.joined:
             await self.game.end(
                 instantly=True,
                 reason="there weren't enough players to continue",

@@ -1,11 +1,12 @@
 import asyncio
 import re
-from utils.miniutils import minidiscord
+from utils.miniutils import minidiscord, decorators
 import random
 from . import player
 import contextlib
 import time
 import discord
+import math
 
 
 class Game:
@@ -153,13 +154,19 @@ class Game:
                     error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `150`... Try again"
                 ))[0]
 
-        basew = all_packs.get("gb", {}).get("basew", ["???"])
-        baseb = all_packs.get("gb", {}).get("baseb", ["???"])
-        while len(self.question_cards) < 1 or len(self.answer_cards) < self.hand_size * self.maximumPlayers:
-            self.answer_cards.append(basew)
-            self.question_cards.append(baseb)
+        self.question_cards = [card for card in self.question_cards if card.count(r"\_\_") <= self.hand_size]
+
+        if len(self.question_cards) < 1 or len(self.answer_cards) < 1:
+            basew = all_packs.get("gb", {})["packs"].get("basew", ["???"])
+            baseb = all_packs.get("gb", {})["packs"].get("baseb", ["???"])
+            self.answer_cards += basew
+            self.question_cards += baseb
+
+        if len(self.answer_cards) < self.hand_size * self.maximumPlayers:
+            self.answer_cards *= math.ceil((self.maximumPlayers * self.hand_size) / len(self.answer_cards))
 
         self.question_cards = [card for card in self.question_cards if card.count(r"\_\_") <= self.hand_size]
+
         await self.add_player(
             self.context.author
         )
@@ -238,7 +245,9 @@ class Game:
             self.skipping = False
             if (
                     self.players and
-                    sorted(self.players, key=lambda _player: _player.points, reverse=True)[0].points >= self.maxPoints
+                    sorted(
+                        self.players, key=lambda _player: _player.points, reverse=True
+                    )[0].points >= self.maxPoints != 0
             ):
                 break
         await self.render_leaderboard(
@@ -261,12 +270,14 @@ class Game:
         )
         return new_player
 
-    async def end(self, instantly, reason=True):
+    @decorators.debug
+    async def end(self, instantly, reason=""):
         if not self.active:
             return
         self.active = False
         if instantly:
             self.skip()
+        print("Ended the game")
         await self.context.send(
             f"The game {'ended' if instantly else 'will end after this round'} " +
             f"{' because ' + reason if reason else ''}...",
@@ -322,6 +333,7 @@ class Game:
         if not players:
             raise asyncio.CancelledError
 
+        random.shuffle(players)
         options = question + "\n\n" + "\n".join(str(position + 1) + "- **" + "** | **".join(_player.picked) + "**"
                                                 for position, _player in enumerate(players))
 
@@ -334,7 +346,7 @@ class Game:
 
         try:
             winner = players[(await tsar.member.input(
-                title=f"{self.context.bot.emotes['choice']} Pick a card by typing its number",
+                title=f"{self.context.bot.emotes['choice']} Pick a winner by typing their number",
                 prompt=options,
                 required_type=int,
                 check=lambda message: 0 < int(message.content) <= len(players),

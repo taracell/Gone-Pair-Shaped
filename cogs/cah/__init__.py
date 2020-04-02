@@ -3,6 +3,7 @@ import discord
 from .objects import game
 import contextlib
 from utils import checks
+from utils.miniutils import decorators
 import asyncio
 import os
 from . import errors
@@ -60,8 +61,8 @@ class CAH(commands.Cog):
     async def packs(self, ctx):
         lang = "gb"
 
-        packs = "*(The :flag_gb: English `base` pack will always be included if there are not enough cards for you to" \
-                " play a game)*"
+        packs = "*Language switching is currently in beta while we wait on our translators and give the commands a " \
+                "good test*"
 
         lang_packs = self.bot.cah_packs.get(lang, None)
         if not lang_packs:
@@ -173,7 +174,8 @@ class CAH(commands.Cog):
             )
         for player in _game.players:
             if player == ctx.author:
-                await _game.remove_player(player)
+                print(f"Found {ctx.author}")
+                await player.quit()
                 break
         else:
             return await ctx.send(
@@ -195,7 +197,6 @@ class CAH(commands.Cog):
         if old_game is not None:
             with contextlib.suppress(Exception):
                 del self.bot.running_cah_game_objects[ctx.channel]
-                old_game.active = False
                 await old_game.end(instantly=instantly)
         else:
             await ctx.send(
