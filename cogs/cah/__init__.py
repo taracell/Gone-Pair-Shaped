@@ -165,11 +165,13 @@ class CAH(commands.Cog):
                 color=ctx.bot.colors["error"]
             )
         if any(_player == ctx.author for _player in _game.players):
+            if ctx.guild.id != _game.guild:
+                return await ctx.send(f"Erorr: Attempted to join a game from another guild. Aborted")
             return await ctx.send(
                 f"You're already in this game, I haven't added you but you're still in there anyway...",
                 title=f"{ctx.bot.emotes['valueerror']} *Confused applause*",
                 color=ctx.bot.colors["error"]
-            )
+        )
         if _game.joined:
             await _game.add_player(ctx.author)
 
