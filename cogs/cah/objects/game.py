@@ -110,7 +110,7 @@ class Game:
                     title=f"{self.context.bot.emotes['settings']} How big should your hand be?",
                     prompt=f"Pick anywhere from 1 to 25 cards. If you don't answer within {setting_timeout} seconds "
                            f"we'll select the default of 10.",
-                    required_type=bool,
+                    required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 1 <= int(message.content) <= 25,
                     error=f"{self.context.bot.emotes['valueerror']} That's not a number from 1 to 25",
