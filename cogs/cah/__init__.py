@@ -209,13 +209,13 @@ class CAH(commands.Cog):
         """Ends the current game in that channel.
         """
         old_game = self.bot.running_cah_game_objects.get(ctx.channel, None)
-        if not (ctx.author.permissions_in(ctx.channel).manage_channels or ctx.author == old_game.context.author):
-            return await ctx.send(
-                "You didn't start this game, and you can't manage this channel",
-                title=f"{ctx.bot.emotes['valueerror']} You don't have permission to do that",
-                color=ctx.bot.colors["error"]
-            )
         if old_game is not None:
+            if not (ctx.author.permissions_in(ctx.channel).manage_channels or ctx.author == old_game.context.author):
+                return await ctx.send(
+                    "You didn't start this game, and you can't manage this channel",
+                    title=f"{ctx.bot.emotes['valueerror']} You don't have permission to do that",
+                    color=ctx.bot.colors["error"]
+                )
             with contextlib.suppress(Exception):
                 del self.bot.running_cah_game_objects[ctx.channel]
                 await old_game.end(instantly=instantly)
