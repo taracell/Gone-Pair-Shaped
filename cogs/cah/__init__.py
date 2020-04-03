@@ -274,7 +274,7 @@ class CAH(commands.Cog):
 
     @commands.command(aliases=["denystart", "stopstart"])
     @commands.check(checks.is_owner)
-    async def nostart(self, ctx, end: typing.Optional[bool] = False, instantly: typing.Optional[bool] = True):
+    async def nostart(self, ctx, end: typing.Optional[bool] = False, instantly: typing.Optional[bool] = False):
         """Stops games from being played
         """
         self.bot.allow_running_cah_games = False
