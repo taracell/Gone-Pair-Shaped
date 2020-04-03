@@ -54,7 +54,7 @@ class HelpCommand(commands.HelpCommand):
         }
         for cmd, desc in custom_help_descriptions.items():
             descriptions[self.context.bot.get_main_custom_prefix(self.context.message) + cmd] = desc
-        if self.context.permissions_for(self.context.guild.me).embed_links:
+        if not self.context.guild or self.context.permissions_for(self.context.guild.me).embed_links:
             embed = discord.Embed(
                 title=f"{self.context.bot.emotes['status']} Cards Against Humanity - Commands",
                 description=
