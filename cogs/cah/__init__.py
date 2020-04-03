@@ -94,7 +94,7 @@ class CAH(commands.Cog):
                     "packs": {},
                     "descriptions": {}
                 }
-                for pack in files:
+                for pack in sorted(files):
                     with open(os.path.join(path, pack)) as file:
                         if pack == "-descriptions.txt":
                             descriptions = [
