@@ -235,6 +235,12 @@ class CAH(commands.Cog):
         _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         _game.maximumPlayers = new_max
         _game.players = _game.players[:new_max]
+        if new_max < _game.minimumPlayers:
+            return await ctx.send(
+                f"The minimum minimum player count is {_game.minimumPlayers}",
+                title=f"{ctx.bot.emotes['valueerror']} Bit to small...",
+                color=ctx.bot.colors['error']
+            )
         if _game.chosen_options:
             return await ctx.send(
                 f"This command can only be used before players are given the option to join",
