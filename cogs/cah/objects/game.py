@@ -208,19 +208,24 @@ class Game:
                     "message",
                     check=lambda message: (
                             (
-                                    message.content.lower().replace(" ", "") in
-                                    [
-                                        "imin",
-                                        "iamin",
-                                        "i'min",
-                                        self.context.bot.get_main_custom_prefix(self.context) + "join"
-                                    ]
-                                    and not any(_player == message.author for _player in self.players)
-                                    and (not self.whitelisted_players or message.author in self.whitelisted_players)
-                            ) or (
-                                    message.content.lower().replace(" ", "") in begin_messages
-                                    and len(self.players) >= self.minimumPlayers
-                                    and message.author == self.context.author
+                                    (
+                                            message.content.lower().replace(" ", "") in
+                                            [
+                                                "imin",
+                                                "iamin",
+                                                "i'min",
+                                                self.context.bot.get_main_custom_prefix(self.context) + "join"
+                                            ]
+                                            and not any(_player == message.author for _player in self.players)
+                                            and (
+                                                    not self.whitelisted_players
+                                                    or message.author in self.whitelisted_players
+                                            )
+                                    ) or (
+                                            message.content.lower().replace(" ", "") in begin_messages
+                                            and len(self.players) >= self.minimumPlayers
+                                            and message.author == self.context.author
+                                    )
                             )
                             and message.channel == self.context.channel
                     ),
