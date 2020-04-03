@@ -61,7 +61,8 @@ class Game:
                 required_type=int,
                 timeout=setting_timeout,
                 check=lambda message: 0 <= int(message.content) <= 100,
-                error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `100`... Try again"
+                error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `100`... Try again",
+                color=self.context.bot.colors['status']
             ))[0]
         with contextlib.suppress(asyncio.TimeoutError):
             packs = (await self.context.input(
@@ -72,6 +73,7 @@ class Game:
                        f"ensure it doesn't show up. We recommend the `base` pack for beginners. "
                        f"If you don't pick within {setting_timeout * 2} seconds we'll give you the `base` pack.",
                 timeout=setting_timeout * 2,
+                color=self.context.bot.colors['status']
             ))[0].lower().split(" ")
             lang_packs = all_packs.get(self.lang, None)["packs"]
             if not lang_packs:
@@ -100,7 +102,8 @@ class Game:
                            f"let other players know who you are.",
                     required_type=bool,
                     timeout=setting_timeout,
-                    error=f"{self.context.bot.emotes['valueerror']} Pick either `yes` or `no`"
+                    error=f"{self.context.bot.emotes['valueerror']} Pick either `yes` or `no`",
+                    color=self.context.bot.colors['status']
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.hand_size = (await self.context.input(
@@ -110,7 +113,8 @@ class Game:
                     required_type=bool,
                     timeout=setting_timeout,
                     check=lambda message: 1 <= int(message.content) <= 25,
-                    error=f"{self.context.bot.emotes['valueerror']} That's not a number from 1 to 25"
+                    error=f"{self.context.bot.emotes['valueerror']} That's not a number from 1 to 25",
+                    color=self.context.bot.colors['status']
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.maxRounds = (await self.context.input(
@@ -121,6 +125,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 0 <= int(message.content) <= 200,
+                    color=self.context.bot.colors['status'],
                     error=f"{self.context.bot.emotes['valueerror']}  That's not a number from `0` to `200`... Try again"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
@@ -131,6 +136,7 @@ class Game:
                            f"we'll give you 150 seconds.",
                     required_type=int,
                     timeout=setting_timeout,
+                    color=self.context.bot.colors['status'],
                     check=lambda message: 10 <= int(message.content) <= 600,
                     error=f"{self.context.bot.emotes['valueerror']} That's not a number from `10` to `600`... Try again"
                 ))[0]
@@ -142,6 +148,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 10 <= int(message.content) <= 600,
+                    color=self.context.bot.colors['status'],
                     error=f"{self.context.bot.emotes['valueerror']} That's not a number from `10` to `600`... Try again"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
@@ -152,6 +159,7 @@ class Game:
                     required_type=int,
                     timeout=setting_timeout,
                     check=lambda message: 0 <= int(message.content) <= 150,
+                    color=self.context.bot.colors['status'],
                     error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `150`... Try again"
                 ))[0]
 

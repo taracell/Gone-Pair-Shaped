@@ -226,6 +226,28 @@ class CAH(commands.Cog):
                 color=ctx.bot.colors["error"]
             )
 
+    @commands.command()
+    @commands.guild_only()
+    @commands.check(checks.bot_mod)
+    async def setmaxplayers(self, ctx, new_max=25):
+        """Set the maximum player count of the game. Can only be used in setup and when players are joining
+        """
+        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        _game.maximumPlayers = new_max
+        _game.players = _game.players[:new_max]
+        if _game.chosen_options:
+            return await ctx.send(
+                f"This command can only be used before players are given the option to join",
+                title=f"{ctx.bot.emotes['valueerror']} You're too late",
+                color=ctx.bot.colors['error']
+            )
+        await ctx.send(
+            f"We've set the player limit on this game to {new_max} and kicked out any players who bring the game over "
+            f"that limit",
+            title=f"{ctx.bot.emotes['success']}  Great!",
+            color=ctx.bot.colors['status']
+        )
+
     @commands.command(aliases=["bc", "sall"])
     @commands.check(checks.is_owner)
     async def broadcast(self, ctx, nostart: typing.Optional[bool] = True, *, message):
