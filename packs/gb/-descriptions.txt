@@ -1,0 +1,13 @@
+base:Just the basic, base pack
+spongebob:SpongeBob themed cards!
+ex1:The first extension pack.
+ex2:The sequel to the first extension pack.
+ex3:The sequel to the first extension pack, the sequel!
+ex4:Yet another extension pack, but the green box.
+ex5:Ex4 2: electric boogaloo
+ex6:Same again.
+ex7:The last expansion pack.
+pax:The PAX convention pack.
+base2:An additional base pack / alternative extension
+anime:Nani?
+discord:Our pack, containing cards that we wanted but couldn't quite make an excuse to put in the other packs.

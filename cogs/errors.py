@@ -4,6 +4,7 @@ from utils.converters import fix_time
 from discord.ext.commands.core import Group, Command
 import traceback
 import asyncio
+import cogs.cah.errors as cah_errors
 
 exceptions_channel_id = 686285252817059881
 
@@ -98,13 +99,20 @@ class ErrorHandler(commands.Cog):
             if not ctx.valid:
                 return  # If ctx is not valid this means that a command that is not defined was run. Pass
             elif isinstance(error, (commands.BadUnionArgument, commands.BadArgument, commands.MissingRequiredArgument)):
-                await ctx.send(f"Missing or incorrect argument\n(`{str(error)}`)\nHelp is below.")
+                return await ctx.send(
+                    f"Missing or incorrect argument\n(`{str(error)}`)",
+                    title=f"{ctx.bot.emotes['error']} Invalid argument",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.TooManyArguments):
                 num = len(ctx.command.clean_params)
-                await ctx.send(
-                    f"This command takes {num} arguments, but you passed {len(ctx.args)}! if you wanted "
-                    f"a sub-command, check the name and try again. Help for this command is below.")
+                return await ctx.send(
+                    f"This command takes {num} arguments, but you passed {len(ctx.args) + len(ctx.kwargs)}! if you "
+                    f"wanted a sub-command, check the name and try again",
+                    title=f"{ctx.bot.emotes['error']} Invalid argument",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.NotOwner):
                 if ctx.author.id in self.bot.admins:
@@ -112,44 +120,79 @@ class ErrorHandler(commands.Cog):
                 owner_names = str(self.bot.get_user(self.bot.owner_ids[0]))
                 for owner in self.bot.owner_ids[1:]:
                     owner_names = owner_names + " or " + str(self.bot.get_user(owner))
-                return await ctx.send(f"You must be {owner_names} to run this command!")
+                return await ctx.send(
+                    f"You must be {owner_names} to run this command!",
+                    title=f"{ctx.bot.emotes['error']} No permissions",
+                    color=ctx.bot.colors["error"]
+                )
+
+            elif isinstance(error, cah_errors.CantPlayNow):
+                return await ctx.send(
+                    f"{' '.join(error.args)}",
+                    title=f"{ctx.bot.emotes['error']} You can't play now...",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.CommandOnCooldown):
                 rem = fix_time(error.retry_after)
-                return await ctx.send(f"Oh no! it looks like this command is on a cooldown! try again in `{rem}`!")
+                return await ctx.send(
+                    f"Oh no! it looks like this command is on a cooldown! try again in `{rem}`!",
+                    title=f"{ctx.bot.emotes['error']} Too fast!",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.BotMissingPermissions):
                 x = [m.replace('_', ' ') for m in error.missing_perms]
                 n = '\n• '
-                return await ctx.send(f"I'm' missing the following permissions:\n```\n• {n.join(x)}\n```")
+                return await ctx.send(
+                    f"I'm' missing the following permissions:\n```\n• {n.join(x)}\n```",
+                    title=f"{ctx.bot.emotes['error']} I don't got perms",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.MissingPermissions):
                 x = [m.replace('_', ' ') for m in error.missing_perms]
                 n = '\n• '
-                return await ctx.send(f"You're missing the following permissions:\n```\n• {n.join(x)}\n```")
+                return await ctx.send(
+                    f"You're missing the following permissions:\n```\n• {n.join(x)}\n```",
+                    title=f"{ctx.bot.emotes['error']} No permissions",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, asyncio.TimeoutError):
-                return await ctx.send(f"This took a bit too long, try again and hope that both you and our servers are "
-                                      f"faster next time")
+                return await ctx.send(
+                    f"This took a bit too long, try again and hope that both you and our servers are "
+                    f"faster next time",
+                    title=f"{ctx.bot.emotes['error']} Zzzzzzzzz",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.errors.CommandInvokeError) and \
                     isinstance(error.original, (discord.HTTPException, discord.Forbidden)):
-                return await ctx.send(f"It looks like I don't have enough permissions to do this. The full error was: "
-                                      f"{str(error)}")
+                return await ctx.send(
+                    f"It looks like I don't have enough permissions to do this. The full error was: "
+                    f"{str(error)}",
+                    title=f"{ctx.bot.emotes['error']} I don't got perms",
+                    color=ctx.bot.colors["error"]
+                )
 
             elif isinstance(error, commands.CheckFailure):
                 if 'premium only' in str(error).lower():
                     return await ctx.send(str(error))
                 else:
-                    return await ctx.send(f"Insufficient permissions to run this command (you don't meet a check)"
-                                          f"\n(`{str(error)}`)")
+                    return await ctx.send(
+                        f"Insufficient permissions to run this command (you don't meet a check)"
+                        f"\n(`{str(error)}`)",
+                        title=f"{ctx.bot.emotes['error']} No permissions",
+                        color=ctx.bot.colors["error"]
+                    )
 
             else:  # unknown error
                 print("Got an error: " + str(error) + " of type " + str(type(error)))
                 exception_status = "could not be"
                 try:
                     exceptions_channel = ctx.bot.get_channel(exceptions_channel_id)
-                    paginator = commands.Paginator(prefix='```python\n', suffix='```')
+                    paginator = commands.Paginator(prefix='```python\n')
                     for index in range(0, len(str(error)), 1980):
                         paginator.add_line(str(error)[index:index + 1980])
                     try:
@@ -195,10 +238,12 @@ class ErrorHandler(commands.Cog):
                 except discord.HTTPException:
                     try:
                         return await ctx.send(
-                            f"**OOPS!**\nThere was an error. This error {exception_status} sent to our "
+                            f"There was an error. This error {exception_status} sent to our "
                             f"developers, if you want more help with this command please report the **Case "
                             f"ID `{str(ctx.message.id)[-4:-1]}`** to our support team ||"
-                            f"https://discord.gg/bPaNnxe||")
+                            f"https://discord.gg/bPaNnxe||",
+                            title=f"**OOPS!**",
+                            color=ctx.bot.colors["error"])
                     except discord.HTTPException:
                         try:
                             if ctx.guild:
