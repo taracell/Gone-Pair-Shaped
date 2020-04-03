@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
-import sys
 from utils import help, checks
-from utils.miniutils import minidiscord, data
+from utils.miniutils import minidiscord, data, classes
 import traceback
 import contextlib
 import matplotlib.pyplot as plt
@@ -267,7 +266,7 @@ async def ping(ctx):
 
 
 with open('token.txt') as tokens:
-    bot.tokens = dict(line.strip().split(":", 1) for line in tokens.readlines())
+    bot.tokens = classes.ObfuscatedDict(line.strip().split(":", 1) for line in tokens.readlines())
 
 bot.loaded = 0
 for position, cog in enumerate(cogs):
