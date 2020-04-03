@@ -26,7 +26,7 @@ class Game:
 
         self.players = []
         self.minimumPlayers = 3
-        self.maximumPlayers = 50
+        self.maximumPlayers = 25
 
         self.maxRounds = 0
         self.maxPoints = 7
@@ -214,6 +214,7 @@ class Game:
                                     and len(self.players) >= self.minimumPlayers
                                     and message.author == self.context.author
                             )
+                            and message.channel == self.context.channel
                     ),
                     timeout=expiry - time.time()
                 )
