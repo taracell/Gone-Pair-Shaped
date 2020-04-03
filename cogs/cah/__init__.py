@@ -259,7 +259,15 @@ class CAH(commands.Cog):
     async def broadcast(self, ctx, nostart: typing.Optional[bool] = True, *, message):
         """Broadcasts a message to every currently active game channel.
         """
-        self.bot.allow_running_cah_games = False if nostart else self.bot.allow_running_cah_games
+        if nostart:
+            self.bot.allow_running_cah_games = False
+            await self.bot.change_presence(
+                status=discord.Status.dnd,
+                activity=discord.Activity(
+                    name="my developers in maintenance mode",
+                    type=discord.ActivityType.listening,
+                )
+            )
         for _game in self.bot.running_cah_game_objects.values():
             with contextlib.suppress(Exception):
                 await _game.context.send(
@@ -278,6 +286,13 @@ class CAH(commands.Cog):
         """Stops games from being played
         """
         self.bot.allow_running_cah_games = False
+        await self.bot.change_presence(
+            status=discord.Status.dnd,
+            activity=discord.Activity(
+                name="my developers in maintenance mode",
+                type=discord.ActivityType.listening,
+            )
+        )
         if end:
             for _game in self.bot.running_cah_game_objects.values():
                 with contextlib.suppress(Exception):
@@ -299,6 +314,13 @@ class CAH(commands.Cog):
         """Allows games to be started.
         """
         self.bot.allow_running_cah_games = True
+        await self.bot.change_presence(
+            status=discord.Status.online,
+            activity=discord.Activity(
+                name="your games of CAH",
+                type=discord.ActivityType.watching,
+            )
+        )
         await ctx.send(
             "Games can be started again",
             title="Action complete!"

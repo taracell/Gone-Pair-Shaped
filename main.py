@@ -72,13 +72,14 @@ bot.main_prefix = main_prefix
 @bot.event
 async def on_ready():
     print(f'Logged in successfully as {bot.user} with {bot.loaded} cogs')
-    await bot.change_presence(
-        status=discord.Status.online,
-        activity=discord.Activity(
-            name="your games of CAH",
-            type=discord.ActivityType.watching,
+    if bot.__dict__.get("allow_running_cah_games", True):
+        await bot.change_presence(
+            status=discord.Status.online,
+            activity=discord.Activity(
+                name="your games of CAH",
+                type=discord.ActivityType.watching,
+            )
         )
-    )
 
 
 @bot.command()
