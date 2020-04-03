@@ -147,7 +147,9 @@ async def info(ctx):
             "> **INVITE ME**\n[discordapp.com]"
             "(https://discordapp.com/oauth2/authorize?"
             "client_id=679361555732627476&scope=bot&permissions=130048)"
-            "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
+            "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)\n"
+            "This bot is not associated with Cards Against Humanity LLC. Major credits to them for creating the game "
+            "though!"
         ),
         title='Cards Against Humanity - Credits',
         color=bot.colors["info"],
