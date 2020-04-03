@@ -186,8 +186,8 @@ async def stats(ctx):
     statistics = f"**Servers:** {len(bot.guilds)}\n" \
                  f"**Members:** {len(bot.users)}\n" \
                  f"**Emojis:** {len(bot.emojis)}\n" \
-                 f"**Average Ping:** {round(bot.latency, 2)}ms\n" \
-                 f"**Shard Ping:** {round(dict(bot.latencies)[shard_id], 2)}ms\n" \
+                 f"**Average Ping:** {round(bot.latency * 1000, 2)}ms\n" \
+                 f"**Shard Ping:** {round(dict(bot.latencies)[shard_id] * 1000, 2)}ms\n" \
                  f"**Your Shard:** {_shard_name} ({shard_id + 1}/{len(bot.shards)})"
     with contextlib.suppress(AttributeError):
         statistics += f"\n**Games in progress:** {bot.running_cah_games}"
@@ -241,7 +241,7 @@ async def ping(ctx):
     shard_names = iter(bot.shard_names)
     content = (
         f"> You are currently on shard {shard_name} ({shard_id + 1}/{len(bot.shards)})\n"
-        f"> The average latency is {round(average_latency, 2)}\n"
+        f"> The average latency is {round(average_latency, 2)}ms\n"
         f"**All Shards:**"
     )
     for shard, latency in bot.latencies:
@@ -253,8 +253,8 @@ async def ping(ctx):
             lag_difference_symbol = '+'
         # Minus signs will already be included in the float
         content += (
-            f"\n{next(shard_names, '???')} - {round(latency * 1000, 2)} "
-            f"({shard + 1}/{number_of_shards}, {lag_difference_symbol}{lag_difference} from average)"
+            f"\n{next(shard_names, '???')} - {round(latency * 1000, 2)}ms "
+            f"({shard + 1}/{number_of_shards}, {lag_difference_symbol}{lag_difference}ms from average)"
         )
     await ctx.send(
         content,
