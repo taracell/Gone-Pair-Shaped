@@ -115,7 +115,7 @@ class CAH(commands.Cog):
 
     @commands.command(aliases=["start"])
     @commands.check(no_cah_in_channel)
-    @checks.bypass_check(allow_runs)
+    @commands.check(checks.bypass_check(allow_runs))
     @commands.guild_only()
     async def play(self, ctx, advanced: typing.Optional[bool] = False, whitelist: commands.Greedy[discord.Member] = ()):
         """Starts the game.

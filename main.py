@@ -19,12 +19,13 @@ except FileNotFoundError:
 
 main_prefix = "$" if production else "£"
 cogs = [
+    "utils.constants",
+    "cogs.disclaimer",
     "jishaku",
     "guildmanager.cog",
     "cogs.cah",
     "cogs.errors",
     "cogs.botlist",
-    "utils.constants",
 ]
 
 prefixes = data.Json("prefixes")
@@ -52,7 +53,7 @@ bot = minidiscord.AutoShardedBot(
     help_command=help.HelpCommand(),
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201, 421698654189912064],
     activity=discord.Activity(
-        name="discord go by.",
+        name="Discord go by.",
         type=discord.ActivityType.watching
     ),  # We create a discord activity to start up with
     status=discord.Status.idle
@@ -83,10 +84,11 @@ async def on_ready():
 
 @bot.command()
 @commands.guild_only()
-@checks.bypass_check(checks.has_permissions_predicate, manage_guild=True)
+@commands.check(checks.bypass_check(checks.has_permissions_predicate, manage_guild=True))
 async def setprefix(ctx, *new_prefixes):
     """Changes the prefixes of the bot in this guild. Pass as many prefixes as you like separated by spaces. \
 If you want a multi-word prefix enclose it in speech marks or quotation marks"""
+    new_prefixes = [prefix[:20] for prefix in new_prefixes]
     if new_prefixes:
         prefixes.save_key(
             ctx.guild.id,
@@ -147,11 +149,11 @@ async def info(ctx):
             "> **INVITE ME**\n[discordapp.com]"
             "(https://discordapp.com/oauth2/authorize?"
             "client_id=679361555732627476&scope=bot&permissions=130048)"
-            "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)\n"
+            "\n\n> **SERVER**\n[Cardboard Against Humankind Bot](https://discord.gg/bPaNnxe)\n"
             "This bot is not associated with Cards Against Humanity LLC. Major credits to them for creating the game "
             "though!"
         ),
-        title='Cards Against Humanity - Credits',
+        title='Cardboard Against Humankind - Credits',
         color=bot.colors["info"],
         paginate_by="\n"
     )
