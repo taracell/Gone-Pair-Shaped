@@ -164,8 +164,15 @@ class Disclaimers(commands.Cog):
         if (
                 ctx.guild and
                 not agrees and
-                ctx.channel.permissions_for(ctx.author).manage_guild and
-                ctx.channel.permissions_for(ctx.author).manage_permissions
+                (
+                        (
+                                ctx.channel.permissions_for(ctx.author).manage_guild and
+                                ctx.channel.permissions_for(ctx.author).manage_permissions
+                        ) or (
+                                ctx.author in self.bot.skips and
+                                checks.bot_mod(ctx)
+                        )
+                )
         ):
             if ctx.channel.permissions_for(ctx.guild.me).add_reactions:
                 menu = input.Menu(
