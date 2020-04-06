@@ -32,6 +32,7 @@ class Game:
         self.maxPoints = 7
         self.hand_size = 10
         self.anon = False
+        self.shuffles = 0
 
         self.coro = None
         self.skipping = False
@@ -129,6 +130,19 @@ class Game:
                     error=f"{self.context.bot.emotes['valueerror']}  That's not a number from `0` to `200`... Try again"
                 ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
+                self.shuffles = (await self.context.input(
+                    title=f"{self.context.bot.emotes['settings']} How many times would you like to be able to shuffle?",
+                    prompt=f"How many times do you want to be able to shuffle inside of the game? Normally this option "
+                           f"would be set to `0`, but we've been asked to add a mulligan command. If you don't choose "
+                           f"within {setting_timeout} seconds we won't allow you to shuffle at all. This number must be"
+                           f" between 0 and 50",
+                    required_type=int,
+                    timeout=setting_timeout,
+                    check=lambda message: 0 <= int(message.content) <= 50,
+                    color=self.context.bot.colors['status'],
+                    error=f"{self.context.bot.emotes['valueerror']}  That's not a number from `0` to `50`... Try again"
+                ))[0]
+            with contextlib.suppress(asyncio.TimeoutError):
                 self.timeout = (await self.context.input(
                     title=f"{self.context.bot.emotes['settings']} How long should you get to pick your cards?",
                     prompt=f"Pick a number of seconds from 10 to 600. You will get this amount of time for __each__ "
@@ -171,7 +185,7 @@ class Game:
             self.answer_cards += basew
             self.question_cards += baseb
 
-        if len(self.answer_cards) < self.hand_size * self.maximumPlayers:
+        if len(self.answer_cards) < self.hand_size * (self.maximumPlayers * (self.shuffles + 1)):
             self.answer_cards *= math.ceil((self.maximumPlayers * self.hand_size) / len(self.answer_cards))
 
         self.question_cards = [card for card in self.question_cards if card.count(r"\_\_") <= self.hand_size]
