@@ -25,6 +25,7 @@ class Player:
         self.coros = []
 
         self.tsar_count = 0
+        self.shuffles = game_instance.shuffles
 
     def __str__(self):
         return "???" if self.game.anon else str(self.user)
@@ -52,6 +53,40 @@ class Player:
             )
             self.game.dealt_answer_cards.append(card)
             self.cards.append(card)
+
+    @decorators.debug
+    async def shuffle(self, context):
+        if self.shuffles < 1:
+            return await context.send(
+                f"{context.author.mention}, You're out of shuffles",
+                title=f"{context.bot.emotes['valueerror']} I couldn't shuffle your cards",
+                color=context.bot.colors["error"]
+            )
+        else:
+            self.shuffles -= 1
+            self.game.used_answer_cards += self.cards
+            self.cards = []
+            self.deal_cards()
+            try:
+                await self.member.send(
+                    f"**Your cards are:**\n" +
+                    f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards)]),
+                    title=f"{self.game.context.bot.emotes['success']} Here are your new cards!",
+                    paginate_by="\n",
+                    color=self.game.context.bot.colors['status']
+                )
+            except discord.Forbidden:
+                await self.quit(
+                    reason="I can't DM them"
+                )
+                return False
+            await context.send(
+                f"{context.author.mention}, I've shuffled your cards and sent the new ones to your DMs. You now have "
+                f"{self.shuffles} shuffle{'s' if self.shuffles != 1 else ''} left",
+                title=f"{context.bot.emotes['valueerror']} Fwooosh",
+                color=context.bot.colors["error"]
+            )
+            return True
 
     @decorators.debug
     async def pick_cards(self, question, tsar) -> typing.Optional[typing.List[str]]:

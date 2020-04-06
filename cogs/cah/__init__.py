@@ -22,6 +22,7 @@ def no_cah_in_channel(ctx):
     return True
 
 
+# noinspection DuplicatedCode
 class CAH(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -200,6 +201,37 @@ class CAH(commands.Cog):
             return await ctx.send(
                 f"You're not in this game... I couldn't remove you but I guess that doesn't matter much",
                 title=f"{ctx.bot.emotes['valueerror']} *Confused applause*",
+                color=ctx.bot.colors["error"]
+            )
+
+    @commands.command(aliases=["mulligan"])
+    @commands.guild_only()
+    @commands.max_concurrency(1, commands.BucketType.channel)
+    async def shuffle(self, ctx):
+        """Reshuffles your cards
+        """
+        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        if _game is None:
+            return await ctx.send(
+                "There doesn't seem to be a game in this channel",
+                title=f"{ctx.bot.emotes['valueerror']} No game",
+                color=ctx.bot.colors["error"]
+            )
+        if not _game.chosen_options:
+            return await ctx.send(
+                "This game isn't setup yet",
+                title=f"{ctx.bot.emotes['valueerror']} I'm not ready yet...",
+                color=ctx.bot.colors["error"]
+            )
+        for player in _game.players:
+            if player == ctx.author:
+                await player.shuffle(ctx)
+                break
+        else:
+            return await ctx.send(
+                f"You're not in this game. Not only can I not shuffle your cards: you don't even have any cards to "
+                f"shuffle",
+                title=f"{ctx.bot.emotes['valueerror']} *Not sure what's going on here...*",
                 color=ctx.bot.colors["error"]
             )
 
