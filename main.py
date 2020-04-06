@@ -7,6 +7,7 @@ import contextlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import io
+import datetime
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -179,15 +180,20 @@ async def skip(ctx):
         )
 
 
+tos_agrees = data.Json("disclaimer")
+
+
 @bot.command(aliases=["statistics", "status"])
 async def stats(ctx):
     """Shows the bot's current statistics
     """
     shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
     _shard_name = "???"
+    agrees = tos_agrees.load_data() or []
     with contextlib.suppress(IndexError):
         _shard_name = bot.shard_names[shard_id]
     statistics = f"**Servers:** {len(bot.guilds)}\n" \
+                 f"**Disclaimer agreements:** {len(agrees)}\n" \
                  f"**Members:** {len(bot.users)}\n" \
                  f"**Emojis:** {len(bot.emojis)}\n" \
                  f"**Average Ping:** {round(bot.latency * 1000, 2)}ms\n" \
@@ -196,21 +202,30 @@ async def stats(ctx):
     with contextlib.suppress(AttributeError):
         statistics += f"\n**Games in progress:** {bot.running_cah_games}"
     if ctx.guild is None or ctx.channel.permissions_for(ctx.guild.me).attach_files:
-        x_values = sorted(server.me.joined_at for server in bot.guilds if server.me.joined_at)
+        joins_x_values = sorted(server.me.joined_at for server in bot.guilds if server.me.joined_at)
+        agrees_x_values = sorted(
+            datetime.datetime.utcfromtimestamp(server['timestamp']) for server in agrees.values()
+        )
         plt.grid(True)
         fig, ax = plt.subplots(figsize=(10, 6))
 
-        ax.plot(x_values, tuple(range(1, len(x_values) + 1)), 'k', lw=2)
+        merged_x_values = sorted(joins_x_values + agrees_x_values)
+
+        ax.plot(joins_x_values, tuple(range(1, len(joins_x_values) + 1)), 'k', lw=2, label="Servers Joined")
+        ax.plot(agrees_x_values, tuple(range(1, len(agrees_x_values) + 1)), 'r', lw=2, label="Disclaimer Agrees")
         if ctx.guild is not None and ctx.guild.me.joined_at is not None:
-            ax.scatter([ctx.guild.me.joined_at], x_values.index(ctx.guild.me.joined_at) + 1, lw=4)
+            ax.scatter([ctx.guild.me.joined_at], joins_x_values.index(ctx.guild.me.joined_at) + 1, lw=4)
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%a %d-%m-%Y"))
-        ax.xaxis.set_major_locator(mdates.DayLocator(interval=((x_values[-1] - x_values[0]) / 7).days or 1))
+        ax.xaxis.set_major_locator(
+            mdates.DayLocator(interval=((merged_x_values[-1] - merged_x_values[0]) / 7).days or 1)
+        )
 
         fig.autofmt_xdate()
 
         plt.title("Bot growth")
-        plt.xlabel('Time')
+        plt.xlabel('Time (UTC)')
         plt.ylabel('Servers')
+        plt.legend()
         buf = io.BytesIO()
         fig.savefig(buf, format='png')
         buf.seek(0)
