@@ -1,0 +1,5 @@
+dblpy
+discord.py
+jishaku
+git+https://github.com/dragdev-studios/guildmanager
+matplotlib
