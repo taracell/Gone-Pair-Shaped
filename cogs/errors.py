@@ -5,6 +5,7 @@ from discord.ext.commands.core import Group, Command
 import traceback
 import asyncio
 import cogs.cah.errors as cah_errors
+from cogs import disclaimer
 
 exceptions_channel_id = 686285252817059881
 
@@ -126,6 +127,22 @@ class ErrorHandler(commands.Cog):
                     color=ctx.bot.colors["error"]
                 )
 
+            elif isinstance(error, disclaimer.NotAgreedError):
+                return await ctx.send(
+                    f"Someone who has `manage server` and `manage roles` has to agree to the terms and conditions "
+                    f"before you can use this command. They can do this with `{ctx.bot.get_main_custom_prefix(ctx)}"
+                    f"terms`",
+                    title=f"{ctx.bot.emotes['error']} No permissions",
+                    color=ctx.bot.colors["error"]
+                )
+
+            elif isinstance(error, disclaimer.NotGuildOwnerError):
+                return await ctx.send(
+                    f"You're not the owner of this guild, so you can't run this command",
+                    title=f"{ctx.bot.emotes['error']} No permissions",
+                    color=ctx.bot.colors["error"]
+                )
+
             elif isinstance(error, cah_errors.CantPlayNow):
                 return await ctx.send(
                     f"{' '.join(error.args)}",
@@ -214,6 +231,7 @@ class ErrorHandler(commands.Cog):
                     await exceptions_channel.send(f"> **My permissions:** `{my_permissions_dict}`\n\n"
                                                   f"> **Their permissions:** `{author_permissions_dict}`\n\n"
                                                   f"> **Guild:** {str(ctx.guild or 'No guild')} `ID: {str(ctx.guild.id) if ctx.guild else 'No guild'}`\n\n"
+                                                  f"> **Channel:** {ctx.channel.id if ctx.channel else 'No channel'}`\n\n"
                                                   f"> **User:** {str(ctx.author)} `ID: {str(ctx.author.id)}`\n\n"
                                                   f"> **Command:** {ctx.command.qualified_name} `"
                                                   f"Invoked with: {ctx.invoked_with}, "

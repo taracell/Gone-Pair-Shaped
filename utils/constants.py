@@ -25,7 +25,7 @@ class Constants(commands.Cog):
             "Moderators": 686310450618695703,
             "Helpers": 686317204752302091,
             "Translators": 691778934471131136,
-            "Shard Namers": 694271523363488176
+            "Namers": 694271523363488176
         }
 
         self.bot.set(

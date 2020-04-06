@@ -56,7 +56,7 @@ class HelpCommand(commands.HelpCommand):
             descriptions[self.context.bot.get_main_custom_prefix(self.context.message) + cmd] = desc
         if not self.context.guild or self.context.permissions_for(self.context.guild.me).embed_links:
             embed = discord.Embed(
-                title=f"{self.context.bot.emotes['status']} Cards Against Humanity - Commands",
+                title=f"{self.context.bot.emotes['status']} Cardboard Against Humankind - Commands",
                 description=
                 (
                     "*Tip: Owner + Staff information has moved to "
@@ -64,7 +64,7 @@ class HelpCommand(commands.HelpCommand):
                     "**INVITE ME**\n[discordapp.com]"
                     "(https://discordapp.com/oauth2/authorize?"
                     "client_id=679361555732627476&scope=bot&permissions=130048)"
-                    "\n\n> **SERVER**\n[Cards Against Humanity Bot](https://discord.gg/bPaNnxe)"
+                    "\n\n> **SERVER**\n[Cardboard Against Humankind Bot](https://discord.gg/bPaNnxe)"
                 ),
                 color=self.context.bot.colors["info"]
             )
@@ -78,7 +78,7 @@ class HelpCommand(commands.HelpCommand):
                 )
             await self.context.send(embed=embed)
         else:
-            message = f"> {self.context.bot.emotes['status']} **Cards Against Humanity - Commands**"
+            message = f"> {self.context.bot.emotes['status']} **Cardboard Against Humankind - Commands**"
             for command, description in descriptions.items():
                 if not description:
                     continue

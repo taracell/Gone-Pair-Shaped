@@ -102,7 +102,7 @@ def bypass_check(
                     raise e
             raise e
 
-    return commands.check(pred)
+    return pred
 
 
 def has_permissions_predicate(ctx, **perms):
