@@ -27,6 +27,8 @@ def is_guild_owner(ctx):
 
 
 def initial_agree_check(ctx):
+    if not ctx.guild:
+        return False
     agrees = json.Json("disclaimer").read_key(ctx.guild.id)
     if not agrees:
         raise NotAgreedError("Your guild needs to agree to the terms before this command works in your guild")
@@ -132,6 +134,7 @@ class Disclaimers(commands.Cog):
         )
 
     @commands.command()
+    @commands.guild_only()
     @commands.check_any(commands.check(checks.bypass_check(
         checks.has_permissions_predicate,
         manage_guild=True,
