@@ -115,7 +115,7 @@ class ErrorHandler(commands.Cog):
                     color=ctx.bot.colors["error"]
                 )
 
-            elif isinstance(error, [commands.errors.UnexpectedQuoteError, commands.errors.ExpectedClosingQuoteError]):
+            elif isinstance(error, (commands.errors.UnexpectedQuoteError, commands.errors.ExpectedClosingQuoteError)):
                 num = len(ctx.command.clean_params)
                 return await ctx.send(
                     f"Try surrounding each argument in speech marks (`\"`) and placing backslashes (`\\`) before any "
