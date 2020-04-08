@@ -62,10 +62,10 @@ class Disclaimers(commands.Cog):
             "You agree that we process some of your data": "You agree that we can store information necessary to run "
                                                            "the bot, such as your guild's ID, prefixes, and the time "
                                                            "you agreed to these terms. We'll also save your ID, "
-                                                           "username and nickname in this server as the person who "
+                                                           "and username with this server's data as the person who "
                                                            "agreed to the terms. We won't give any IDs or personally "
-                                                           "identifiable information (including IDs, usernames and "
-                                                           "nicknames) to anyone apart from the server owner if they "
+                                                           "identifiable information (including IDs, and "
+                                                           "usernames) to anyone apart from the server owner if they "
                                                            "request information about who agreed with the `%%server` "
                                                            "command",
             "You agree that we don't have control of 3rd party packs": "We will soon (or have already if we have but "

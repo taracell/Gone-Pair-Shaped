@@ -115,6 +115,15 @@ class ErrorHandler(commands.Cog):
                     color=ctx.bot.colors["error"]
                 )
 
+            elif isinstance(error, [commands.errors.UnexpectedQuoteError, commands.errors.ExpectedClosingQuoteError]):
+                num = len(ctx.command.clean_params)
+                return await ctx.send(
+                    f"Try surrounding each argument in speech marks (`\"`) and placing backslashes (`\\`) before any "
+                    f"speech marks other than surrounding speech marks in your arguments",
+                    title=f"{ctx.bot.emotes['error']} Invalid argument",
+                    color=ctx.bot.colors["error"]
+                )
+
             elif isinstance(error, commands.NotOwner):
                 if ctx.author.id in self.bot.admins:
                     return
