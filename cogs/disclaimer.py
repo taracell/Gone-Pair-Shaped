@@ -87,6 +87,8 @@ class Disclaimers(commands.Cog):
         bot.check(checks.bypass_check(self.agreed_check))
 
     def agreed_check(self, ctx):
+        if not ctx.guild:
+            return True
         allowed_commands = [
             "help",
             "terms",
