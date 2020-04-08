@@ -112,7 +112,6 @@ class Disclaimers(commands.Cog):
                 "member": {
                     "id": ctx.author.id,
                     "user": str(ctx.author),
-                    "nick": ctx.author.nick,
                 },
                 "timestamp": datetime.datetime.now().timestamp()
             }
