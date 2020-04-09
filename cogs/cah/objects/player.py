@@ -107,7 +107,7 @@ class Player:
                     timeout=self.game.timeout,
                     check=lambda message: 0 <= int(message.content) <= len(self.cards) \
                           and self.cards[int(message.content) - 1] is not None,
-                    error=f"That isn't a number from 1 to {len(self.cards)}",
+                    error=f"That isn't a valid card",
                     color=self.bot.colors["info"]
                 )
                 card_index = card - 1
