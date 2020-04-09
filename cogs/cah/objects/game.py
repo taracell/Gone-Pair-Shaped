@@ -7,10 +7,13 @@ import contextlib
 import time
 import discord
 import math
+from utils import pycardcast
 
 
 class Game:
     def __init__(self, context, advanced_setup, whitelist, lang="gb"):
+        self.cardcast = pycardcast.CardCast()
+
         self.question_cards = []
         self.answer_cards = []
 
@@ -50,6 +53,17 @@ class Game:
         self.skipping = True
         if self.coro:
             self.coro.cancel()
+            
+    @decorators.debug
+    async def get_custom_pack(self, code):
+        if len(code) == 5 and code.upper() == code:
+            response = await self.cardcast.get_cards(code)
+            if response.success:
+                return response.response
+        return {
+            "white": [],
+            "black": []
+        }
 
     async def setup(self):
         setting_timeout = 30
@@ -75,15 +89,24 @@ class Game:
                        f"If you don't pick within {setting_timeout * 2} seconds we'll give you the `base` pack.",
                 timeout=setting_timeout * 2,
                 color=self.context.bot.colors['status']
-            ))[0].lower().split(" ")
+            ))[0].split(" ")
             lang_packs = all_packs.get(self.lang, None)["packs"]
             if not lang_packs:
                 self.lang = "gb"
                 lang_packs = all_packs.get(self.lang, None)["packs"]
             for pack in packs:
                 if not "-" + pack in packs:
-                    question_cards_in_pack = lang_packs.get(pack + "b", [])
-                    answer_cards_in_pack = lang_packs.get(pack + "w", [])
+                    question_cards_in_pack = lang_packs.get(pack.lower() + "b", [])
+                    answer_cards_in_pack = lang_packs.get(pack.lower() + "w", [])
+                    if question_cards_in_pack == [] and answer_cards_in_pack == []:
+                        try:
+                            custom_pack = await self.get_custom_pack(pack)
+                        except Exception as e:
+                            print(e)
+                            continue
+                        self.question_cards += custom_pack["black"]
+                        self.answer_cards += custom_pack["white"]
+                        continue
                     self.question_cards += question_cards_in_pack
                     self.answer_cards += answer_cards_in_pack
             if "all" in packs:

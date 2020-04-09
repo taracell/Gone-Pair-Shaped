@@ -8,6 +8,7 @@ import asyncio
 import os
 from . import errors
 import typing
+import aiohttp
 
 
 def allow_runs(ctx):

@@ -2,4 +2,5 @@ dblpy
 discord.py
 jishaku
 git+https://github.com/dragdev-studios/guildmanager
+git+https://github.com/Minion3665/pycardcast
 matplotlib
