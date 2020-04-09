@@ -65,11 +65,12 @@ def setup(bot):
     bot.set(
         "colors",
         {
-            "error": discord.Color(0xf44336),
-            "success": discord.Color(0x8bc34a),
-            "status": discord.Color(0x3f51b5),
-            "info": discord.Color(0x212121),
-            "dev": discord.Color(0xFFC107)
+            "error": discord.Color(0x8D58B2),
+            "success": discord.Color(0x78ECF2),
+            "status": discord.Color(0x775EBF),
+            "warn": discord.Color(0x775EBF),
+            "info": discord.Color(0x6576CC),
+            "dev": discord.Color(0x71AFE5)
         }
     )
 
