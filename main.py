@@ -278,7 +278,8 @@ async def ping(ctx):
     await ctx.send(
         content,
         title="Shard pings",
-        paginate_by="\n"
+        paginate_by="\n",
+        color=bot.colors["success"]
     )
 
 

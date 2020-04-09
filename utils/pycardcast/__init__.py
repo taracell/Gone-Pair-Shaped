@@ -23,6 +23,7 @@ class CardCast:
             ) as resp:
                 if resp.status == 200:
                     response = await resp.json()
+                    black_cards = (r"\_\_".join(part for part in card["text"]).strip() for card in response["calls"])
                     return CardCastResponse(
                         success=True,
                         code=code,
@@ -30,7 +31,13 @@ class CardCast:
                         request=resp,
                         response={
                             "white": [card["text"][0] for card in response["responses"]],
-                            "black": [r"\_\_".join(part for part in card["text"] if part).strip() for card in response["calls"]],
+                            "black": [
+                              card if card.count(
+                                r"\_\_"
+                              ) > 1 else re.sub(
+                                r"^(((?!(\\_\\_)).)*)(\? \\_\\_)$", "$1?", card
+                              ) for card in black_cards
+                            ],
                         }
                     )
                 elif resp.status == 404:
