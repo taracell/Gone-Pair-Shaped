@@ -101,15 +101,18 @@ class Player:
                     prompt=f"**The tsar is:** {tsar.user}\n"
                            f"**The question is:** {question}\n"
                            f"**Your cards are:**\n" +
-                           f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards)]),
+                           f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards) if card is not None]),
                     paginate_by="\n",
                     required_type=int,
                     timeout=self.game.timeout,
-                    check=lambda message: 0 <= int(message.content) <= len(self.cards),
-                    error=f"That isn't a number from 1 to {len(self.cards)}"
+                    check=lambda message: 0 <= int(message.content) <= len(self.cards) \
+                          and self.cards[int(message.content) - 1] is not None,
+                    error=f"That isn't a number from 1 to {len(self.cards)}",
+                    color=self.bot.colors["info"]
                 )
-                card = card - 1
-                card = self.cards.pop(card)
+                card_index = card - 1
+                card = self.cards[card_index]
+                self.cards[card_index] = None
                 self.picked.append(card)
                 self.game.used_answer_cards.append(card)
             except discord.Forbidden:
@@ -128,6 +131,7 @@ class Player:
                 print(f"An error occurred, {e}")
                 print("- [x] " + "".join(traceback.format_exc()).replace("\n", "\n- [x] "))
 
+        self.cards = [card for card in self.cards if self.card is not None]
         self.deal_cards()
         await self.member.send(
             f"Your card{'s' if cards == 1 else ''} have been chosen, "
