@@ -108,7 +108,7 @@ class Player:
                     check=lambda message: 0 <= int(message.content) <= len(self.cards) \
                           and self.cards[int(message.content) - 1] is not None,
                     error=f"That isn't a valid card",
-                    color=self.bot.colors["info"]
+                    color=self.game.context.bot.colors["info"]
                 )
                 card_index = card - 1
                 card = self.cards[card_index]
@@ -131,7 +131,7 @@ class Player:
                 print(f"An error occurred, {e}")
                 print("- [x] " + "".join(traceback.format_exc()).replace("\n", "\n- [x] "))
 
-        self.cards = [card for card in self.cards if self.card is not None]
+        self.cards = [card for card in self.cards if card is not None]
         self.deal_cards()
         await self.member.send(
             f"Your card{'s' if cards == 1 else ''} have been chosen, "
