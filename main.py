@@ -25,7 +25,6 @@ cogs = [
     "jishaku",
     "guildmanager.cog",
     "cogs.cah",
-    "cogs.errors",
     "cogs.botlist",
 ]
 
@@ -53,6 +52,7 @@ bot = minidiscord.AutoShardedBot(
     case_insensitive=True,
     help_command=help.HelpCommand(),
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201, 421698654189912064],
+    exceptions_channel=686285252817059881,
     activity=discord.Activity(
         name="Discord go by.",
         type=discord.ActivityType.watching

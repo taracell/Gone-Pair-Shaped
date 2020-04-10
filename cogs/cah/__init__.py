@@ -3,12 +3,10 @@ import discord
 from .objects import game
 import contextlib
 from utils import checks
-from utils.miniutils import decorators
 import asyncio
 import os
 from . import errors
 import typing
-import aiohttp
 
 
 def allow_runs(ctx):
@@ -144,7 +142,8 @@ class CAH(commands.Cog):
     @commands.guild_only()
     @commands.max_concurrency(1, commands.BucketType.channel, wait=True)
     async def join(self, ctx):
-        """Joins an active game in the channel. This can be during the 1m period when starting a game, or midway through.
+        """Joins an active game in the channel. \
+This can be during the 1m period when starting a game, or midway through.
         """
         _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         if _game is None:
@@ -361,4 +360,7 @@ class CAH(commands.Cog):
 
 
 def setup(bot):
+    errors.setup_handlers(
+        handler=bot.error_handler
+    )
     bot.add_cog(CAH(bot))

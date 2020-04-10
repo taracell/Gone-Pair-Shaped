@@ -73,6 +73,10 @@ def setup(bot):
             "dev": discord.Color(0x71AFE5)
         }
     )
+    bot.set(
+        "exceptions_color",
+        bot.colors["error"]
+    )
 
     bot.set(
         "emotes",
@@ -90,6 +94,10 @@ def setup(bot):
             "winner": "<a:blobparty:527721653673918474>",
             "trophy": "<:hypesquad:527721625450315798>"
         }
+    )
+    bot.set(
+        "exceptions_emote",
+        bot.emotes["error"] + " "
     )
 
     bot.set(
