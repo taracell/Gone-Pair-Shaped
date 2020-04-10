@@ -19,6 +19,20 @@ class NotGuildOwnerError(commands.CheckFailure):
     pass
 
 
+async def NotAgreedErrorHandler(ctx, _error, _next):
+    await ctx.send_exception(
+        " ".join(_error.args),
+        title=f"You haven't agreed to the terms",
+    )
+
+
+async def NotGuildOwnerErrorHandler(ctx, _error, _next):
+    await ctx.send_exception(
+        " ".join(_error.args),
+        title=f"No permissions",
+    )
+
+
 def is_guild_owner(ctx):
     if ctx.guild is not None and ctx.guild.owner_id == ctx.author.id:
         return True
@@ -265,4 +279,6 @@ class Disclaimers(commands.Cog):
 
 
 def setup(bot):
+    bot.error_handler.handles(NotAgreedError)(NotAgreedErrorHandler)
+    bot.error_handler.handles(NotGuildOwnerError)(NotGuildOwnerErrorHandler)
     bot.add_cog(Disclaimers(bot))
