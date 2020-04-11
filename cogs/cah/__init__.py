@@ -134,8 +134,8 @@ class CAH(commands.Cog):
                 _game.coro = asyncio.create_task(_game.setup())
                 if await _game.coro:
                     await _game.begin()
-            with contextlib.suppress(KeyError):
-                del self.bot.running_cah_game_objects[ctx.channel]
+        with contextlib.suppress(KeyError):
+            del self.bot.running_cah_game_objects[ctx.channel]
         self.bot.running_cah_games -= 1
 
     @commands.command()
