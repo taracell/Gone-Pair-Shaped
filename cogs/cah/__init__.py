@@ -3,6 +3,7 @@ import discord
 from .objects import game
 import contextlib
 from utils import checks
+from utils.miniutils.data import json
 import asyncio
 import os
 from . import errors
@@ -24,6 +25,7 @@ def no_cah_in_channel(ctx):
 # noinspection DuplicatedCode
 class CAH(commands.Cog):
     def __init__(self, bot):
+        self.languages = json.Json("languages")
         self.bot = bot
         try:
             bot.running_cah_games
@@ -57,6 +59,94 @@ class CAH(commands.Cog):
         await ctx.send(
             "I've reloaded all the packs",
             title=f"{ctx.bot.emotes['success']} Complete!",
+            color=ctx.bot.colors["info"]
+        )
+
+    @commands.command(aliases=["language", "lang", "setlang"])
+    async def setlanguage(self, ctx):
+        """Set what language you want to use for your packs.
+        """
+        language = self.languages.read_key(ctx.guild.id) if ctx.guild else None
+        title = "The CAHBot terms"
+        if ctx.guild:
+            if agrees:
+                agreed_time = datetime.datetime.utcfromtimestamp(agrees['timestamp']) \
+                    .strftime("on %d/%m/%y at %H:%M UTC")
+                title = f"✅ Your guild agreed to these terms {agreed_time}, if you want " \
+                        f"to cancel your agreement and delete your data run " \
+                        f"`{ctx.bot.get_main_custom_prefix(ctx)}disagree`"
+            else:
+                title = "❌ Your guild has not agreed to these terms"
+        await ctx.send(
+            "\n".join(
+                f"{position + 1}) **{term}** - {desc.replace('%%', ctx.bot.get_main_custom_prefix(ctx))}"
+                for position, (term, desc) in enumerate(self.terms.items())
+            ),
+            title=title,
+            paginate_by="\n"
+        )
+        if (
+                ctx.guild and
+                not agrees and
+                (
+                        (
+                                ctx.channel.permissions_for(ctx.author).manage_guild and
+                                ctx.channel.permissions_for(ctx.author).manage_permissions
+                        ) or (
+                                ctx.author in self.bot.skips and
+                                checks.bot_mod(ctx)
+                        )
+                )
+        ):
+            if ctx.channel.permissions_for(ctx.guild.me).add_reactions:
+                menu = input.Menu(
+                    self.bot,
+                    callbacks=True,
+                    timeout=self.timeout,
+                    timeout_callback=functools.partial(self._disagree, ctx)
+                )  # Create our reaction menu
+                menu.add("✅", functools.partial(self.agree, ctx))
+                menu.add("❌", functools.partial(self._disagree, ctx))
+
+                agree_message = await ctx.send(
+                    "You have the permissions needed to agree to these terms and unlock all commands for your server. "
+                    "React with (or say in chat) ✅ to agree or ❌ to disagree for now. If you don't type within "
+                    f"{self.timeout} seconds we'll assume you're not ready to agree yet. Keep in mind that disagreeing "
+                    f"will not allow your server to use the bot until you run this command again and agree. *If your "
+                    f"press doesn't register then maybe discord's being slow, just try again. If the error persists "
+                    f"please report this as a bug to the developers*",
+                    title="Ready to agree? Just press ✅ (once I've added it)"
+                )
+
+                await menu(
+                    message=agree_message,
+                    responding=ctx.author
+                )
+            else:
+                try:
+                    agreed = await ctx.input(
+                        title="Ready to agree? Just say yes",
+                        prompt="You have the permissions needed to agree to these terms and unlock all commands for "
+                               "your server. Just type `yes` in chat to agree or `no` to disagree. If you don't type "
+                               f"within {self.timeout} seconds we'll assume you're not ready to agree yet. Keep in "
+                               "mind that disagreeing will not allow your server to use the bot until you run this "
+                               "command again and agree",
+                        required_type=bool,
+                        timeout=self.timeout,
+                        error=f"{self.bot.emotes['valueerror']} Pick either `yes` or `no`",
+                        color=self.bot.colors['status']
+                    )
+                    if agreed:
+                        await self.agree(ctx)
+                    else:
+                        await self._disagree(ctx)
+                except asyncio.TimeoutError:
+                    await self._disagree(ctx)
+
+        await ctx.send(
+            packs,
+            title=f":flag_{lang}: All the packs available for your language",
+            paginate_by="\n",
             color=ctx.bot.colors["info"]
         )
 

@@ -57,7 +57,8 @@ class Disclaimers(commands.Cog):
         self.agrees = json.Json("disclaimer")
         self.json_saves = {
             self.agrees,
-            json.Json("prefixes")
+            json.Json("prefixes"),
+            json.Json("languages")
         }
         self.timeout = 300
         self.terms = {
@@ -76,29 +77,30 @@ class Disclaimers(commands.Cog):
                                                     "want a game). If you run a private server and don't want us to "
                                                     "join, just deny us the permission.",
             "You agree that we process some of your data": "You agree that we can store information necessary to run "
-                                                           "the bot, such as your guild's ID, prefixes, and the time "
-                                                           "you agreed to these terms. We'll also save your ID, "
-                                                           "and username with this server's data as the person who "
-                                                           "agreed to the terms. We won't give any IDs or personally "
-                                                           "identifiable information (including IDs, and "
+                                                           "the bot, such as your guild's ID, prefixes, pack language, "
+                                                           "and the time you agreed to these terms. We'll also save "
+                                                           "your ID, and username with this server's data as the "
+                                                           "person who agreed to the terms. We won't give any IDs or "
+                                                           "personally identifiable information (including IDs, and "
                                                            "usernames) to anyone apart from the server owner if they "
                                                            "request information about who agreed with the `%%server` "
                                                            "command",
-            "You agree that we don't have control of 3rd party packs": "We will soon (or have already if we have but "
-                                                                       "forgot to update this message) add a "
-                                                                       "connection to CardCast "
+            "You agree that we don't have control of 3rd party packs": "We have a connection to cardcast :tada: "
                                                                        "(https://www.cardcastgame.com/#). You agree "
                                                                        "that we don't control and won't censor any of "
                                                                        "the packs that are used on there. They may be "
-                                                                       "NSFW, insane or otherwise inappropriate. Then "
-                                                                       "again, if you're trying to play cards against "
-                                                                       "humanity you probably don't mind much...",
+                                                                       "insane, offensive or otherwise inappropriate. "
+                                                                       "Then again, if you're trying to play cards "
+                                                                       "against humanity you probably don't mind "
+                                                                       "much...",
             "You agree that we can change these terms": "Reading terms is always available from this command, but we "
                                                         "may change them at any time. If we change what data we store "
-                                                        "we will force you to agree again, however if we change what "
-                                                        "we do with the permissions you give us, we won't. We promise "
-                                                        "it won't be bad, but as a rule of thumb don't give any bot "
-                                                        "permissions you don't want it to use (even ours)"
+                                                        " (so that we store data that it is not clear why we need to "
+                                                        "store it (so not including server configuration and similar "
+                                                        "needs)) we will force you to agree again, however if we "
+                                                        "change what we do with the permissions you give us, we won't. "
+                                                        "We promise it won't be bad, but as a rule of thumb don't give "
+                                                        "any bot permissions you don't want it to use (even ours)"
         }
         bot.check(checks.bypass_check(self.agreed_check))
 

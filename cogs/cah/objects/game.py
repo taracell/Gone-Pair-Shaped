@@ -13,6 +13,7 @@ from utils import pycardcast
 class Game:
     def __init__(self, context, advanced_setup, whitelist, lang="gb"):
         self.cardcast = pycardcast.CardCast()
+        self.all_packs = self.context.bot.cah_packs
 
         self.question_cards = []
         self.answer_cards = []
@@ -115,7 +116,6 @@ class Game:
         }
     async def setup(self):
         setting_timeout = 30
-        all_packs = self.context.bot.cah_packs
         with contextlib.suppress(asyncio.TimeoutError):
             self.maxPoints = (await self.context.input(
                 title=f"{self.context.bot.emotes['settings']} How do you win?",
@@ -140,10 +140,10 @@ class Game:
                 timeout=setting_timeout * 5,
                 color=self.context.bot.colors['status']
             ))[0].split(" ")
-            lang_packs = all_packs.get(self.lang, None)["packs"]
+            lang_packs = self.all_packs.get(self.lang, None)["packs"]
             if not lang_packs:
                 self.lang = "gb"
-                lang_packs = all_packs.get(self.lang, None)["packs"]
+                lang_packs = self.all_packs.get(self.lang, None)["packs"]
             for pack in packs:
                 if not "-" + pack in packs:
                     question_cards_in_pack = lang_packs.get(pack.lower() + "b", [])
@@ -253,8 +253,8 @@ class Game:
         self.question_cards = [card for card in self.question_cards if card.count(r"\_\_") <= self.hand_size]
 
         if len(self.question_cards) < 1 or len(self.answer_cards) < 1:
-            basew = all_packs.get("gb", {})["packs"].get("basew", ["???"])
-            baseb = all_packs.get("gb", {})["packs"].get("baseb", ["???"])
+            basew = self.all_packs.get("gb", {})["packs"].get("basew", ["???"])
+            baseb = self.all_packs.get("gb", {})["packs"].get("baseb", ["???"])
             self.answer_cards += basew
             self.question_cards += baseb
 
