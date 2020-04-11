@@ -10,6 +10,9 @@ import os
 from . import errors
 import typing
 import re
+import flag
+
+default_lang = "gb"
 
 
 def allow_runs(ctx):
@@ -79,11 +82,6 @@ class CAH(commands.Cog):
             "pt": "Português"
         }
         supported = "**Already supported:**"
-        menu = input.Menu(
-            self.bot,
-            callbacks=False,
-            timeout=self.timeout
-        )  # Create our reaction menu
         for language in self.bot.cah_packs:
             supported += f"\n:flag_{language}: {languages.get(language, 'Unknown')}"
         soon = "||**Coming Soon:**"
@@ -98,25 +96,32 @@ class CAH(commands.Cog):
             menu = input.Menu(
                 self.bot,
                 callbacks=False,
-                timeout=self.timeout
+                emojify=True
             )  # Create our reaction menu
             for language in self.bot.cah_packs:
-                menu.add(":flag_{language}:")
+                menu.add(flag.flag(language))
             msg = await ctx.send(
-                supported + "\n\n" + soon + "||\n\n*Select a flag below to set it as the default language*",
+                supported + "\n\n" + soon + "||\n\n*Select a flag below (or say it in chat) to set it as the default "
+                "language for this server*",
                 title=title
             )
             try:
-                emote = re.sub(
+                emote = flag.dflagize(
                     await menu(
                         msg,
                         ctx.author
-                    ),
-                    "",
-                    ""
+                    )
+                )[1:-1].lower()
+                self.languages.save_key(ctx.guild.id, emote)
+                await ctx.send(
+                    "We've successfully changed your language",
+                    title=f":flag_{emote}: Language changed"
                 )
-            except asyncio.TimeoutError:
-                await msg.delete()
+            except TimeoutError:
+                pass
+            finally:
+                with contextlib.suppress(discord.NotFound):
+                    await msg.delete()
         else:
             await ctx.send(
                 supported + "\n\n" + soon + "||",
@@ -128,14 +133,14 @@ class CAH(commands.Cog):
     async def packs(self, ctx):
         """Shows a list of packs avaliable in your language.
         """
-        lang = "gb"
+        lang = (self.languages.read_key(ctx.guild.id) if ctx.guild else None) or default_lang
 
         packs = "*Language switching is currently in beta while we wait on our translators and give the commands a " \
                 "good test*"
 
         lang_packs = self.bot.cah_packs.get(lang, None)
         if not lang_packs:
-            lang = "gb"
+            lang = default_lang
             lang_packs = self.bot.cah_packs.get(lang, None)
 
         for pack in lang_packs["packs"]:
@@ -192,6 +197,7 @@ class CAH(commands.Cog):
                 context=ctx,
                 advanced_setup=advanced,
                 whitelist=whitelist,
+                lang=(self.languages.read_key(ctx.guild.id) if ctx.guild else None) or default_lang
             )
             self.bot.running_cah_game_objects[ctx.channel] = _game
             with contextlib.suppress(asyncio.CancelledError):

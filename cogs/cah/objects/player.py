@@ -47,14 +47,14 @@ class Player:
                 self.game.used_answer_cards = []
             card = self.game.answer_cards.pop(
                 random.randint(
-                    1,
+                    0,
                     len(self.game.answer_cards) - 1
                 )
             )
             self.game.dealt_answer_cards.append(card)
             self.cards.append(card)
 
-    
+
     async def shuffle(self, context):
         if self.shuffles < 1:
             return await context.send(
@@ -88,7 +88,7 @@ class Player:
             )
             return True
 
-    
+
     async def pick_cards(self, question, tsar) -> typing.Optional[typing.List[str]]:
         cards = question.count(r"\_\_") or 1
         for cardNumber in range(cards):
@@ -146,7 +146,7 @@ class Player:
         )
         return True
 
-    
+
     async def quit(self, ctx=None, reason=""):
         if self not in self.game.players:
             if not reason and ctx is not None:

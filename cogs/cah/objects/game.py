@@ -479,12 +479,12 @@ class Game:
             await tsar.quit(
                 reason="they took too long to answer"
             )
-            return await self.skip()
+            return self.skip()
         except discord.Forbidden:
             await tsar.quit(
                 reason="I can't DM them"
             )
-            return await self.skip()
+            return self.skip()
 
         picked = (re.sub(r'\.$', '', card) for card in winner.picked)
         if r"\_\_" in question:
