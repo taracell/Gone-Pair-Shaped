@@ -70,7 +70,7 @@ class CAH(commands.Cog):
             "gb": "English",
             "es": "Español",
             "fr": "Français",
-            "de": "Deutsche",
+            "de": "Deutsch",
             "ru": "русский",
             "ua": "Українська",
             "nl": "Nederlands"

@@ -148,7 +148,7 @@ class Game:
                 if not "-" + pack in packs:
                     question_cards_in_pack = lang_packs.get(pack.lower() + "b", [])
                     answer_cards_in_pack = lang_packs.get(pack.lower() + "w", [])
-                    if question_cards_in_pack == [] and answer_cards_in_pack == []:
+                    if question_cards_in_pack == [] and answer_cards_in_pack == [] and pack != "all":
                         try:
                             custom_pack = await self.get_custom_pack(pack)
                         except Exception as e:
