@@ -155,7 +155,7 @@ class CAH(commands.Cog):
         game options.
         """
         self.bot.running_cah_games += 1
-        with contextlib.suppress(Exception):
+        try:
             _game = game.Game(
                 context=ctx,
                 advanced_setup=advanced,
@@ -166,9 +166,11 @@ class CAH(commands.Cog):
                 _game.coro = asyncio.create_task(_game.setup())
                 if await _game.coro:
                     await _game.begin()
-        with contextlib.suppress(KeyError):
-            del self.bot.running_cah_game_objects[ctx.channel]
-        self.bot.running_cah_games -= 1
+            with contextlib.suppress(KeyError):
+                del self.bot.running_cah_game_objects[ctx.channel]
+            self.bot.running_cah_games -= 1
+        except Exception as e:
+            raise e
 
     @commands.command()
     @commands.guild_only()
