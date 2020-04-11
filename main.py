@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import io
 import datetime
+import re
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -139,8 +140,10 @@ async def info(ctx):
             members = set()
             for title, role in bot.staff_roles.items():
                 unique_members = set(role.members).difference(members)
-                staff += (f"\n**{title}**\n" + "\n".join(
-                    "> " + str(user) for user in unique_members
+                staff += (f"\n**{title}**\n" + "\n".join(sorted(
+                    "> " + (
+                        re.sub(r"^(\[\S*\] )?(.*)$", "$2", user.nick) if user.nick is not None else user.name
+                    )) for user in unique_members
                 ) if unique_members else "")
                 members = members.union(unique_members)
             if staff:

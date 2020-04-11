@@ -54,7 +54,7 @@ class Player:
             self.game.dealt_answer_cards.append(card)
             self.cards.append(card)
 
-    @decorators.debug
+    
     async def shuffle(self, context):
         if self.shuffles < 1:
             return await context.send(
@@ -88,7 +88,7 @@ class Player:
             )
             return True
 
-    @decorators.debug
+    
     async def pick_cards(self, question, tsar) -> typing.Optional[typing.List[str]]:
         cards = question.count(r"\_\_") or 1
         for cardNumber in range(cards):
@@ -146,7 +146,7 @@ class Player:
         )
         return True
 
-    @decorators.debug
+    
     async def quit(self, ctx=None, reason=""):
         if self not in self.game.players:
             if not reason and ctx is not None:

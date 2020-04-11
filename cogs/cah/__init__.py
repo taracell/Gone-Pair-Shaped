@@ -4,10 +4,12 @@ from .objects import game
 import contextlib
 from utils import checks
 from utils.miniutils.data import json
+from utils.miniutils.minidiscord import input
 import asyncio
 import os
 from . import errors
 import typing
+import re
 
 
 def allow_runs(ctx):
@@ -73,9 +75,15 @@ class CAH(commands.Cog):
             "de": "Deutsch",
             "ru": "русский",
             "ua": "Українська",
-            "nl": "Nederlands"
+            "nl": "Nederlands",
+            "pt": "Português"
         }
         supported = "**Already supported:**"
+        menu = input.Menu(
+            self.bot,
+            callbacks=False,
+            timeout=self.timeout
+        )  # Create our reaction menu
         for language in self.bot.cah_packs:
             supported += f"\n:flag_{language}: {languages.get(language, 'Unknown')}"
         soon = "||**Coming Soon:**"
@@ -86,10 +94,34 @@ class CAH(commands.Cog):
         title = f"{self.bot.emotes['choice']} All available languages:"
         if language is not None:
             title += f" (You currently have your language set to :flag_{language}:)"
-        await ctx.send(
-            supported + "\n\n" + soon + "||",
-            title=title
-        )
+        if ctx.channel.permissions_for(ctx.author).manage_guild:
+            menu = input.Menu(
+                self.bot,
+                callbacks=False,
+                timeout=self.timeout
+            )  # Create our reaction menu
+            for language in self.bot.cah_packs:
+                menu.add(":flag_{language}:")
+            msg = await ctx.send(
+                supported + "\n\n" + soon + "||\n\n*Select a flag below to set it as the default language*",
+                title=title
+            )
+            try:
+                emote = re.sub(
+                    await menu(
+                        msg,
+                        ctx.author
+                    ),
+                    "",
+                    ""
+                )
+            except asyncio.TimeoutError:
+                await msg.delete()
+        else:
+            await ctx.send(
+                supported + "\n\n" + soon + "||",
+                title=title
+            )
 
 
     @commands.command(aliases=["listpacks", "list"])

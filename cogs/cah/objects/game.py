@@ -55,7 +55,7 @@ class Game:
         if self.coro:
             self.coro.cancel()
 
-    @decorators.debug
+
     async def get_custom_pack(self, code):
         if len(code) == 5 and code.upper() == code:
             await self.context.send(
@@ -92,7 +92,8 @@ class Game:
                         )
                 else:
                     await self.context.send_exception(
-                        f"I couldn't find the {code} custom deck. Go make sure it's valid on https://www.cardcastgame.com/",
+                        f"I couldn't find the {code} custom deck. Go make sure it's valid on "
+                        "https://www.cardcastgame.com/",
                         title=f"Couldn't load custom deck {code}",
                     )
             except Exception as e:
@@ -384,7 +385,7 @@ class Game:
         )
         return new_player
 
-    @decorators.debug
+
     async def end(self, instantly, reason=""):
         if not self.active:
             return

@@ -33,7 +33,7 @@ class HelpCommand(commands.HelpCommand):
 
         return '%s%s %s' % (self.context.bot.get_main_custom_prefix(self.context.message), alias, command.signature)
 
-    @decorators.debug
+    
     async def send_bot_help(self, mapping):
         unfiltered = []
         for cmd_map in mapping.values():
