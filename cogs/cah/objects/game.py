@@ -159,6 +159,11 @@ class Game:
                         continue
                     self.question_cards += question_cards_in_pack
                     self.answer_cards += answer_cards_in_pack
+                    await self.context.send(
+                        f"I've successfully loaded the {pack.lower()} deck!",
+                        title=f"{self.context.bot.emotes['success']} Loaded deck {pack.lower()}",
+                        color=self.context.bot.colors["info"],
+                    )
             if "all" in packs:
                 for pack, cards in lang_packs.items():
                     if not "-" + pack[:-1] in packs:
