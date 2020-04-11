@@ -13,7 +13,7 @@ from utils import pycardcast
 class Game:
     def __init__(self, context, advanced_setup, whitelist, lang="gb"):
         self.cardcast = pycardcast.CardCast()
-        self.all_packs = self.context.bot.cah_packs
+        self.all_packs = context.bot.cah_packs
 
         self.question_cards = []
         self.answer_cards = []
