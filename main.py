@@ -141,6 +141,7 @@ async def info(ctx):
             for title, role in bot.staff_roles.items():
                 unique_members = set(role.members).difference(members)
                 staff += (f"\n**{title}**\n" + "\n".join(sorted(["> " + str(discord.utils.escape_mentions(u.display_name)
+                                                                            .split("]")[1:]
                                                                             ) for u in unique_members]
                                                                 ) if unique_members else ""))
                 members = members.union(unique_members)
