@@ -196,7 +196,7 @@ async def stats(ctx):
     with contextlib.suppress(IndexError):
         _shard_name = bot.shard_names[shard_id]
     statistics = f"**Servers:** {len(bot.guilds)}\n" \
-                 f"**Disclaimer agreements:** {len(agrees)}\n" \
+                 f"**Disclaimer agreements:** {len(agrees)} ({round(len(agrees)/len(bot.guilds)*100,2)}%\n" \
                  f"**Members:** {len(bot.users)}\n" \
                  f"**Emojis:** {len(bot.emojis)}\n" \
                  f"**Average Ping:** {round(bot.latency * 1000, 2)}ms\n" \
