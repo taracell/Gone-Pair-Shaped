@@ -53,18 +53,66 @@ class Game:
         self.skipping = True
         if self.coro:
             self.coro.cancel()
-            
+
     @decorators.debug
     async def get_custom_pack(self, code):
         if len(code) == 5 and code.upper() == code:
-            response = await self.cardcast.get_cards(code)
-            if response.success:
-                return response.response
+            await self.context.send(
+                f"Attempting to load custom deck {code}",
+                title=f"{self.context.bot.emotes['settings']} Please Wait",
+                color=self.context.bot.colors["status"],
+            )
+            try:
+                response = await self.cardcast.get_deck(code)
+                if response.success:
+                    deck = response.response
+                    response = await deck.get_cards()
+                    if response.success:
+                        cards = response.response
+                        name = deck.name[:20] + '...' if len(deck.name) >= 24 else deck.name
+                        author_name = deck.author.username[:20] + '...' if \
+                            len(deck.author.username) >= 24 else deck.author.username
+                        await self.context.send(
+                            f"I've loaded the {name} custom deck "
+                            f"(Last updated: {deck.last_update.strftime('%d/%m/%Y %l:%M%P UTC')})\n"
+                            f"It's play code is {code}, for if you want to use it again\n"
+                            f"(Full credits to {author_name} and CardCast)",
+                            title=f"{self.context.bot.emotes['success']} Loaded custom deck {code}",
+                            color=self.context.bot.colors["info"],
+                        )
+                        return cards
+                    else:
+                        name = deck.name[:20] + '...' if len(deck.name) >= 24 else deck.name
+                        await self.context.send(
+                            f"I couldn't load the {name} custom deck\n"
+                            f"Try again later, perhaps next game?\n"
+                            f"(Full credits to {author_name} and CardCast)",
+                            title=f"Couldn't load custom deck {code}",
+                        )
+                else:
+                    await self.context.send_exception(
+                        f"I couldn't find the {code} custom deck. Go make sure it's valid on https://www.cardcastgame.com/",
+                        title=f"Couldn't load custom deck {code}",
+                    )
+            except Exception as e:
+                await self.context.send_exception(
+                    f"Go tell my developers {e} and they might be able to fix the problem "
+                    f"(support server invite in help)",
+                    title=f"I couldn't load the {code} custom deck"
+                )
+        else:
+            name = code[:20] + '...' if len(code) >= 24 else code
+            await self.context.send_exception(
+                f"The deck {code} doesn't appear to be a valid deck in your language or a valid custom deck. If it's "
+                "meant to be a custom deck, check that you have capitalized all letters and it is a valid 5-character "
+                "code from https://www.cardcastgame.com/#. If it's meant to be an included deck check your spelling "
+                "and ensure that it exists in your language.",
+                title=f"Couldn't load {code} deck",
+            )
         return {
             "white": [],
             "black": []
         }
-
     async def setup(self):
         setting_timeout = 30
         all_packs = self.context.bot.cah_packs
@@ -83,11 +131,13 @@ class Game:
             packs = (await self.context.input(
                 title=f"{self.context.bot.emotes['settings']} What packs would you like?",
                 prompt=f"Run `{self.context.bot.get_main_custom_prefix(self.context)}packs` after this game to choose "
-                       f"your language and see available packs. "
+                       f"your language and see available packs. You can also choose a custom deck by putting a code "
+                       f"from https://www.cardcastgame.com/#. We reccomend `63EX5` for horrible people like yourself "
+                       f"or `6VVUN` for a wholesome and family-friendly game.\n\n"
                        f"Separate individual packs with spaces, say `all` for every pack or put a `-` before a pack to "
                        f"ensure it doesn't show up. We recommend the `base` pack for beginners. "
-                       f"If you don't pick within {setting_timeout * 2} seconds we'll give you the `base` pack.",
-                timeout=setting_timeout * 2,
+                       f"If you don't pick within {setting_timeout * 5} seconds we'll give you the `base` pack.",
+                timeout=setting_timeout * 5,
                 color=self.context.bot.colors['status']
             ))[0].split(" ")
             lang_packs = all_packs.get(self.lang, None)["packs"]

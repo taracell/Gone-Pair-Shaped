@@ -89,3 +89,17 @@ class HelpCommand(commands.HelpCommand):
                 message,
                 paginate_by="\n"
             )
+        if self.context.guild:
+            agrees = json.Json("disclaimer")
+            if agrees.read_key(ctx.guild.id):
+                perms = self.context.channel.permissions_for(self.context.author)
+                await self.context.send(
+                    (
+                        "You have " \
+                        if perms.manage_channels and perms.manage_permissions
+                        else "Someone with `manage server` and `manage roles` has "
+                    ) +
+                    "to run `$terms` and agree before all commands can be used",
+                    title="{self.context.bot.emotes['error']} Commands feelin' lonely?",
+                    color=self.context.bot.colors['error']
+                )

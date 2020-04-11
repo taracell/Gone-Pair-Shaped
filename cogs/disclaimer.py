@@ -116,8 +116,15 @@ class Disclaimers(commands.Cog):
             return True
         if self.agrees.read_key(ctx.guild.id) is not None:
             return True
-        raise NotAgreedError("We need someone with `manage server` and `manage roles` to agree to the terms of service "
-                             "before the bot works in this server")
+        if ctx.channel.permissions_for(ctx.author):
+            raise NotAgreedError(
+                "You must agree to the terms with the `$terms` command before the bot works in this server"
+            )
+        else:
+            raise NotAgreedError(
+                "We need someone with `manage server` and `manage roles` to agree to the terms of service before the "
+                "bot works in this server"
+            )
 
     async def agree(self, ctx):
         self.agrees.save_key(
