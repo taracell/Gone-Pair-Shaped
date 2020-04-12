@@ -4,8 +4,8 @@
     "servers": {}
   },
   "infractions": {},
-  "newserverchannel": null,
-  "serverleavechannel": null,
+  "newserverchannel": 692138822514900993,
+  "serverleavechannel": 692138822514900993,
   "newservermessage": "Joined server {0.name}.",
   "leaveservermessage": "Left server {0.name} (`{0.id}`).",
   "maxservers": null,
