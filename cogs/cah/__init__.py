@@ -336,6 +336,12 @@ class CAH(commands.Cog):
         """Set the maximum player count of the game. Can only be used in setup and when players are joining
         """
         _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        if _game is None:
+            return await ctx.send(
+                "Did you mean another channel?",
+                title=f"{ctx.bot.emotes['valueerror']} We couldn't find a game in this channel...",
+                color=ctx.bot.colors["error"]
+            )
         _game.maximumPlayers = new_max
         _game.players = _game.players[:new_max]
         if new_max < _game.minimumPlayers:

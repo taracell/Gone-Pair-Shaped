@@ -9,6 +9,7 @@ class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefixes = data.Json("prefixes")
+        self.tos_agrees = data.Json("disclaimer")
 
     @commands.command()
     @commands.guild_only()
@@ -109,16 +110,13 @@ class Info(commands.Cog):
             )
 
 
-    tos_agrees = data.Json("disclaimer")
-
-
     @commands.command(aliases=["statistics", "status"])
     async def stats(self, ctx):
         """Shows the bot's current statistics
         """
         shard_id = ctx.guild.shard_id if ctx.guild is not None else 0
         _shard_name = "???"
-        agrees = tos_agrees.load_data() or []
+        agrees = self.tos_agrees.load_data() or []
         with contextlib.suppress(IndexError):
             _shard_name = self.bot.shard_names[shard_id]
         statistics = f"**Servers:** {len(self.bot.guilds)}\n" \
