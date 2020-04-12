@@ -95,8 +95,7 @@ class CAH(commands.Cog):
         if ctx.channel.permissions_for(ctx.author).manage_guild:
             menu = input.Menu(
                 self.bot,
-                callbacks=False,
-                emojify=True
+                callbacks=False
             )  # Create our reaction menu
             for language in self.bot.cah_packs:
                 menu.add(flag.flag(language))
