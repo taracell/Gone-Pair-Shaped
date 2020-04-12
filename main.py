@@ -140,8 +140,8 @@ async def info(ctx):
             members = set()
             for title, role in bot.staff_roles.items():
                 unique_members = set(role.members).difference(members)
-                staff += (f"\n**{title}**\n" + "\n".join(sorted(["> " + str(discord.utils.escape_mentions(u.display_name)
-                                                                            .split("]")[1:] if "]" in u.display_name else discord.utils.escape_mentions(u.display_name)
+                staff += (f"\n**{title}**\n" + "\n".join(sorted(["> " + ''.join(str(discord.utils.escape_mentions(u.display_name)
+                                                                            .split("]")[1:]) if "]" in u.display_name else discord.utils.escape_mentions(u.display_name)
                                                                             ) for u in unique_members]
                                                                 ) if unique_members else "")) # sorry about line limit i
                                                                                             # can't inline it
