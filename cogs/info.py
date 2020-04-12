@@ -1,8 +1,14 @@
 from discord.ext import commands
-from utils.miniutils import data
-from utils import checks
 import contextlib
 import re
+import datetime
+import discord
+from utils import help, checks
+from utils.miniutils import minidiscord, data, classes
+import traceback
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import io
 
 
 class Info(commands.Cog):
