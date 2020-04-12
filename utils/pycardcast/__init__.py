@@ -135,7 +135,7 @@ class CardCast:
                               card if card.count(
                                 r"\_\_"
                               ) > 1 else re.sub(
-                                r"^(((?!(\\_\\_)).)*)(\? \\_\\_)$", "$1?", card
+                                r"^(((?!(\\_\\_)).)*)(\? \\_\\_)$", r"\1?", card
                               ) for card in black_cards
                             ],
                         }
