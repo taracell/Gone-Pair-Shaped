@@ -15,7 +15,7 @@ class Constants(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if self.bot.is_ready():
-            self.on_ready()
+            await self.on_ready()
 
     @commands.Cog.listener()
     async def on_ready(self):

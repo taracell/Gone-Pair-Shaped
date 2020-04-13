@@ -83,7 +83,7 @@ class Player:
             await context.send(
                 f"{context.author.mention}, I've shuffled your cards and sent the new ones to your DMs. You now have "
                 f"{self.shuffles} shuffle{'s' if self.shuffles != 1 else ''} left",
-                title=f"{context.bot.emotes['valueerror']} Fwooosh",
+                title=f"{context.bot.emotes['success']} Fwooosh",
                 color=context.bot.colors["error"]
             )
             return True
