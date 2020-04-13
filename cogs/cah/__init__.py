@@ -116,7 +116,7 @@ class CAH(commands.Cog):
                     "We've successfully changed your language",
                     title=f":flag_{emote}: Language changed"
                 )
-            except TimeoutError:
+            except asyncio.TimeoutError:
                 pass
             finally:
                 with contextlib.suppress(discord.NotFound):
