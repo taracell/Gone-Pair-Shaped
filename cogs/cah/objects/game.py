@@ -500,7 +500,9 @@ class Game:
             color=self.context.bot.colors["status"]
         )
         winner.points += 1
-        self.context.bot.totalrounds += 1
+
+        with contextlib.suppress(Exception):
+            self.context.bot.totalrounds += 1
 
         await asyncio.sleep(self.round_delay)
 
