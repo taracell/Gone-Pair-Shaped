@@ -3,6 +3,7 @@ import discord
 import asyncio
 import typing
 import sys
+import contextlib
 import traceback
 from utils.miniutils import decorators
 
@@ -115,7 +116,8 @@ class Player:
                 self.cards[card_index] = None
                 self.picked.append(card)
                 self.game.used_answer_cards.append(card)
-                self.game.context.bot.totalpicks += 1
+                with contextlib.suppress(Exception):
+                    self.game.context.bot.totalpicks += 1
             except discord.Forbidden:
                 await self.quit(
                     reason="I can't DM them"
