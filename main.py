@@ -66,6 +66,7 @@ bot.prefixes = prefixes
 bot.get_main_custom_prefix = get_main_custom_prefix
 
 bot.playing = 0
+bot.totalrounds = 0
 bot.admins = [] + bot.owner_ids
 bot.skips = []
 
