@@ -29,7 +29,7 @@ async def NotAgreedCompleteErrorHandler(ctx, _error, _next):
     if json.Json("disclaimer").read_key(ctx.guild.id) is None:
         await ctx.send_exception(
             "An error occured... but I can't help. You have to agree to the terms with the `terms` command before I "
-            "can handle errors properly. If you want help you can go and tell my developers `{_error}` in the support "
+            f"can handle errors properly. If you want help you can go and tell my developers `{_error}` in the support "
             "server. They'll understand what you mean.",
             title=f"You haven't agreed to the terms",
         )

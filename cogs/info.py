@@ -134,6 +134,9 @@ class Info(commands.Cog):
                      f"**Your Shard:** {_shard_name} ({shard_id + 1}/{len(self.bot.shards)})"
         with contextlib.suppress(AttributeError):
             statistics += f"\n**Games in progress:** {self.bot.running_cah_games}"
+            with contextlib.suppress(Exception):
+                if self.bot.running_cah_games != len(self.bot.running_cah_game_objects) and checks.bot_mod(ctx):
+                    await ctx.send(f"Games according to tally: {self.bot.running_cah_games}\nGames according to objects: {len(self.bot.running_cah_game_objects)}\n\nProceed with caution", title="Warn: The game count may be inaccurate")
         if ctx.guild is None or ctx.channel.permissions_for(ctx.guild.me).attach_files:
             joins_x_values = sorted(server.me.joined_at for server in self.bot.guilds if server.me.joined_at)
             agrees_x_values = sorted(
