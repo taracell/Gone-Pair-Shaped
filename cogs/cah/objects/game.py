@@ -1,18 +1,22 @@
 import asyncio
-import re
-from utils.miniutils import minidiscord, decorators
-import random
-from . import player
 import contextlib
-import time
-import discord
 import math
+import random
+import re
+import time
+
+import discord
+
 from utils import pycardcast
+from utils.miniutils import minidiscord
+from . import player
 
 
 class Game:
     def __init__(self, context, advanced_setup, whitelist, lang="gb"):
         self.cardcast = pycardcast.CardCast()
+        self.question_data = context.bot.cah_question_data
+        self.answer_data = context.bot.cah_answer_data
         self.all_packs = context.bot.cah_packs
 
         self.question_cards = []
@@ -37,6 +41,7 @@ class Game:
         self.hand_size = 10
         self.anon = False
         self.shuffles = 0
+        self.ai = True
 
         self.coro = None
         self.skipping = False
@@ -54,7 +59,6 @@ class Game:
         self.skipping = True
         if self.coro:
             self.coro.cancel()
-
 
     async def get_custom_pack(self, code):
         if len(code) == 5 and code.upper() == code:
@@ -86,8 +90,7 @@ class Game:
                         name = deck.name[:20] + '...' if len(deck.name) >= 24 else deck.name
                         await self.context.send(
                             f"I couldn't load the {name} custom deck\n"
-                            f"Try again later, perhaps next game?\n"
-                            f"(Full credits to {author_name} and CardCast)",
+                            f"Try again later, perhaps next game?\n",
                             title=f"Couldn't load custom deck {code}",
                         )
                 else:
@@ -105,16 +108,17 @@ class Game:
         else:
             name = code[:20] + '...' if len(code) >= 24 else code
             await self.context.send_exception(
-                f"The deck {code} doesn't appear to be a valid deck in your language or a valid custom deck. If it's "
+                f"The deck {name} doesn't appear to be a valid deck in your language or a valid custom deck. If it's "
                 "meant to be a custom deck, check that you have capitalized all letters and it is a valid 5-character "
                 "code from https://www.cardcastgame.com/#. If it's meant to be an included deck check your spelling "
                 "and ensure that it exists in your language.",
-                title=f"Couldn't load {code} deck",
+                title=f"Couldn't load {name} deck",
             )
         return {
             "white": [],
             "black": []
         }
+
     async def setup(self):
         setting_timeout = 30
         with contextlib.suppress(asyncio.TimeoutError):
@@ -133,7 +137,7 @@ class Game:
                 title=f"{self.context.bot.emotes['settings']} What packs would you like?",
                 prompt=f"Run `{self.context.bot.get_main_custom_prefix(self.context)}packs` after this game to choose "
                        f"your language and see available packs. You can also choose a custom deck by putting a code "
-                       f"from https://www.cardcastgame.com/#. We reccomend `63EX5` for horrible people like yourself "
+                       f"from https://www.cardcastgame.com/#. We recommend `63EX5` for horrible people like yourself "
                        f"or `6VVUN` for a wholesome and family-friendly game.\n\n"
                        f"Separate individual packs with spaces, say `all` for every pack or put a `-` before a pack to "
                        f"ensure it doesn't show up. We recommend the `base` pack for beginners. "
@@ -157,6 +161,8 @@ class Game:
                         except Exception as e:
                             print(e)
                             continue
+                        if custom_pack["black"] or custom_pack["white"]:
+                            self.ai = False
                         self.question_cards += custom_pack["black"]
                         self.answer_cards += custom_pack["white"]
                         continue
@@ -176,6 +182,20 @@ class Game:
                             self.question_cards += cards
 
         if self.advanced:
+            with contextlib.suppress(asyncio.TimeoutError):
+                if self.ai:
+                    self.ai = (await self.context.input(
+                        title=f"{self.context.bot.emotes['settings']} Can we train our bot?",
+                        prompt=f"If you choose `yes`, we'll use anonymous information about what cards you pick to "
+                               f"help us add bots into the game. Please say yes... *Note: This option is not available "
+                               f"on games with custom packs and will be required to later add bots to your game. We "
+                               f"won't store any data about who you are, what server this game was played in, any of "
+                               f"your chat messages, or what other settings your game was created with*",
+                        required_type=bool,
+                        timeout=setting_timeout,
+                        error=f"{self.context.bot.emotes['valueerror']} Pick either `yes` or `no`",
+                        color=self.context.bot.colors['status']
+                    ))[0]
             with contextlib.suppress(asyncio.TimeoutError):
                 self.anon = (await self.context.input(
                     title=f"{self.context.bot.emotes['settings']} Want to be anonymous?",
@@ -257,6 +277,19 @@ class Game:
                     color=self.context.bot.colors['status'],
                     error=f"{self.context.bot.emotes['valueerror']} That's not a number from `0` to `150`... Try again"
                 ))[0]
+        elif self.ai:
+            await self.context.send(
+                f"Don't have friends to play with? Don't worry, we don't either! We're currently working on adding "
+                f"bots to our game to allow you to play by yourself and still have a great time. As part of that we're "
+                f"collecting anonymous information on what answers you pick. If that's not ok with you, you can run "
+                f"`$end true` to end this game and `$play true` to start your next game in advanced mode and get the "
+                f"option to turn this off.\n\n"
+                f"*Note: We won't ever take data on games with custom packs. This option will also be required to "
+                f"later add bots to your game. We won't store any data about who you are, what server this game was "
+                f"played in, any of your chat messages, or what settings your game was created with*",
+                title=f"{self.context.bot.emotes['settings']} We're making bots!",
+                color=self.context.bot.colors['status'],
+            )
 
         self.question_cards = [card for card in self.question_cards if card.count(r"\_\_") <= self.hand_size]
 
@@ -368,6 +401,12 @@ class Game:
         await self.render_leaderboard(
             final=True
         )
+        await self.context.send(
+            "If you did, please upvote our bot (https://top.gg/bot/679361555732627476/vote#). We decided to put this "
+            "message here instead of locking down features, so just... please?",
+            title=f"{self.context.bot.emotes['success']} Enjoyed your game?",
+            color=self.context.bot.colors['info']
+        )
 
     async def add_player(self, member):
         new_player = player.Player(self, member)
@@ -384,7 +423,6 @@ class Game:
             color=self.context.bot.colors["success"]
         )
         return new_player
-
 
     async def end(self, instantly, reason=""):
         if not self.active:
@@ -485,6 +523,36 @@ class Game:
                 reason="I can't DM them"
             )
             return self.skip()
+
+        if self.ai:
+            picked_card_data = []
+            for _player in self.players:
+                player_picks = []
+                for card in _player.picked:
+                    player_picks.append(card)
+                picked_card_data.append(".".join(player_picks))
+
+            this_round_data = (
+                self.question_data.keys()[self.question_data.values().index(question)],
+                ",".join(picked_card_data),
+                self.answer_data.keys()[self.answer_data.values().index(winner.picked)]
+            )
+
+            old_data = self.context.bot.AIDataStore.load_data()
+            old_question = old_data.get(this_round_data[0], None)
+            if old_question is None:
+                old_data[this_round_data[0]] = {}
+                old_question = {}
+            old_options = old_question.get(this_round_data[1], None)
+            if old_options is None:
+                old_data[this_round_data[0]][this_round_data[1]] = {}
+                old_options = {}
+            if old_options.get(this_round_data[2], None) is None:
+                old_data[this_round_data[0]][this_round_data[1]][this_round_data[2]] = 0
+
+            old_data[this_round_data[0]][this_round_data[1]][this_round_data[2]] += 1
+
+            self.context.bot.AIDataStore.save_data(old_data)
 
         picked = (re.sub(r'\.$', '', card) for card in winner.picked)
         if r"\_\_" in question:

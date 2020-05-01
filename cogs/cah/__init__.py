@@ -9,7 +9,6 @@ import asyncio
 import os
 from . import errors
 import typing
-import re
 import flag
 
 default_lang = "gb"
@@ -101,7 +100,7 @@ class CAH(commands.Cog):
                 menu.add(flag.flag(language))
             msg = await ctx.send(
                 supported + "\n\n" + soon + "||\n\n*Select a flag below (or say it in chat) to set it as the default "
-                "language for this server*",
+                                            "language for this server*",
                 title=title
             )
             try:
@@ -127,10 +126,9 @@ class CAH(commands.Cog):
                 title=title
             )
 
-
     @commands.command(aliases=["listpacks", "list"])
     async def packs(self, ctx):
-        """Shows a list of packs avaliable in your language.
+        """Shows a list of packs available in your language.
         """
         lang = (self.languages.read_key(ctx.guild.id) if ctx.guild else None) or default_lang
 
@@ -180,6 +178,14 @@ class CAH(commands.Cog):
             "cah_packs",
             packs
         )
+        self.bot.set(
+            "cah_answer_data",
+            self.bot.AIAnswerStore.load_data()
+        )
+        self.bot.set(
+            "cah_question_data",
+            self.bot.AIQuestionStore.load_data()
+        )
 
     @commands.command(aliases=["start"])
     @commands.check(no_cah_in_channel)
@@ -217,7 +223,7 @@ class CAH(commands.Cog):
     @commands.guild_only()
     @commands.max_concurrency(1, commands.BucketType.channel, wait=True)
     async def join(self, ctx):
-        """Joins an active game in the channel. This can be during the 1m period when starting a game, or midway through.
+        """Joins an active game in the channel. This can be during the 1m period when starting a game, or midway through
         """
         _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
         if _game is None:

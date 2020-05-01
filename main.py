@@ -1,14 +1,11 @@
-import discord
-from discord.ext import commands
-from utils import help, checks
-from utils.miniutils import minidiscord, data, classes
 import traceback
-import contextlib
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import io
+
+import discord
 import datetime
-import re
+from discord.ext import commands
+
+from utils import help
+from utils.miniutils import classes, data, minidiscord
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -66,6 +63,9 @@ bot.prefixes = prefixes
 bot.get_main_custom_prefix = get_main_custom_prefix
 
 bot.playing = 0
+bot.AIDataStore = data.Json("AIStore" + str(datetime.datetime.utcnow().timestamp()))
+bot.AIAnswerStore = data.Json("answers")
+bot.AIQuestionStore = data.Json("questions")
 bot.admins = [] + bot.owner_ids
 bot.skips = []
 

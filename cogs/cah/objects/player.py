@@ -1,10 +1,9 @@
-import random
-import discord
 import asyncio
-import typing
-import sys
+import random
 import traceback
-from utils.miniutils import decorators
+import typing
+
+import discord
 
 
 class Player:
@@ -54,7 +53,6 @@ class Player:
             self.game.dealt_answer_cards.append(card)
             self.cards.append(card)
 
-
     async def shuffle(self, context):
         if self.shuffles < 1:
             return await context.send(
@@ -88,7 +86,6 @@ class Player:
             )
             return True
 
-
     async def pick_cards(self, question, tsar) -> typing.Optional[typing.List[str]]:
         cards = question.count(r"\_\_") or 1
         for cardNumber in range(cards):
@@ -101,12 +98,13 @@ class Player:
                     prompt=f"**The tsar is:** {tsar.user}\n"
                            f"**The question is:** {question}\n"
                            f"**Your cards are:**\n" +
-                           f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards) if card is not None]),
+                           f"\n".join([f'**{position + 1}-** {card}' for position, card in enumerate(self.cards) if
+                                       card is not None]),
                     paginate_by="\n",
                     required_type=int,
                     timeout=self.game.timeout,
-                    check=lambda message: 0 <= int(message.content) <= len(self.cards) \
-                          and self.cards[int(message.content) - 1] is not None,
+                    check=(lambda message: 0 <= int(message.content) <= len(self.cards) and
+                                           self.cards[int(message.content) - 1] is not None),
                     error=f"That isn't a valid card",
                     color=self.game.context.bot.colors["info"]
                 )
@@ -145,7 +143,6 @@ class Player:
             color=self.game.context.bot.colors["info"]
         )
         return True
-
 
     async def quit(self, ctx=None, reason=""):
         if self not in self.game.players:

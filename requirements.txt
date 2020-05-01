@@ -2,5 +2,9 @@ dblpy
 discord.py
 jishaku
 git+https://github.com/dragdev-studios/guildmanager
-matplotlib
-emoji-country-flag
+matplotlib~=3.2.1
+boto3~=1.13.0
+numpy~=1.18.3
+botocore~=1.16.0
+aiohttp~=3.6.2
+emoji-country-flag~=1.2.1
