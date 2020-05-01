@@ -282,8 +282,9 @@ class Game:
                 f"Don't have friends to play with? Don't worry, we don't either! We're currently working on adding "
                 f"bots to our game to allow you to play by yourself and still have a great time. As part of that we're "
                 f"collecting anonymous information on what answers you pick. If that's not ok with you, you can run "
-                f"`$end true` to end this game and `$play true` to start your next game in advanced mode and get the "
-                f"option to turn this off.\n\n"
+                f"`{self.context.bot.get_main_custom_prefix(self.context)}end true` to end this game and "
+                f"`{self.context.bot.get_main_custom_prefix(self.context)}play true` to start your next game in "
+                f"advanced mode and get the option to turn this off.\n\n"
                 f"*Note: We won't ever take data on games with custom packs. This option will also be required to "
                 f"later add bots to your game. We won't store any data about who you are, what server this game was "
                 f"played in, any of your chat messages, or what settings your game was created with*",
@@ -403,7 +404,8 @@ class Game:
         )
         await self.context.send(
             "If you did, please upvote our bot (https://top.gg/bot/679361555732627476/vote#). We decided to put this "
-            "message here instead of locking down features, so just... please?",
+            "message here instead of locking down features, so just... please? **It's free for you and would mean a "
+            "lot to us**",
             title=f"{self.context.bot.emotes['success']} Enjoyed your game?",
             color=self.context.bot.colors['info']
         )
@@ -524,18 +526,20 @@ class Game:
             )
             return self.skip()
 
-        if self.ai:
+        if self.ai and False:
             picked_card_data = []
-            for _player in self.players:
+            for _player in players:
                 player_picks = []
                 for card in _player.picked:
-                    player_picks.append(card)
-                picked_card_data.append(".".join(player_picks))
+                    player_picks.append(tuple(self.answer_data.keys())[tuple(self.answer_data.values()).index(card)])
+                picked_card_data.append(".".join(sorted(player_picks)))
 
             this_round_data = (
                 tuple(self.question_data.keys())[tuple(self.question_data.values()).index(question)],
                 ",".join(picked_card_data),
-                tuple(self.answer_data.keys())[tuple(self.answer_data.values()).index(winner.picked)]
+                ".".join(sorted(tuple(self.answer_data.keys())[
+                                    tuple(self.answer_data.values()).index(picked)
+                                ] for picked in winner.picked))
             )
 
             old_data = self.context.bot.AIDataStore.load_data()
