@@ -20,6 +20,8 @@ class NotGuildOwnerError(commands.CheckFailure):
 
 
 async def NotAgreedErrorHandler(ctx, _error, _next):
+    if isinstance(_error, commands.CommandNotFound):
+        return
     await ctx.send_exception(
         " ".join(_error.args),
         title=f"You haven't agreed to the terms",
