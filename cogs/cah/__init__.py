@@ -412,7 +412,7 @@ class CAH(commands.Cog):
             )
         )
         if end:
-            for _game in self.bot.running_cah_game_objects.values():
+            for _game in list(self.bot.running_cah_game_objects.values()):
                 with contextlib.suppress(Exception):
                     await _game.end(
                         instantly=instantly,
