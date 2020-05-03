@@ -41,7 +41,7 @@ class Game:
         self.hand_size = 10
         self.anon = False
         self.shuffles = 0
-        self.ai = True
+        self.ai = self.lang == "gb"
 
         self.coro = None
         self.skipping = False
@@ -526,7 +526,7 @@ class Game:
             )
             return self.skip()
 
-        if self.ai and False:
+        if self.ai:
             picked_card_data = []
             for _player in players:
                 player_picks = []
