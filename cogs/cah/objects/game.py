@@ -532,14 +532,14 @@ class Game:
                 player_picks = []
                 for card in _player.picked:
                     player_picks.append(tuple(self.answer_data.keys())[tuple(self.answer_data.values()).index(card)])
-                picked_card_data.append(".".join(sorted(player_picks)))
+                picked_card_data.append(".".join(player_picks))
 
             this_round_data = (
                 tuple(self.question_data.keys())[tuple(self.question_data.values()).index(question)],
-                ",".join(picked_card_data),
-                ".".join(sorted(tuple(self.answer_data.keys())[
-                                    tuple(self.answer_data.values()).index(picked)
-                                ] for picked in winner.picked))
+                ",".join(sorted(picked_card_data)),
+                ".".join(tuple(self.answer_data.keys())[
+                                tuple(self.answer_data.values()).index(picked)
+                            ] for picked in winner.picked)
             )
 
             old_data = self.context.bot.AIDataStore.load_data()
