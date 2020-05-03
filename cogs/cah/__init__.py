@@ -215,9 +215,9 @@ class CAH(commands.Cog):
             with contextlib.suppress(Exception):
                 del self.bot.running_cah_game_objects[ctx.channel]
             self.bot.running_cah_games -= 1
-            if self.bot.running_cah_games < 1:
+            if self.bot.running_cah_games < 0:
                 self.bot.running_cah_games = 0
-                self.bot.running_cah_game_objects["Less than 1 game found"] = "Please find out why this happened"
+                self.bot.running_cah_game_objects["Less than 0 games found"] = "Please find out why this happened"
 
     @commands.command()
     @commands.guild_only()
