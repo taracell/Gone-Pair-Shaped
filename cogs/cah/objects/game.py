@@ -42,6 +42,7 @@ class Game:
         self.anon = False
         self.shuffles = 0
         self.ai = self.lang == "gb"
+        self.global_leaderboard_section = None
 
         self.coro = None
         self.skipping = False
@@ -61,7 +62,8 @@ class Game:
             self.coro.cancel()
 
     async def get_custom_pack(self, code):
-        if len(code) == 5 and code.upper() == code:
+        if len(code) == 5:
+            code = code.upper()
             await self.context.send(
                 f"Attempting to load custom deck {code}",
                 title=f"{self.context.bot.emotes['settings']} Please Wait",
@@ -151,35 +153,33 @@ class Game:
                 lang_packs = self.all_packs.get(self.lang, None)["packs"]
             for pack in packs:
                 if pack == "all":
-                    continue
-                if not "-" + pack in packs:
-                    question_cards_in_pack = lang_packs.get(pack.lower() + "b", [])
-                    answer_cards_in_pack = lang_packs.get(pack.lower() + "w", [])
-                    if question_cards_in_pack == [] and answer_cards_in_pack == []:
-                        try:
-                            custom_pack = await self.get_custom_pack(pack)
-                        except Exception as e:
-                            print(e)
-                            continue
-                        if custom_pack["black"] or custom_pack["white"]:
-                            self.ai = False
-                        self.question_cards += custom_pack["black"]
-                        self.answer_cards += custom_pack["white"]
-                        continue
-                    self.question_cards += question_cards_in_pack
-                    self.answer_cards += answer_cards_in_pack
                     await self.context.send(
-                        f"I've successfully loaded the {pack.lower()} deck!",
-                        title=f"{self.context.bot.emotes['success']} Loaded deck {pack.lower()}",
-                        color=self.context.bot.colors["info"],
+                        f"The 'all' pack has been temporarily disabled while we rework some systems. Add just your "
+                        f"favorite packs or check out this week's featured packs and win yourself a spot on the "
+                        f"leaderboard!",
+                        title="That's... not a thing",
+                        color=self.context.bot.colors["error"],
                     )
-            if "all" in packs:
-                for pack, cards in lang_packs.items():
-                    if not "-" + pack[:-1] in packs:
-                        if pack[-1:] == "w":
-                            self.answer_cards += cards
-                        else:
-                            self.question_cards += cards
+                question_cards_in_pack = lang_packs.get(pack.lower() + "b", [])
+                answer_cards_in_pack = lang_packs.get(pack.lower() + "w", [])
+                if question_cards_in_pack == [] and answer_cards_in_pack == []:
+                    try:
+                        custom_pack = await self.get_custom_pack(pack)
+                    except Exception as e:
+                        print(e)
+                        continue
+                    if custom_pack["black"] or custom_pack["white"]:
+                        self.ai = False
+                    self.question_cards += custom_pack["black"]
+                    self.answer_cards += custom_pack["white"]
+                    continue
+                self.question_cards += question_cards_in_pack
+                self.answer_cards += answer_cards_in_pack
+                await self.context.send(
+                    f"I've successfully loaded the {pack.lower()} deck!",
+                    title=f"{self.context.bot.emotes['success']} Loaded deck {pack.lower()}",
+                    color=self.context.bot.colors["info"],
+                )
 
         if self.advanced:
             with contextlib.suppress(asyncio.TimeoutError):
@@ -588,5 +588,11 @@ class Game:
             "\n".join(lb),
             title=f"{self.context.bot.emotes['status']} {'The game has ended! ' if final else ''}"
                   f"Here's the {'final ' if final else ''}leaderboard{':' if final else ' so far...'}",
+            color=self.context.bot.colors["status"]
+        )
+        if
+        await self.context.send(
+            "\n".join(lb),
+            title=f"{self.context.bot.emotes['status']} and here's the global leaderboard",
             color=self.context.bot.colors["status"]
         )

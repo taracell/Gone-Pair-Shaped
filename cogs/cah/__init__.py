@@ -52,9 +52,22 @@ class CAH(commands.Cog):
                 "running_cah_game_objects",
                 {}
             )
+        self.leaderboard = self._get_leaderboard()
         self._load_packs()
 
     @commands.command(aliases=["reloadpacks", "rpacks"])
+    @commands.check(checks.bot_mod)
+    async def loadpacks(self, ctx):
+        """Reloads all packs.
+        """
+        self._load_packs()
+        await ctx.send(
+            "I've reloaded all the packs",
+            title=f"{ctx.bot.emotes['success']} Complete!",
+            color=ctx.bot.colors["info"]
+        )
+
+    @commands.command(aliases=["reset", "reset"])
     @commands.check(checks.bot_mod)
     async def loadpacks(self, ctx):
         """Reloads all packs.
@@ -186,6 +199,16 @@ class CAH(commands.Cog):
             "cah_question_data",
             self.bot.AIQuestionStore.load_data()
         )
+
+    def _reset_leaderboard(self):
+        """Reset the CAH global leaderboard and choose 3 new randomly-assigned packs for a (maybe somewhat decent) \
+combination"""
+        old_leaderboard = self._get_leaderboard()
+        self.leaderboard = {
+            "section": old_leaderboard["section"] + 1,
+            packs:
+        }
+
 
     @commands.command(aliases=["start"])
     @commands.check(no_cah_in_channel)
