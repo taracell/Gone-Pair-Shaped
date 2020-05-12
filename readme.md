@@ -102,7 +102,7 @@
   </dd>
   <dt><h3>Picking the winner</h3></dt>
   <dd>
-    The winner is chosen in the exact same way. Pick the best answer by its number in your DM. Cards which have 2 answers are separated by a <code>|</code>.
+    The winner is chosen in the exact same way. Pick the best answer by its number in your DM. Cards which have 2(or more) answers are separated by a <code>|</code>.
   </dd>
   <dt><h3>Want to leave?</h3></dt>
   <dd>
@@ -118,6 +118,6 @@
 
 ## This bot was made by ClicksMinutePer:
 #### Cardboard Against Humankind Dev Team:
-PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583 and EEKIM10_YT#4015
+PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583, DOSmile#7021 and EEKIM10_YT#4015
 
 *This bot is not associated with Cards Against Humanity LLC*
