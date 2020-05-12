@@ -61,7 +61,7 @@
   </dd>
   <hr>
   <dt><h3>How do you win?</h3></dt>
-  <dd>You can set a prefix by using <code>$setprefix </code> followed by the prefixes you want to use, separated by spaces. To add a prefix with a space in, surround it with "" or ''.</dd>
+  <dd>Select how many points a user needs to win the game by typing it in chat. It can be anywhere from <code>1</code> to <code>100</code>, or you can choose <code>0</code> for an endless game.</dd>
   <hr>
   <dt>
     <h3>
