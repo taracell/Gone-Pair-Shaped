@@ -1,4 +1,6 @@
 # Cardboard Against Humankind - Cards Against Humanity over Discord.
+*presented by ClicksMinutePer*
+
 
 [![Discord Bots](https://top.gg/api/widget/status/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476)
 [![Discord Bots](https://top.gg/api/widget/servers/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476)
@@ -81,7 +83,7 @@
     </summary>
     <h4>Can we train out bot?</h4> - Type <code>yes</code> or <code>no</code> to choose if we can use your game to train bots.<br>
     <h4>Want it to be anonymous?</h4> - Type <code>yes</code> or <code>no</code> to choose if the winners and leaderboard should be hidden until the end.<br>
-    <h4>How big should your hand be></h4> - Type a number from 1 to 25 to choose how many cards each player chooses from.<br>
+    <h4>How big should your hand be?</h4> - Type a number from 1 to 25 to choose how many cards each player chooses from.<br>
     <h4>How many rounds should I end after?</h4> - Type a number from 0 to 200 to choose how many rounds there should be. 0 rounds means there is no limit.<br>
     <h4>How many times would you like to be able to shuffle?</h4> - 0 to 50, allows users to do <code>$shuffle</code> in the chat to get rid of all of their cards and get new ones.<br>
     <h4>How long should you get to pick your cards?</h4> - 10 to 600 seconds, the amount of time before a player is kicked for innactivity when picking their cards.<br>
