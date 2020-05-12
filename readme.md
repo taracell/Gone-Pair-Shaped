@@ -111,11 +111,10 @@
   </dd>
 </dl>
 
+<hr>
 
-
-
-
-
-This bot was made by PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583 and EEKIM10_YT#4015
+## This bot was made by ClicksMinutePer:
+#### Cardboard Against Humankind Dev Team:
+PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583 and EEKIM10_YT#4015
 
 *This bot is not associated with Cards Against Humanity LLC*
