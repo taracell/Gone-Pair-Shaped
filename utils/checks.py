@@ -54,17 +54,18 @@ def tester(ctx):
 
 # Define the checks
 def bypass_check(
-        predicate, **parameters
+        check
 ):  # If the user is a bot mod this check will allow them to skip the check if it fails
     """If the user is a bot mod this check will allow them to skip the check if it fails. Auto-passes the ctx
     parameter """
+    predicate = check.predicate
 
     async def pred(ctx):
         try:
             if asyncio.iscoroutinefunction(predicate):
-                result = await predicate(ctx, **parameters)
+                result = await predicate(ctx)
             else:
-                result = predicate(ctx, **parameters)
+                result = predicate(ctx)
             if result:
                 return True
             else:
@@ -103,18 +104,6 @@ def bypass_check(
             raise e
 
     return pred
-
-
-def has_permissions_predicate(ctx, **perms):
-    ch = ctx.channel
-    permissions = ch.permissions_for(ctx.author)
-
-    missing = [perm for perm, value in perms.items() if getattr(permissions, perm, None) != value]
-
-    if not missing:
-        return True
-
-    raise discord.ext.commands.MissingPermissions(missing)
 
 
 def development(ctx):  # If the command is in development don't let the user run the command

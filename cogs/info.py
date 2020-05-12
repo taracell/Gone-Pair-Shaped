@@ -19,7 +19,7 @@ class Info(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @commands.check(checks.bypass_check(checks.has_permissions_predicate, manage_guild=True))
+    @commands.check(checks.bypass_check(commands.has_permissions(manage_guild=True)))
     async def setprefix(self, ctx, *new_prefixes):
         """Changes the prefixes of the bot in this guild. Pass as many prefixes as you like separated by spaces. \
     If you want a multi-word prefix enclose it in speech marks or quotation marks"""

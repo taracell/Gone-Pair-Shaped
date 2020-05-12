@@ -14,10 +14,12 @@ import flag
 default_lang = "gb"
 
 
-def allow_runs(ctx):
-    if not ctx.bot.allow_running_cah_games:
-        raise errors.Development("Unfortunately I'm in development mode right now, come back later")
-    return True
+def allow_runs():
+    def predicate(ctx):
+        if not ctx.bot.allow_running_cah_games:
+            raise errors.Development("Unfortunately I'm in development mode right now, come back later")
+        return True
+    return commands.check(predicate)
 
 
 def no_cah_in_channel(ctx):
@@ -212,7 +214,7 @@ combination"""
 
     @commands.command(aliases=["start"])
     @commands.check(no_cah_in_channel)
-    @commands.check(checks.bypass_check(allow_runs))
+    @commands.check(checks.bypass_check(allow_runs()))
     @commands.guild_only()
     async def play(self, ctx, advanced: typing.Optional[bool] = False, whitelist: commands.Greedy[discord.Member] = ()):
         """Starts the game.

@@ -49,7 +49,7 @@ def get_main_custom_prefix(message):
 bot = minidiscord.AutoShardedBot(
     command_prefix=get_command_prefix,
     case_insensitive=True,
-    help_command=help.HelpCommand(),
+    help_command=help.MiniCustomHelp(),
     owner_ids=[317731855317336067, 438733159748599813, 261900651230003201, 421698654189912064],
     exceptions_channel=686285252817059881,
     activity=discord.Activity(
