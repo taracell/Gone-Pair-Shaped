@@ -36,7 +36,8 @@
   <dd>To use msot commands, you need to accept the <code>$terms</code> by reacting with the tick. This can only be done by people with the <b>Manage Server</b> permission.</dd>
   <hr>
   <dt><h3>Set a prefix</h3></dt>
-  <dd>You can set a prefix by using <code>$setprefix </code> followed by the prefixes you want to use, separated by spaces. To add a prefix with a space in, surround it with "" or ''.</dd>
+  <dd>You can set a prefix by using <code>$setprefix </code> followed by the prefixes you want to use, separated by spaces. To add a prefix with a space in, surround it with "" or ''.<br>
+  If any issues happen with the prefix, pinging the bot will always work and cannot be disabled. So if you ever forget the prefix, you can @ the bot and <code>setprefix</code></dd>
   <hr>
   <dt><h3>Choose a language</h3></dt>
   <dd>Some languages are now supported in the bot. These can be added over time and can be viewed in <code>$lang</code> and reacting with the language you want to use.</dd>
