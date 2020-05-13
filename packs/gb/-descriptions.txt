@@ -11,3 +11,6 @@ pax:The PAX convention pack.
 base2:An additional base pack / alternative extension
 anime:Nani?
 discord:Our pack, containing cards that we wanted but couldn't quite make an excuse to put in the other packs.
+ass: Packs about the anus.
+Fantasy: You're a wizard, barry.
+Pride: Just some gay cards.
