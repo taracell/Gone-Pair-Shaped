@@ -87,7 +87,7 @@
     <h4>How many rounds should I end after?</h4> - Type a number from 0 to 200 to choose how many rounds there should be. 0 rounds means there is no limit.<br>
     <h4>How many times would you like to be able to shuffle?</h4> - 0 to 50, allows users to do <code>$shuffle</code> in the chat to get rid of all of their cards and get new ones.<br>
     <h4>How long should you get to pick your cards?</h4> - 10 to 600 seconds, the amount of time before a player is kicked for innactivity when picking their cards.<br>
-    <h4>How long should the tsar get to pick the best card?</h4> - 10 to 600 seconds, the amount of time the tsar has before being kicked for innactivity when picking the winner.<br></dd>
+    <h4>How long should the tsar get to pick the best card?</h4> - 10 to 600 seconds, the amount of time the tsar has before being kicked for innactivity when picking the winner.<br>
     <h4>How long should we wait between rounds?</h4> - A number from 0 to 150 seconds. Tells the bot how long to wait before starting another round when the winner is picked.<br>
   </details>
   <hr>
