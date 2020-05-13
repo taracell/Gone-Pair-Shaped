@@ -12,5 +12,5 @@ base2:An additional base pack / alternative extension
 anime:Nani?
 discord:Our pack, containing cards that we wanted but couldn't quite make an excuse to put in the other packs.
 ass: Packs about the anus.
-fantasy: You're a wizard, barry.
-pride: Just some gay cards.
+fantasy:You're a wizard, barry.
+pride:Just some gay cards.
