@@ -114,7 +114,7 @@
   <hr>
   <dt><h3>Time to end the game?</h3></dt>
   <dd>
-    Ending a game can be done by typing <code>$end></code>. This ends the game when the current round finishes. To end the game instantly, run <code>$end true</code>.
+    Ending a game can be done by typing <code>$end</code>. This ends the game when the current round finishes. To end the game instantly, run <code>$end true</code>.
   </dd>
 </dl>
 
