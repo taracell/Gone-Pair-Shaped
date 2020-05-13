@@ -138,7 +138,7 @@ class Game:
                 prompt=f"Run `{self.context.bot.get_main_custom_prefix(self.context)}packs` after this game to choose "
                        f"your language and see available packs. You can also choose a custom deck by putting a code "
                        f"from https://www.cardcastgame.com/#. We recommend `63EX5` for horrible people like yourself "
-                       f"or `6VVUN` for a wholesome and family-friendly game.\n\n"
+                       f"or `MF9QN` for a wholesome and family-friendly game.\n\n"
                        f"Separate individual packs with spaces, say `all` for every pack or put a `-` before a pack to "
                        f"ensure it doesn't show up. We recommend the `base` pack for beginners. "
                        f"If you don't pick within {setting_timeout * 5} seconds we'll give you the `base` pack.",
