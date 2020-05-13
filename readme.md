@@ -79,7 +79,7 @@
   <hr>
   <details>
     <summary>
-      Advanced play options
+      Advanced play options...
     </summary>
     <h4>Can we train out bot?</h4> - Type <code>yes</code> or <code>no</code> to choose if we can use your game to train bots.<br>
     <h4>Want it to be anonymous?</h4> - Type <code>yes</code> or <code>no</code> to choose if the winners and leaderboard should be hidden until the end.<br>
