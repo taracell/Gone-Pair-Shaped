@@ -1,5 +1,5 @@
 # Cardboard Against Humankind
-###### *Cards Against Humanity on Discord : presented by ClicksMinutePer.*
+##### *Cards Against Humanity on Discord : presented by [ClicksMinutePer](https://clicksminuteper.net).*
 
 
 [![Discord Bots](https://top.gg/api/widget/status/679361555732627476.svg?noavatar=true)](https://discord.gg/bPaNnxe)
@@ -120,8 +120,8 @@
 
 <hr>
 
-## This bot was made by ClicksMinutePer - 
+## This bot was made by [ClicksMinutePer](https://clicksminuteper.net) - 
 ### Cardboard Against Humankind Dev Team:
-###### *PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583, DOSmile#7021 and EEKIM10_YT#4015*
+##### *PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583, DOSmile#7021 and EEKIM10_YT#4015*
 
 *This bot is not associated with Cards Against Humanity LLC*
