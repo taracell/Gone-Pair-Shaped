@@ -3,7 +3,6 @@ import asyncio
 from discord.ext import commands
 import functools
 from utils.miniutils.data import json
-from utils.miniutils.minidiscord import input
 from utils import checks
 import contextlib
 import datetime
@@ -11,62 +10,9 @@ import discord
 
 
 class Disclaimers(commands.Cog):
-    class NotAgreedError(commands.CheckFailure):
-        """This error specifies that the guild has not agreed to the disclaimer"""
-        pass
-
-    class NotGuildOwnerError(commands.CheckFailure):
-        """This error specifies that the executor of the command is not an owner in the guild"""
-        pass
-
-    async def NotAgreedCompleteErrorHandler(self, ctx, _error, _next):
-        if isinstance(_error, self.NotAgreedError):
-            return await ctx.send_exception(
-                " ".join(_error.args),
-                title=f"You haven't agreed to the terms",
-            )
-        if isinstance(_error, commands.CommandNotFound):
-            return
-        if json.Json("disclaimer").read_key(ctx.guild.id) is None:
-            await ctx.send_exception(
-                f"An error occurred... but I can't help. You have to agree to the terms with the `terms` command "
-                f"before I can handle errors properly. If you want help you can go and tell my developers `{_error}` "
-                f"in the support server. They'll understand what you mean.",
-                title=f"You haven't agreed to the terms",
-            )
-        else:
-            _next(_error)
-
-    @staticmethod
-    async def NotGuildOwnerErrorHandler(ctx, _error, _next):
-        await ctx.send_exception(
-            " ".join(_error.args),
-            title=f"No permissions",
-        )
-
-    def is_guild_owner(self):
-        def predicate(ctx):
-            if ctx.guild is not None and ctx.guild.owner_id == ctx.author.id:
-                return True
-            else:
-                raise self.NotGuildOwnerError("You must be the server owner to get the server's info")
-
-        return commands.check(predicate)
-
-    def initial_agree_check(self):
-        def predicate(ctx):
-            if not ctx.guild:
-                return False
-            agrees = json.Json("disclaimer").read_key(ctx.guild.id)
-            if not agrees:
-                raise self.NotAgreedError(
-                    "Your guild needs to agree to the terms before this command works in your guild"
-                )
-            if agrees["member"]["id"] != ctx.author.id:
-                return False
-            return True
-
-        return commands.check(predicate)
+    """
+    A discord bot cog to add a disclaimer that all users must agree to
+    """
 
     def __init__(self, bot):
         self.bot = bot
@@ -74,128 +20,60 @@ class Disclaimers(commands.Cog):
         self.json_saves = {
             self.agrees,
             json.Json("prefixes"),
-            json.Json("languages")
+            json.Json("languages"),
+            json.Json("settings"),
         }
-        self.timeout = 300
-        bot.check(checks.bypass_check(self.agreed_check()))
 
-    def agreed_check(self):
-        def predicate(ctx):
-            if not ctx.guild:
-                return True
-            allowed_commands = [
-                "help",
-                "terms",
-                "info",
-                "skip",
-                "server"
-            ]
-            if ctx.command.qualified_name in allowed_commands:
-                return True
-            if self.agrees.read_key(ctx.guild.id) is not None:
-                return True
-            if ctx.channel.permissions_for(ctx.author):
-                raise self.NotAgreedError(
-                    "You must agree to the terms with the `$terms` command before the bot works in this server"
-                )
-            else:
-                raise self.NotAgreedError(
-                    "We need someone with `manage server` and `manage roles` to agree to the terms of service before the "
-                    "bot works in this server"
-                )
+    @commands.command()
+    async def disagree(self, ctx):
+        """
+        Disagree to the disclaimer and remove all the data we have on your server
+        """
+        self.agrees.remove_key(ctx.guild.id)
+        for save in self.json_saves:
+            save.remove_key(ctx.guild.id)
 
-        return commands.check(predicate)
+        await ctx.send(
+            "We've gone ahead and removed all the data we have on you. Thank you for using Cardboard Against Humankind "
+            "by Clicks Minute Per; we hope to see you again soon",
+            title="💔 Bye for now",
+        )
 
+    @commands.command(aliases=["accept"])
+    @checks.bypass_check(commands.has_permissions(manage_guild=True, manage_permissions=True))
     async def agree(self, ctx):
+        """
+        Agree to the disclaimer and start playing some CAH
+        """
         self.agrees.save_key(
             ctx.guild.id,
             {
-                "member": {
-                    "id": ctx.author.id,
-                    "user": str(ctx.author),
-                    "nick": ctx.author.nick,
-                },
-                "timestamp": datetime.datetime.now().timestamp()
+                "user_id": ctx.author.id,
+                "time": datetime.datetime.utcnow().timestamp()
             }
         )
-        await ctx.send(
-            f"We've enabled all commands for your server. If you change your mind just run the "
-            f"`{ctx.bot.get_main_custom_prefix(ctx)}disagree` command and "
-            "we'll remove all our data.",
-            title="❤️ Thank You"
-        )
 
-    async def _disagree(self, ctx):
-        for save in self.json_saves:
-            save.remove_key(ctx.guild.id)
         await ctx.send(
-            "We're sad you didn't want to agree to the terms. If you change your mind later feel free to run the "
-            "`terms` command again later. We won't even remember you didn't agree...",
-            title="💔 Bye bye"
-        )
-
-    @commands.command()
-    @commands.guild_only()
-    @commands.check_any(commands.check(checks.bypass_check(
-        commands.has_permissions(
-            manage_guild=True,
-            manage_permissions=True
-        ))), commands.check(initial_agree_check))
-    async def disagree(self, ctx):
-        """Decide you don't agree to the terms after all and delete all your data from the bot"""
-        await self._disagree(ctx)
-
-    @commands.command(aliases=["guild"])
-    @commands.check(checks.bypass_check(is_guild_owner()))
-    async def server(self, ctx):
-        """Look at some information about this guild"""
-        added_by = "I can't tell who added me\n"
-        with contextlib.suppress(discord.Forbidden):
-            for action in await (ctx.guild.audit_logs(action=discord.AuditLogAction.bot_add)).flatten():
-                if action.target == ctx.guild.me:
-                    added_by = f"I was last invited by {action.user.mention}\n"
-                    break
-        terms = "You haven't agreed to the terms yet"
-        agrees = self.agrees.read_key(ctx.guild.id)
-        if agrees is not None:
-            agreeing_member = ctx.guild.get_member(agrees['member']['id'])
-            global_agreeing_member = None
-            if agreeing_member is None:
-                global_agreeing_member = self.bot.get_user(agrees['member']['id'])
-            agreeing_member = (
-                agreeing_member.mention if agreeing_member else (
-                    str(global_agreeing_member)
-                    if global_agreeing_member else
-                    self.bot.get_user(agrees['member']['user'])
-                )
-            )
-            terms = f"{agreeing_member} agreed to the terms " \
-                    f"for this guild " \
-                    f"{datetime.datetime.utcfromtimestamp(agrees['timestamp']).strftime('on %d/%m/%y at %H:%M UTC')}"
-        await ctx.send(
-            f"You have {len(ctx.guild.members)} members, "
-            f"{len([member for member in ctx.guild.members if not member.bot])} of whom are not bots\n"
-            f"Your server has been around since {ctx.guild.created_at.strftime('%d/%m/%y at %H:%M UTC')}\n" +
-            (f"Your server has using me since {ctx.guild.me.joined_at.strftime('%d/%m/%y at %H:%M UTC')}\n" if
-             ctx.guild.me.joined_at else "I can't tell when I joined your server\n") +
-            added_by +
-            terms,
-            title=f"{self.bot.emotes['settings']} Server Information",
-            paginate_by="\n"
+            f"To get started, run %%help and select 🎮 to see how to play",
+            title="❤ Welcome!",
         )
 
 
 def setup(bot):
-    disclaimers = Disclaimers(bot)
+    """
+    Setup the terms and conditions cog on your bot
+    """
+    # bot.error_handler.handles(Exception)(disclaimers.NotAgreedCompleteErrorHandler)
+    # bot.error_handler.handles(disclaimers.NotGuildOwnerError)(disclaimers.NotGuildOwnerErrorHandler)
 
-    bot.error_handler.handles(Exception)(disclaimers.NotAgreedCompleteErrorHandler)
-    bot.error_handler.handles(disclaimers.NotGuildOwnerError)(disclaimers.NotGuildOwnerErrorHandler)
-
-    bot.add_cog(disclaimers)
+    bot.add_cog(Disclaimers(bot))
 
 
 def pages(help_command):
-    permissions = help_command.context.has_permissions(help_command.context.author)
+    """
+    Get the pages for the help command
+    """
+    permissions = help_command.context.permissions_for(help_command.context.author)
     can_agree = all((permissions.manage_guild, permissions.manage_permissions))
 
     can_agree_message = 'Once you have read through the terms you can agree by running `{prefix}agree`'

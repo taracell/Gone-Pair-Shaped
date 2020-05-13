@@ -22,6 +22,7 @@ class Constants(commands.Cog):
         guild = 684492926528651336
         roles = {
             "Owners": 684493117017161963,
+            "Developers": 704391679419089030,
             "Moderators": 686310450618695703,
             "Helpers": 686317204752302091,
             "Translators": 691778934471131136,
