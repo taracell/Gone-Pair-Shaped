@@ -1,5 +1,5 @@
-# Cardboard Against Humankind - Cards Against Humanity over Discord.
-*presented by ClicksMinutePer*
+# Cardboard Against Humankind
+###### *Cards Against Humanity on Discord : presented by ClicksMinutePer.*
 
 
 [![Discord Bots](https://top.gg/api/widget/status/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476)
@@ -95,19 +95,23 @@
   <dd>
     In order to join a game, you do <code>$join</code> and you will be added to the game in that channel. This can be during the startup time, or in the middle of the game.
   </dd>
+  <hr>
   <dt><h3>Picking your cards</h3></dt>
   <dd>
     So the time has come - you need to choose your cards. You will recieve a DM from the bot with a list of your cards. All you need to do is send the number of the card you want to pick. Each card has a number before it, and will just type this number.<br>
     If you need to pick 2 cards this round, just choose the first card, and the second card in a new message. The numbers will not change when this happens.
   </dd>
+  <hr>
   <dt><h3>Picking the winner</h3></dt>
   <dd>
     The winner is chosen in the exact same way. Pick the best answer by its number in your DM. Cards which have 2(or more) answers are separated by a <code>|</code>.
   </dd>
+  <hr>
   <dt><h3>Want to leave?</h3></dt>
   <dd>
     If you don't want to play anymore, or need to go, just do <code>$leave</code> in the channel with the game and you will be removed.
   </dd>
+  <hr>
   <dt><h3>Time to end the game?</h3></dt>
   <dd>
     Ending a game can be done by typing <code>$end></code>. This ends the game when the current round finishes. To end the game instantly, run <code>$end true</code>.
@@ -116,8 +120,8 @@
 
 <hr>
 
-## This bot was made by ClicksMinutePer:
-#### Cardboard Against Humankind Dev Team:
-PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583, DOSmile#7021 and EEKIM10_YT#4015
+## This bot was made by ClicksMinutePer - 
+### Cardboard Against Humankind Dev Team:
+###### *PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583, DOSmile#7021 and EEKIM10_YT#4015*
 
 *This bot is not associated with Cards Against Humanity LLC*
