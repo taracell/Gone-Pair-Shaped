@@ -2,10 +2,10 @@
 ###### *Cards Against Humanity on Discord : presented by ClicksMinutePer.*
 
 
-[![Discord Bots](https://top.gg/api/widget/status/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476)
-[![Discord Bots](https://top.gg/api/widget/servers/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476)
+[![Discord Bots](https://top.gg/api/widget/status/679361555732627476.svg?noavatar=true)](https://discord.gg/bPaNnxe)
+[![Discord Bots](https://top.gg/api/widget/servers/679361555732627476.svg?noavatar=true)](https://discordapp.com/oauth2/authorize?client_id=679361555732627476&scope=bot&permissions=130048)
 [![Discord Bots](https://top.gg/api/widget/upvotes/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476/vote)
-[![Discord Bots](https://top.gg/api/widget/lib/679361555732627476.svg?noavatar=true)](https://top.gg/bot/679361555732627476)
+[![Discord Bots](https://top.gg/api/widget/lib/679361555732627476.svg?noavatar=true)](https://discordpy.readthedocs.io/en/latest/)
 
 > **High Uptime** 
 > ====
