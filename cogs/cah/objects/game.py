@@ -34,7 +34,7 @@ class Game:
 
         self.players = []
         self.minimumPlayers = 3
-        self.maximumPlayers = 25
+        self.maximumPlayers = 50
 
         self.maxRounds = 0
         self.maxPoints = 7
