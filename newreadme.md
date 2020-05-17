@@ -64,7 +64,7 @@ It's time to start a game - How is this done?
         <h4>If you are setting up new game settings, you can find an explanation of each setting here. </h4>
       </summary>
       <code>▶️</code> - Play | Starts the game with the options you have inputted.<br>
-      <code>🛑</code> - Maximum rounds | Sets the amount of rounds to end after.<br>
+      <code>🔁</code> - Maximum rounds | Sets the amount of rounds to end after.<br>
       <code>🏁</code> - Points to win | Sets the amount of points needed to win.<br>
       <code>🗃️</code> - Packs | Lets you select the packs you will use.<br>
       <hr><br>
