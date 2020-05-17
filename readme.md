@@ -124,4 +124,4 @@
 ### Gone Pair Shaped Dev Team:
 ##### *PineappleFan#9955 and Minion3665#6456, TheCodedProf#2583, DOSmile#7021 and EEKIM10_YT#4015*
 
-*This bot is not associated with Cards Against Humanity LLC*
+*This bot is released as free and open source under the Apache 2 License*
