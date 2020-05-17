@@ -172,25 +172,82 @@ class Game:
             settings[setting_to_flip] = not settings[setting_to_flip]
             await show_menu(menu_to_show)
 
+        def cancellable_int(number):
+            """
+            Entering cancel will cause this integer to be -42069
+            """
+            if number.lower() == "cancel":
+                return -42069
+            else:
+                return int(number)
+
+        async def get_int_setting(setting_to_change, _min, _max, embed_title, embed_description, menu_to_show):
+            """
+            Sets a variable to the input by the user
+            """
+            try:
+                await setup_message.clear_reactions()
+                number = (await self.context.input(
+                    title=embed_title,
+                    prompt=f"Pick a number from {_min} to {_max}" + ("\n" if embed_description != "" else "") + embed_description + "\nSay `cancel` to cancel",
+                    required_type=cancellable_int,
+                    timeout=timeout,
+                    edit=setup_message,
+                    error=f"That's not a number between {_min} and {_max}",
+                    check=lambda message: ((message.content.lower() in ["cancel", "-42069"]) or (_min <= int(message.content) <= _max)) and self.context.bot.loop.create_task(message.delete())
+                ))[0]
+            except asyncio.TimeoutError:
+                await self.context.send(
+                    "Setting timed out, returning back to menu. Your settings are unchanged",
+                    title=embed_title,
+                    color=self.context.bot.colors["error"],
+                    delete_after=10
+                )
+            except Exception as e:
+                print(f"Captured exception {e} while attempting to get int settings for {setting_to_change}")
+            else:
+                if number != -42069:
+                    settings[setting_to_change] = number
+            finally:
+                await show_menu(menu_to_show)
+
         async def show_menu(menu_to_show="main"):
             """Show the main options menu for GPS games"""
             _menu = minidiscord.Input.Menu(
                 bot=self.context.bot,
                 callbacks=True,
                 timeout_callback=cancel,
-                timeout=timeout
+                timeout=timeout,
             )
 
             main = {
                 "▶": ("Play", show_menu),
-                "🛑": (
+                "🔂" if settings["rounds"] != 0 else "🔁": (
                     "`Maximum rounds` " +
-                    (f"| {settings['rounds']}" if settings['rounds'] != 0 else "| *unlimited rounds*"),
-                    show_menu),
-                "🏁": (
+                    (f"| {settings['rounds']}" if settings['rounds'] != 0 else "| Endless"),
+                    functools.partial(
+                        get_int_setting,
+                        "rounds",
+                        0,
+                        50,
+                        "How many rounds should there be per game?",
+                        "Enter 0 for unlimited",
+                        "main",
+                    )
+                ),
+                "🏁" if settings["points"] != 0 else "♾": (
                     "`Points to win ` " +
-                    (f"| {settings['rounds']}" if settings['rounds'] != 0 else "| *you can never win*"),
-                    show_menu),
+                    (f"| {settings['points']}" if settings['points'] != 0 else "| No winner"),
+                    functools.partial(
+                        get_int_setting,
+                        "points",
+                        0,
+                        50,
+                        "How many points should you need to win a game?",
+                        "Enter 0 for unlimited",
+                        "main",
+                    )
+                ),
                 "🗃": ("`Packs`", show_menu),
                 "divider1": ("", "------------------------------"),
                 "divider2": ("", "**Additional Categories**"),
@@ -204,19 +261,55 @@ class Game:
             cards = {
                 "📝": (
                     f"`Write-your-own-cards` | {settings['blanks']}",
-                    show_menu),
+                    functools.partial(
+                        get_int_setting,
+                        "blanks",
+                        0,
+                        50,
+                        "How many write-your-own cards should there be?",
+                        "",
+                        "cards",
+                    )
+                ),
                 "📁" if settings['hand_size'] < 10 else "📂": (
                     f"`Cards in hand       ` | {settings['hand_size']}",
-                    show_menu),
+                    functools.partial(
+                        get_int_setting,
+                        "hand_size",
+                        0,
+                        50,
+                        "How big should your hand be?",
+                        "",
+                        "cards",
+                    )
+                ),
                 "🔀" if settings['shuffles'] != 0 else "➡": (
                     f"`Shuffles            ` | {settings['shuffles']}",
-                    show_menu),
+                    functools.partial(
+                        get_int_setting,
+                        "shuffles",
+                        0,
+                        50,
+                        "How many times should each player be allowed to shuffle?",
+                        "",
+                        "cards",
+                    )
+                ),
                 "⏪": ("Go back to the main settings", show_menu),
             }
             players = {
                 "👥": (
                     f"`Maximum players` | {settings['max_players']}",
-                    show_menu),
+                    functools.partial(
+                        get_int_setting,
+                        "max_players",
+                        3,
+                        25,
+                        "How many players should be able to join at once",
+                        "",
+                        "cards",
+                    )
+                ),
                 "🔲" if settings["use_whitelist"] else "🔳": (
                     f"`Whitelist`" if settings["use_whitelist"] else f"`Blacklist`",
                     show_menu),
@@ -233,11 +326,44 @@ class Game:
             }
             timers = {
                 "⏱": (
-                    f"`Judge choose time ` | {settings['judge_choose_time']}", show_menu),
-                emoji.emojize(get_clock(1, 1, 2), use_aliases=True): (
-                    f"`Player choose time` | {settings['choose_time']}", show_menu),
+                    f"`Judge choose time ` | {settings['judge_choose_time']}",
+                    functools.partial(
+                        get_int_setting,
+                        "judge_choose_time",
+                        20,
+                        600,
+                        "How long should the judge get to choose?",
+                        "(Enter in seconds)",
+                        "timers",
+                    )
+                ),
+                emoji.emojize(get_clock(settings['choose_time'], 10, 300), use_aliases=True): (
+                    f"`Player choose time` | {settings['choose_time']}",
+                    functools.partial(
+                        get_int_setting,
+                        "choose_time",
+                        10,
+                        300,
+                        "How long should players get to choose?",
+                        "(Enter in seconds)",
+                        "timers",
+                    )
+                ),
                 "⏳" if settings["time"] != 0 else "⌛": (
-                    f"`Between-round time` | {settings['time']}", show_menu),
+                    f"`Between-round time` | {settings['time']}",
+                    functools.partial(
+                        get_int_setting,
+                        "time",
+                        0,
+                        150,
+                        "How long should the pause between rounds be?",
+                        "(Enter in seconds)",
+                        "timers",
+                    )
+                ),
+                "⏪": ("Go back to the main settings", show_menu),
+            }
+            int_input = {
                 "⏪": ("Go back to the main settings", show_menu),
             }
 
@@ -268,7 +394,8 @@ class Game:
                     _menu.add(reaction, callback)
 
             await setup_message.edit(
-                content=f"**Change {menu_settings['name']} settings**\n" + "\n".join(f"{reaction} {prompt}" if prompt else callback for reaction, (prompt, callback) in reactions.items())
+                title=f"**Change {menu_settings['name']} settings**",
+                content="\n".join(f"{reaction} {prompt}" if prompt else callback for reaction, (prompt, callback) in reactions.items())
             )
 
             await setup_message.clear_reactions()
@@ -359,7 +486,7 @@ class Game:
         await self.context.send(
             f"The game {'ended' if instantly else 'will end after this round'} " +
             f"{' because ' + reason if reason else ''}...",
-            title=f"{self.context.bot.emotes['uhoh']} Your game evaporates into a puff of smoke",
+            title=f"{self.context.bot.emotes['uhoh']} Your game evaporates into a puff of smoke.",
             color=self.context.bot.colors["status"]
         )
 
