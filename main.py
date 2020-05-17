@@ -1,3 +1,13 @@
+"""
+CAHBot by Minion3665 and the rest of ClicksMinutePer
+This bot is licensed under the Apache2 4.0 sharealike blah blah blah license (the same one as CAH uses as we have to share alike)
+Please make sure to credit us if you use our code
+And also remember to credit Cards Against Humanity LLC
+
+Thank you for using CAHBot
+"""
+# from utils.miniutils.minidiscord import message
+
 import traceback
 
 import discord
@@ -20,7 +30,7 @@ main_prefix = "$" if production else "£"
 cogs = [
     "utils.constants",
     "cogs.info",
-    "cogs.disclaimer",
+    "cogs.terms",
     "jishaku",
     "guildmanager.cog",
     "cogs.cah",
@@ -50,8 +60,8 @@ bot = minidiscord.AutoShardedBot(
     command_prefix=get_command_prefix,
     case_insensitive=True,
     help_command=help.MiniCustomHelp(),
-    owner_ids=[317731855317336067, 438733159748599813, 261900651230003201, 421698654189912064],
-    exceptions_channel=686285252817059881,
+    owner_ids=[317731855317336067, 438733159748599813, 261900651230003201] if production else [317731855317336067],
+    exceptions_channel=686285252817059881 if production else 710184847347548181,
     activity=discord.Activity(
         name="Discord go by.",
         type=discord.ActivityType.watching

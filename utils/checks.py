@@ -61,6 +61,9 @@ def bypass_check(
     predicate = check.predicate
 
     async def pred(ctx):
+        """
+        Allow checking if the user is a bot mod and giving them the option to skip the check
+        """
         try:
             if asyncio.iscoroutinefunction(predicate):
                 result = await predicate(ctx)
@@ -73,21 +76,26 @@ def bypass_check(
         except Exception as e:
             if bot_mod(ctx) and ctx.author in ctx.bot.skips:
                 try:
+                    if ctx.command.qualified_name == "help":
+                        return True
                     await ctx.send(
                         "Sadly the check " + ctx.command.qualified_name + "." + predicate.__name__ +
                         " failed (Error: " + str(e) +
-                        "), but as you're a bot moderator you can skip this check! Do you want to skip? (y/n)",
+                        "), but as you're a bot moderator you can skip this check! Do you want to skip? (y/n) (you can also select na to say no to all)",
                         delete_after=30
                     )
 
                     def message_check(message):
+                        """
+                        Check if the message the user has sent is a valid response. Will be replaced with input at some point
+                        """
                         if not message.channel == ctx.channel or not message.author == ctx.author:
                             return False
                         if message.content.lower(
-                        ) in ["y", "n"]:
+                        ) in ["y", "n", "na"]:
                             return True
                         else:
-                            ctx.bot.loop.create_task(ctx.send("Your response must be y or n (yes, no). Try Again"))
+                            ctx.bot.loop.create_task(ctx.send("Your response must be y, n or na (yes, no, no to all). Try Again"))
                             return False
 
                     bypass_response = "n"
@@ -98,13 +106,12 @@ def bypass_check(
                         await ctx.send("Your message timed out. An option of n (no) has been selected")
                     if bypass_response.content.lower() == "y":
                         return True
+                    elif bypass_response.content.lower() == "na":
+                        await ctx.send("I've gone ahead and turned off your skip ability to avoid more spam")
+                        ctx.skips.remove(ctx.author)
                     raise e
                 except Exception:
                     raise e
             raise e
 
-    return pred
-
-
-def development(ctx):  # If the command is in development don't let the user run the command
-    return False
+    return commands.check(pred)

@@ -1,15 +1,20 @@
-from discord.ext import commands
-import discord
-from .objects import game
+import asyncio
 import contextlib
+import datetime
+import os
+import random
+import typing
+
+import discord
+import emoji
+from discord.ext import commands, tasks
+
 from utils import checks
+from utils.miniutils import decorators
 from utils.miniutils.data import json
 from utils.miniutils.minidiscord import input
-import asyncio
-import os
 from . import errors
-import typing
-import flag
+from .objects import game
 
 default_lang = "gb"
 
@@ -19,11 +24,12 @@ def allow_runs():
         if not ctx.bot.allow_running_cah_games:
             raise errors.Development("Unfortunately I'm in development mode right now, come back later")
         return True
+
     return commands.check(predicate)
 
 
 def no_cah_in_channel(ctx):
-    if ctx.bot.running_cah_game_objects.get(ctx.channel, None) is not None:
+    if ctx.bot.running_cah_game_objects.get(ctx.channel.id, None) is not None:
         raise errors.GameExists("There's already a game in this channel. Try ending it first?")
     return True
 
@@ -32,7 +38,9 @@ def no_cah_in_channel(ctx):
 class CAH(commands.Cog):
     def __init__(self, bot):
         self.languages = json.Json("languages")
+        self.leaderdata = json.Json("leaderboard")
         self.bot = bot
+        self.saving_enabled = True
         try:
             bot.running_cah_games
         except AttributeError:
@@ -56,20 +64,15 @@ class CAH(commands.Cog):
             )
         self.leaderboard = self._get_leaderboard()
         self._load_packs()
+        self.reset_leaderboard.start()
+
+    def cog_unload(self):
+        """
+        Turn off saving of AI data and take ourselves offline whenever we're unloaded, gradually bringing everything important to a halt
+        """
+        self.saving_enabled = False
 
     @commands.command(aliases=["reloadpacks", "rpacks"])
-    @commands.check(checks.bot_mod)
-    async def loadpacks(self, ctx):
-        """Reloads all packs.
-        """
-        self._load_packs()
-        await ctx.send(
-            "I've reloaded all the packs",
-            title=f"{ctx.bot.emotes['success']} Complete!",
-            color=ctx.bot.colors["info"]
-        )
-
-    @commands.command(aliases=["reset", "reset"])
     @commands.check(checks.bot_mod)
     async def loadpacks(self, ctx):
         """Reloads all packs.
@@ -112,14 +115,14 @@ class CAH(commands.Cog):
                 callbacks=False
             )  # Create our reaction menu
             for language in self.bot.cah_packs:
-                menu.add(flag.flag(language))
+                menu.add(emoji.emojize(f':{language}:', use_aliases=True))
             msg = await ctx.send(
                 supported + "\n\n" + soon + "||\n\n*Select a flag below (or say it in chat) to set it as the default "
                                             "language for this server*",
                 title=title
             )
             try:
-                emote = flag.dflagize(
+                emote = emoji.demojize(
                     await menu(
                         msg,
                         ctx.author
@@ -202,34 +205,55 @@ class CAH(commands.Cog):
             self.bot.AIQuestionStore.load_data()
         )
 
+    @tasks.loop(minutes=10)
+    async def reset_leaderboard(self):
+        """
+        Create a task to continually check if the leaderboard needs resetting (spoiler: it doesn't)
+        """
+        if datetime.datetime.utcnow().timestamp() >= self.leaderboard["resets_at"]:
+            print("== LEADERBOARD RESET INCOMING ==")
+            self._reset_leaderboard()
+            print("== LEADERBOARD RESET COMPLETE ==")
+
+    @decorators.debug
     def _reset_leaderboard(self):
         """Reset the CAH global leaderboard and choose 3 new randomly-assigned packs for a (maybe somewhat decent) \
 combination"""
-        old_leaderboard = self._get_leaderboard()
+        old_leaderboard = self.leaderboard
         self.leaderboard = {
             "section": old_leaderboard["section"] + 1,
-            packs:
+            "packs": random.sample(list(self.bot.cah_packs["gb"]["descriptions"]), 3),
+            "players": {},
+            "resets_at": (datetime.datetime.utcnow() + datetime.timedelta(weeks=1)).timestamp()
         }
-
+        print(f"We are now in section {self.leaderboard['section']}")
+        print(f"The 3 randomly selected packs are {''.join(self.leaderboard['packs'])}")
+        print(f"Saving the new leaderboard...")
+        if self.save_leaderboard():
+            print(f"The leaderboard has been saved!")
+        else:
+            print(f"The leaderboard couldn't be saved, am I in a ghost cog?")
 
     @commands.command(aliases=["start"])
     @commands.check(no_cah_in_channel)
     @commands.check(checks.bypass_check(allow_runs()))
     @commands.guild_only()
-    async def play(self, ctx, advanced: typing.Optional[bool] = False, whitelist: commands.Greedy[discord.Member] = ()):
+    async def play(self, ctx, blacklist_as_whitelist=False, blacklist: commands.Greedy[discord.Member] = ()):
         """Starts the game.
         `%%play` will start a game, and allow players to join using the %%join command, or do %%play True for even more
         game options.
         """
+        chanid = ctx.channel.id
         self.bot.running_cah_games += 1
         try:
             _game = game.Game(
                 context=ctx,
-                advanced_setup=advanced,
-                whitelist=whitelist,
+                cog=self,
+                blacklist=blacklist,
+                use_whitelist=blacklist_as_whitelist,
                 lang=(self.languages.read_key(ctx.guild.id) if ctx.guild else None) or default_lang
             )
-            self.bot.running_cah_game_objects[ctx.channel] = _game
+            self.bot.running_cah_game_objects[chanid] = _game
             with contextlib.suppress(asyncio.CancelledError):
                 _game.coro = asyncio.create_task(_game.setup())
                 if await _game.coro:
@@ -238,11 +262,14 @@ combination"""
             raise e
         finally:
             with contextlib.suppress(Exception):
-                del self.bot.running_cah_game_objects[ctx.channel]
+                del self.bot.running_cah_game_objects[chanid]
             self.bot.running_cah_games -= 1
             if self.bot.running_cah_games < 1:
                 self.bot.running_cah_games = 0
-                self.bot.running_cah_game_objects["Less than 1 game found"] = "Please find out why this happened"
+                await (await ctx.copy_context_with(
+                    channel=self.bot.get_channel(self.bot.exceptions_channel))).send_exception(
+                    f"Attempted to remove games such that there would be less than 0 when deleting {ctx.channel} ({chanid})"
+                )
 
     @commands.command()
     @commands.guild_only()
@@ -250,7 +277,7 @@ combination"""
     async def join(self, ctx):
         """Joins an active game in the channel. This can be during the 1m period when starting a game, or midway through
         """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        _game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
         if _game is None:
             return await ctx.send(
                 "There doesn't seem to be a game in this channel",
@@ -285,7 +312,7 @@ combination"""
     async def exit(self, ctx):
         """Removes the player who ran it from the current game in that channel.
         """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        _game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
         if _game is None:
             return await ctx.send(
                 "There doesn't seem to be a game in this channel",
@@ -315,7 +342,7 @@ combination"""
     async def shuffle(self, ctx):
         """Reshuffles your cards
         """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
+        _game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
         if _game is None:
             return await ctx.send(
                 "There doesn't seem to be a game in this channel",
@@ -345,8 +372,8 @@ combination"""
     async def end(self, ctx, instantly: typing.Optional[bool] = False):
         """Ends the current game in that channel.
         """
-        old_game = self.bot.running_cah_game_objects.get(ctx.channel, None)
-        if old_game is not None:
+        old_game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
+        if old_game is not None and old_game.active:
             if not (ctx.author.permissions_in(ctx.channel).manage_channels or ctx.author == old_game.context.author):
                 return await ctx.send(
                     "You didn't start this game, and you can't manage this channel",
@@ -354,7 +381,6 @@ combination"""
                     color=ctx.bot.colors["error"]
                 )
             with contextlib.suppress(Exception):
-                del self.bot.running_cah_game_objects[ctx.channel]
                 await old_game.end(instantly=instantly)
         else:
             await ctx.send(
@@ -362,40 +388,6 @@ combination"""
                 title=f"{ctx.bot.emotes['valueerror']} We couldn't find a game in this channel...",
                 color=ctx.bot.colors["error"]
             )
-
-    @commands.command()
-    @commands.guild_only()
-    @commands.check(checks.bot_mod)
-    async def setmaxplayers(self, ctx, new_max=25):
-        """Set the maximum player count of the game. Can only be used in setup and when players are joining
-        """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel, None)
-        if _game is None:
-            return await ctx.send(
-                "Did you mean another channel?",
-                title=f"{ctx.bot.emotes['valueerror']} We couldn't find a game in this channel...",
-                color=ctx.bot.colors["error"]
-            )
-        _game.maximumPlayers = new_max
-        _game.players = _game.players[:new_max]
-        if new_max < _game.minimumPlayers:
-            return await ctx.send(
-                f"The minimum minimum player count is {_game.minimumPlayers}",
-                title=f"{ctx.bot.emotes['valueerror']} Bit to small...",
-                color=ctx.bot.colors['error']
-            )
-        if _game.chosen_options:
-            return await ctx.send(
-                f"This command can only be used before players are given the option to join",
-                title=f"{ctx.bot.emotes['valueerror']} You're too late",
-                color=ctx.bot.colors['error']
-            )
-        await ctx.send(
-            f"We've set the player limit on this game to {new_max} and kicked out any players who bring the game over "
-            f"that limit",
-            title=f"{ctx.bot.emotes['success']}  Great!",
-            color=ctx.bot.colors['status']
-        )
 
     @commands.command(aliases=["bc", "sall"])
     @commands.check(checks.is_owner)
@@ -469,6 +461,15 @@ combination"""
             title="Action complete!"
         )
 
+    def _get_leaderboard(self):
+        return self.leaderdata.load_data()
+
+    def save_leaderboard(self):
+        if self.saving_enabled:
+            self.leaderdata.save_data(self.leaderboard)
+            return True
+        else:
+            return False
 
 def setup(bot):
     errors.setup_handlers(bot.error_handler)

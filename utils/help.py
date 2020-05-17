@@ -1,6 +1,7 @@
 from utils.miniutils.minidiscord import input
 # Import my reaction menu utility to create our reaction menus
-from docs import terms
+from cogs import terms
+import cogs.terms.docs
 # Import our help documentation
 from discord.ext import commands
 # Import discord's commands extension to create our help command
@@ -33,9 +34,13 @@ class MiniCustomHelp(commands.HelpCommand):
 
     async def prepare_help_command(self, ctx, command=None):  # When our help command is being prepared to be sent...
         # We set pages here not in __init__ because at this point we have our context in the form of the ctx variable
+        try:
+            await terms.agreed_check(use_whitelist=False).predicate(ctx)
+        except terms.NotAgreedError:
+            self.position = 1
         sections = {
             "terms": {
-                "pages": terms.pages(self),
+                "pages": cogs.terms.docs.pages(self),
                 "cog": True,
                 "action": "to look at the terms and conditions for using the bot",
                 "emote": "📜",
@@ -48,26 +53,18 @@ class MiniCustomHelp(commands.HelpCommand):
             if section["cog"] is True or self.context.bot.cogs.get(section["cog"], None):
                 self.sections[name] = section
         for section in self.sections.values():
-            buttons[section["emote"]] = {
-                "action": section["action"],
-                "callback": partial(self.set_pos, offset)
-            }
+            buttons[section["emote"]] = partial(self.set_pos, offset)
             offset += len(section["pages"])
         self.pages = [
             {
-                "description": f"Welcome to GlobalBot. This bot was made to help you connect your servers together by "
-                               f"allowing cross-server communication and announcement channels.\n"
-                               f"Later we added *connections* or integrations to services outside of discord, our "
-                               f"first being an IRC or internet relay chat integration on `irc.rizon.net`. "
-                               f"We also have interesting and unique channel management features, for example both "
-                               f"temporary text and voice channels. *As far as we know we are the only bot which "
-                               f"currently offers these features*",
+                "description": f"Welcome to Cardboard Against Humankind by ClicksMinutePer, "
+                               f"throughout this help menu you can either say or react with emojis to view the help topics\n\n"
+                               f"To view the terms and conditions of using the bot press 📜\n"
+                               f"To view how to play press 🎮\n"
+                               f"To close this embed, press ⏹",
                 "buttons": {
                     **buttons,
-                    "⏹️": {
-                        "action": "to close this message",
-                        "callback": self.delete
-                    },
+                    "⏹️": self.delete
                 }
             },
         ]
@@ -103,23 +100,14 @@ class MiniCustomHelp(commands.HelpCommand):
         old_message = self.msg  # Get the old message saved to a variable, as we will overwrite the self.msg before
         # deleting it
         embed = discord.Embed(
-            title="GlobalBot Help",
-            description=f"{self.pages[self.position]['description']}\n\n"
-                        f"{'**-- Helpful Buttons --**' if self.pages[self.position].get('buttons', {}) else ''}",
+            title="Cardboard Against Humankind Help",
+            description=f"{self.pages[self.position]['description']}",
             color=0x1c66b8)  # Create an embed, using the page description as it's description and inserting a
         # 'helpful buttons' section if there are any reactions in the reactions menu
         number_of_buttons = len(self.pages[self.position].get("buttons", {}))
         # find out how many buttons there will be in total
         for position, data in enumerate(self.pages[self.position].get("buttons", {}).items()):
-            menu.add(data[0], data[1]["callback"])
-            embed.add_field(name=f"Press (or say) {data[0]} {data[1]['action']}",
-                            value="‍" if position != number_of_buttons - 1 else f"This embed will automatically close "
-                                                                                f"after 5 minutes of inactivity‍",
-                            inline=False)
-        if number_of_buttons == 0:
-            embed.add_field(name=f"‍",
-                            value=f"This embed will automatically close after 5 minutes of inactivity‍",
-                            inline=False)
+            menu.add(data[0], data[1])
         embed.set_author(name=str(self.context.author), icon_url=self.context.author.avatar_url)
         if self.get_destination().guild and old_message:
             await old_message.clear_reactions()
@@ -158,7 +146,7 @@ class MiniCustomHelp(commands.HelpCommand):
             last_part = split_desc[1]
             split_desc = split_desc[0].split(",")
             new_desc_parts = []
-            for cog, cmds in reversed(list(mapping.items())):
+            for cog, cmds in reversed(await self.filter_commands(mapping.items())):
                 if cog is None and 'None' not in split_desc:
                     continue
                 elif cog is None or cog.qualified_name in split_desc:
@@ -194,7 +182,7 @@ class MiniCustomHelp(commands.HelpCommand):
         extra_doc_lines = "```diff\n" + "\n".join(split_doc[1:]) + "```" \
             if split_doc and len(split_doc) > 1 else ''
         subcommands = ["+ Valid subcommands"]
-        for command in group.commands:
+        for command in await self.filter_commands(group.commands):
             command_split_doc = command.callback.__doc__.split("\n")
             command_first_doc_line = command_split_doc[0] if command_split_doc else 'No help available'
             subcommands.append(

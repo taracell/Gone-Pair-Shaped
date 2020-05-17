@@ -23,6 +23,9 @@ class Constants(commands.Cog):
         roles = {
             "Owners": 684493117017161963,
             "Developers": 704391679419089030,
+            "Legal Advisers": 710131982885191802,
+            "Media Team": 710344430703345745,
+            "Administrators": 693217068098650152,
             "Moderators": 686310450618695703,
             "Helpers": 686317204752302091,
             "Translators": 691778934471131136,
@@ -92,7 +95,7 @@ def setup(bot):
             "tsar": "<:blobfingerguns:527721625605636099>",
             "settings": "<:blobidea:527721625563693066>",
             "uhoh": "<a:blobnervous:527721653795291136>",
-            "winner": "<a:blobparty:527721653673918474>",
+            "winner": "<:blobfingerguns:527721625605636099>",
             "trophy": "<:hypesquad:527721625450315798>"
         }
     )
