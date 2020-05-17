@@ -37,6 +37,8 @@ def agreed_check(allow_pms=True, use_whitelist=True):
             "suggest",
             "server",
             "invite",
+            "jishaku",
+            "skip"
         )
         if use_whitelist and ctx.valid and ctx.command.qualified_name in whitelisted:
             return True
@@ -114,7 +116,7 @@ class Disclaimers(commands.Cog):
     @checks.bypass_check(commands.has_guild_permissions(manage_guild=True, manage_permissions=True))
     async def agree(self, ctx):
         """
-        Agree to the disclaimer and start playing some CAH
+        Agree to the disclaimer and start playing some GPS
         """
         agrees.save_key(
             ctx.guild.id,

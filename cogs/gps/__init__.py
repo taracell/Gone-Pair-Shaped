@@ -28,24 +28,27 @@ def allow_runs():
     return commands.check(predicate)
 
 
-def no_cah_in_channel(ctx):
-    if ctx.bot.running_cah_game_objects.get(ctx.channel.id, None) is not None:
+def no_gps_in_channel(ctx):
+    if ctx.bot.running_gps_game_objects.get(ctx.channel.id, None) is not None:
         raise errors.GameExists("There's already a game in this channel. Try ending it first?")
     return True
 
 
 # noinspection DuplicatedCode
-class CAH(commands.Cog):
+class GPS(commands.Cog):
+    """
+    ClicksMinutePer's Gone Pair Shaped
+    """
     def __init__(self, bot):
         self.languages = json.Json("languages")
         self.leaderdata = json.Json("leaderboard")
         self.bot = bot
         self.saving_enabled = True
         try:
-            bot.running_cah_games
+            bot.running_gps_games
         except AttributeError:
             bot.set(
-                "running_cah_games",
+                "running_gps_games",
                 0
             )
         try:
@@ -56,10 +59,10 @@ class CAH(commands.Cog):
                 True
             )
         try:
-            bot.running_cah_game_objects
+            bot.running_gps_game_objects
         except AttributeError:
             bot.set(
-                "running_cah_game_objects",
+                "running_gps_game_objects",
                 {}
             )
         self.leaderboard = self._get_leaderboard()
@@ -99,11 +102,11 @@ class CAH(commands.Cog):
             "pt": "Português"
         }
         supported = "**Already supported:**"
-        for language in self.bot.cah_packs:
+        for language in self.bot.gps_packs:
             supported += f"\n:flag_{language}: {languages.get(language, 'Unknown')}"
         soon = "||**Coming Soon:**"
         for language, name in languages.items():
-            if language not in self.bot.cah_packs:
+            if language not in self.bot.gps_packs:
                 soon += f"\n:flag_{language}: {name}"
         language = self.languages.read_key(ctx.guild.id) if ctx.guild else None
         title = f"{self.bot.emotes['choice']} All available languages:"
@@ -114,7 +117,7 @@ class CAH(commands.Cog):
                 self.bot,
                 callbacks=False
             )  # Create our reaction menu
-            for language in self.bot.cah_packs:
+            for language in self.bot.gps_packs:
                 menu.add(emoji.emojize(f':{language}:', use_aliases=True))
             msg = await ctx.send(
                 supported + "\n\n" + soon + "||\n\n*Select a flag below (or say it in chat) to set it as the default "
@@ -153,10 +156,10 @@ class CAH(commands.Cog):
         packs = "*Language switching is currently in beta while we wait on our translators and give the commands a " \
                 "good test*"
 
-        lang_packs = self.bot.cah_packs.get(lang, None)
+        lang_packs = self.bot.gps_packs.get(lang, None)
         if not lang_packs:
             lang = default_lang
-            lang_packs = self.bot.cah_packs.get(lang, None)
+            lang_packs = self.bot.gps_packs.get(lang, None)
 
         for pack in lang_packs["packs"]:
             if pack.endswith("w"):
@@ -193,15 +196,15 @@ class CAH(commands.Cog):
                         lang_packs["packs"][pack_name] = [card.strip() for card in file.readlines()]
                 packs[lang] = lang_packs
         self.bot.set(
-            "cah_packs",
+            "gps_packs",
             packs
         )
         self.bot.set(
-            "cah_answer_data",
+            "gps_answer_data",
             self.bot.AIAnswerStore.load_data()
         )
         self.bot.set(
-            "cah_question_data",
+            "gps_question_data",
             self.bot.AIQuestionStore.load_data()
         )
 
@@ -217,12 +220,12 @@ class CAH(commands.Cog):
 
     @decorators.debug
     def _reset_leaderboard(self):
-        """Reset the CAH global leaderboard and choose 3 new randomly-assigned packs for a (maybe somewhat decent) \
+        """Reset the GPS global leaderboard and choose 3 new randomly-assigned packs for a (maybe somewhat decent) \
 combination"""
         old_leaderboard = self.leaderboard
         self.leaderboard = {
             "section": old_leaderboard["section"] + 1,
-            "packs": random.sample(list(self.bot.cah_packs["gb"]["descriptions"]), 3),
+            "packs": random.sample(list(self.bot.gps_packs["gb"]["descriptions"]), 3),
             "players": {},
             "resets_at": (datetime.datetime.utcnow() + datetime.timedelta(weeks=1)).timestamp()
         }
@@ -235,7 +238,7 @@ combination"""
             print(f"The leaderboard couldn't be saved, am I in a ghost cog?")
 
     @commands.command(aliases=["start"])
-    @commands.check(no_cah_in_channel)
+    @commands.check(no_gps_in_channel)
     @commands.check(checks.bypass_check(allow_runs()))
     @commands.guild_only()
     async def play(self, ctx, blacklist_as_whitelist=False, blacklist: commands.Greedy[discord.Member] = ()):
@@ -244,7 +247,7 @@ combination"""
         game options.
         """
         chanid = ctx.channel.id
-        self.bot.running_cah_games += 1
+        self.bot.running_gps_games += 1
         try:
             _game = game.Game(
                 context=ctx,
@@ -253,7 +256,7 @@ combination"""
                 use_whitelist=blacklist_as_whitelist,
                 lang=(self.languages.read_key(ctx.guild.id) if ctx.guild else None) or default_lang
             )
-            self.bot.running_cah_game_objects[chanid] = _game
+            self.bot.running_gps_game_objects[chanid] = _game
             with contextlib.suppress(asyncio.CancelledError):
                 _game.coro = asyncio.create_task(_game.setup())
                 if await _game.coro:
@@ -262,10 +265,10 @@ combination"""
             raise e
         finally:
             with contextlib.suppress(Exception):
-                del self.bot.running_cah_game_objects[chanid]
-            self.bot.running_cah_games -= 1
-            if self.bot.running_cah_games < 1:
-                self.bot.running_cah_games = 0
+                del self.bot.running_gps_game_objects[chanid]
+            self.bot.running_gps_games -= 1
+            if self.bot.running_gps_games < 1:
+                self.bot.running_gps_games = 0
                 await (await ctx.copy_context_with(
                     channel=self.bot.get_channel(self.bot.exceptions_channel))).send_exception(
                     f"Attempted to remove games such that there would be less than 0 when deleting {ctx.channel} ({chanid})"
@@ -277,7 +280,7 @@ combination"""
     async def join(self, ctx):
         """Joins an active game in the channel. This can be during the 1m period when starting a game, or midway through
         """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
+        _game = self.bot.running_gps_game_objects.get(ctx.channel.id, None)
         if _game is None:
             return await ctx.send(
                 "There doesn't seem to be a game in this channel",
@@ -312,7 +315,7 @@ combination"""
     async def exit(self, ctx):
         """Removes the player who ran it from the current game in that channel.
         """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
+        _game = self.bot.running_gps_game_objects.get(ctx.channel.id, None)
         if _game is None:
             return await ctx.send(
                 "There doesn't seem to be a game in this channel",
@@ -342,7 +345,7 @@ combination"""
     async def shuffle(self, ctx):
         """Reshuffles your cards
         """
-        _game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
+        _game = self.bot.running_gps_game_objects.get(ctx.channel.id, None)
         if _game is None:
             return await ctx.send(
                 "There doesn't seem to be a game in this channel",
@@ -372,7 +375,7 @@ combination"""
     async def end(self, ctx, instantly: typing.Optional[bool] = False):
         """Ends the current game in that channel.
         """
-        old_game = self.bot.running_cah_game_objects.get(ctx.channel.id, None)
+        old_game = self.bot.running_gps_game_objects.get(ctx.channel.id, None)
         if old_game is not None and old_game.active:
             if not (ctx.author.permissions_in(ctx.channel).manage_channels or ctx.author == old_game.context.author):
                 return await ctx.send(
@@ -403,11 +406,11 @@ combination"""
                     type=discord.ActivityType.listening,
                 )
             )
-        for _game in self.bot.running_cah_game_objects.values():
+        for _game in self.bot.running_gps_game_objects.values():
             with contextlib.suppress(Exception):
                 await _game.context.send(
                     message,
-                    title="Developer broadcast - Because you're playing CAH here...",
+                    title="Developer broadcast - Because you're playing GPS here...",
                     color=ctx.bot.colors["dev"]
                 )
         await ctx.send(
@@ -429,7 +432,7 @@ combination"""
             )
         )
         if end:
-            for _game in list(self.bot.running_cah_game_objects.values()):
+            for _game in list(self.bot.running_gps_game_objects.values()):
                 with contextlib.suppress(Exception):
                     await _game.end(
                         instantly=instantly,
@@ -452,7 +455,7 @@ combination"""
         await self.bot.change_presence(
             status=discord.Status.online,
             activity=discord.Activity(
-                name="your games of CAH",
+                name="your games of GPS",
                 type=discord.ActivityType.watching,
             )
         )
@@ -473,4 +476,4 @@ combination"""
 
 def setup(bot):
     errors.setup_handlers(bot.error_handler)
-    bot.add_cog(CAH(bot))
+    bot.add_cog(GPS(bot))

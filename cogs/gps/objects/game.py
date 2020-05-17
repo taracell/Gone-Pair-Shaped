@@ -9,17 +9,15 @@ import functools
 import emoji
 import discord
 
-from utils import pycardcast
 from utils.miniutils import minidiscord
 from . import player
 
 
 class Game:
     def __init__(self, context, cog, use_whitelist, blacklist, lang="gb"):
-        self.cardcast = pycardcast.CardCast()
-        self.question_data = context.bot.cah_question_data
-        self.answer_data = context.bot.cah_answer_data
-        self.all_packs = context.bot.cah_packs
+        self.question_data = context.bot.gps_question_data
+        self.answer_data = context.bot.gps_answer_data
+        self.all_packs = context.bot.gps_packs
 
         self.question_cards = []
         self.answer_cards = []
@@ -147,7 +145,7 @@ class Game:
             "save": False,
         }
 
-        ## _get_settings()
+        # _get_settings()
 
         def get_clock(_time, _min, _max):
             """
@@ -175,7 +173,7 @@ class Game:
             await show_menu(menu_to_show)
 
         async def show_menu(menu_to_show="main"):
-            """Show the main options menu for CAH games"""
+            """Show the main options menu for GPS games"""
             _menu = minidiscord.Input.Menu(
                 bot=self.context.bot,
                 callbacks=True,
@@ -229,7 +227,7 @@ class Game:
                     "`Anonymous mode ` | " + ("Enabled" if settings['anon'] else "Disabled"),
                     functools.partial(flip_setting, "anon", "players")),
                 "🧠" if settings['ai'] else "💀": (
-                    "`Train bots     ` | " + ("Thank you" if settings['ai'] else "Disabled 😢"),
+                    "`Train bots     ` | " + ("Enabled -Thanks" if settings['ai'] else "Disabled"),
                     functools.partial(flip_setting, "ai", "players")),
                 "⏪": ("Go back to the main settings", show_menu),
             }

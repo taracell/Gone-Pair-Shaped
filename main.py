@@ -44,7 +44,7 @@ def get_command_prefix(_bot, message):
         custom_prefixes = prefixes.read_key(message.guild.id)
         if custom_prefixes:
             return commands.when_mentioned_or(*custom_prefixes)(_bot, message)
-    return commands.when_mentioned_or(main_prefix)(_bot, message)
+    return commands.when_mentioned_or(main_prefix, "")(_bot, message)
 
 
 def get_main_custom_prefix(message):
