@@ -35,7 +35,7 @@ as you {'' if can_agree else 'do not'}have both manage server and manage permiss
 Please carefully read through the terms and conditions, ensuring that you are happy with everything inside before agreeing
 """
 
-    dms_message = f"""You will need to agree to these terms before your server can play GPS
+    dms_message = f"""You will need to agree to these terms before your server can play CAH
 
 Run this in a server to view if the server has agreed to the terms"""
     return [

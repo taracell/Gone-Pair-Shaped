@@ -167,9 +167,9 @@ class Game:
             self.active = False
             await setup_message.delete()
 
-        async def flip_boolean_setting(setting_to_flip, menu_to_show):
+        async def flip_setting(setting_to_flip, menu_to_show):
             """
-            Flip a boolean setting and go to a menu
+            Flip a boolean setting from True to False or vice versa
             """
             settings[setting_to_flip] = not settings[setting_to_flip]
             await show_menu(menu_to_show)
@@ -220,17 +220,17 @@ class Game:
                     f"`Maximum players` | {settings['max_players']}",
                     show_menu),
                 "🔲" if settings["use_whitelist"] else "🔳": (
-                    f"`Whitelist`" if settings["use_whitelist"] else f"`Blacklist      `",
+                    f"`Whitelist`" if settings["use_whitelist"] else f"`Blacklist`",
                     show_menu),
                 "🌓" if settings["use_whitelist"] else "🌗": (
-                    "`Use blacklist  `" if settings["use_whitelist"] else "`Use whitelist  `",
-                    functools.partial(flip_boolean_setting, "use_whitelist", "players")),
+                    "`Use blacklist`" if settings["use_whitelist"] else "`Use whitelist`",
+                    functools.partial(flip_setting, "use_whitelist", "players")),
                 "❓" if settings['anon'] else "🗣": (
-                    "`Anonymous mode` | " + ("Enabled" if settings['anon'] else "Disabled"),
-                    functools.partial(flip_boolean_setting, "anon", "players")),
+                    "`Anonymous mode ` | " + ("Enabled" if settings['anon'] else "Disabled"),
+                    functools.partial(flip_setting, "anon", "players")),
                 "🧠" if settings['ai'] else "💀": (
                     "`Train bots     ` | " + ("Thank you" if settings['ai'] else "Disabled 😢"),
-                    functools.partial(flip_boolean_setting, "ai", "players")),
+                    functools.partial(flip_setting, "ai", "players")),
                 "⏪": ("Go back to the main settings", show_menu),
             }
             timers = {
