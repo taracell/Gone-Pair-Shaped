@@ -68,7 +68,7 @@ It's time to start a game - How is this done?
       <code>🏁</code> - Points to win | Sets the amount of points needed to win.<br>
       <code>🗃️</code> - Packs | Lets you select the packs you will use.<br>
       <hr><br>
-      <b>Additional Caregories</b>
+      <b>Additional Categories</b>
       <br><br>
       <details>
         <summary><code>🃏</code> - Card settings</summary><br>
