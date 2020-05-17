@@ -59,7 +59,7 @@ It's time to start a game - How is this done?
     </h3>
     <p>
       Firstly, you can either create a new game, or use your saved settings.
-      Select <kbd>▶️</kbd to use saved settings or <kbd>⚙️</kbd to change them.
+      Select <kbd>▶️</kbd> to use saved settings or <kbd>⚙️</kbd> to change them.
     </p>
     <details>
       <summary>
@@ -96,7 +96,6 @@ It's time to start a game - How is this done?
       </details>
       <br>
       <hr>
-      <br>
       <kbd>💾</kbd> - Saves your currently inputted settings if you have the <code>Manage Server</code>.<br>
       <kbd>⏹️</kbd> - Closes the menu.<br>
     </details>
