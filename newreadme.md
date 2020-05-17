@@ -47,11 +47,9 @@ It's time to start a game - How is this done?
     <h3>
       Start the game
     </h3>
-    <p>
-      Firstly, we need to initialise a game. This is done with the <code>$play</code> command.<br>
-      You will next be prompted with a menu.<br>
-      If you have reactions disabled, you can send the emoji in chat instead of clicking it.
-    </p>
+    Firstly, we need to initialise a game. This is done with the <code>$play</code> command.<br>
+    You will next be prompted with a menu.<br>
+    If you have reactions disabled, you can send the emoji in chat instead of clicking it.
   </dt>
   <dd>
     <h3>
@@ -89,7 +87,7 @@ It's time to start a game - How is this done?
       </details>
       <br>
       <details>
-        <summary>`⏰` - Timing settings</summary><br>
+        <summary><code>⏰</code> - Timing settings</summary><br>
         <code>⏱️</code> - Judge time | The time the judge has to pick a winner.<br>
         <code>⏳</code> - Between round time | Sets the time to wait in between rounds.<br>
         <code>🕒</code> - Player time | Sets the time you have to pick a card.<br>
