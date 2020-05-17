@@ -35,7 +35,7 @@
 
 <dl>
   <dt><h3>Accept the terms</h3></dt>
-  <dd>To use msot commands, you need to accept the <code>$terms</code> by reacting with the tick. This can only be done by people with the <b>Manage Server</b> permission.</dd>
+  <dd>To use most commands, you need to accept the <code>$terms</code> by reacting with the tick. This can only be done by people with the <b>Manage Server</b> permission.</dd>
   <hr>
   <dt><h3>Set a prefix</h3></dt>
   <dd>You can set a prefix by using <code>$setprefix </code> followed by the prefixes you want to use, separated by spaces. To add a prefix with a space in, surround it with "" or ''.<br>
