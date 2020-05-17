@@ -1,0 +1,3 @@
+[submodule "miniutils"]
+    path = utils/miniutils
+    url = https://github.com/minion3665/miniutils.git
