@@ -33,7 +33,7 @@ Once you add the bot there are a couple of things you might want to do.
   <dd>To use msot commands, you need to accept the <code>$terms</code> by reacting with the tick. This can only be done by people with the <b>Manage Server</b> permission.</dd>
   <hr>
   <dt><h3>Set a prefix</h3></dt>
-  <dd>You can set a prefix by using <code>$setprefix </code> followed by the prefixes you want to use, separated by spaces. To add a prefix with a space in, surround it with "" or ''.<br>
+  <dd>You can set a prefix by using <code>$setprefix </code> followed by the prefixes you want to use, separated by spaces.<br>
   If any issues happen with the prefix, pinging the bot will always work and cannot be disabled. So if you ever forget the prefix, you can @ the bot and <code>setprefix</code></dd>
 </dl>
 
@@ -59,45 +59,45 @@ It's time to start a game - How is this done?
     </h3>
     <p>
       Firstly, you can either create a new game, or use your saved settings.
-      Select <kbd>▶️</kbd> to use saved settings or <kbd>⚙️</kbd> to change them.
+      Select <code>▶️</code> to use saved settings or <code>⚙️</code> to change them.
     </p>
     <details>
       <summary>
         <h4>If you are setting up new game settings, you can find an explanation of each setting here. </h4>
       </summary>
-      <kbd>▶️</kbd> - Play | Starts the game with the options you have inputted.<br>
-      <kbd>🛑</kbd> - Maximum rounds | Sets the amount of rounds to end after.<br>
-      <kbd>🏁</kbd> - Points to win | Sets the amount of points needed to win.<br>
-      <kbd>🗃️</kbd> - Packs | Lets you select the packs you will use.<br>
+      <code>▶️</code> - Play | Starts the game with the options you have inputted.<br>
+      <code>🛑</code> - Maximum rounds | Sets the amount of rounds to end after.<br>
+      <code>🏁</code> - Points to win | Sets the amount of points needed to win.<br>
+      <code>🗃️</code> - Packs | Lets you select the packs you will use.<br>
       <hr><br>
       <b>Additional Caregories</b>
       <br><br>
       <details>
-        <summary><kbd>🃏</kbd> - Card settings</summary><br>
-        <kbd>📝</kbd> - Sets the number of write your own cards in the deck.<br>
-        <kbd>📁</kbd> - Sets the amount of the cards in your hand.<br>
-        <kbd>➡️</kbd> - Sets the amount of times you can shuffle in the game.<br>
+        <summary><code>🃏</code> - Card settings</summary><br>
+        <code>📝</code> - Sets the number of write your own cards in the deck.<br>
+        <code>📁</code> - Sets the amount of the cards in your hand.<br>
+        <code>➡️</code> - Sets the amount of times you can shuffle in the game.<br>
       </details>
       <br>
       <details>
-        <summary><kbd>👨‍💻</kbd> - Player settings</summary><br>
-        <kbd>👥</kbd> - Maximum players | Sets the maximun players in a game.<br>
-        <kbd>🔳</kbd> - Blacklist | Sets the players which cannot join a game.<br>
-        <kbd>🌗</kbd> - Use whilelist | Changes the blacklist into a blacklist.<br>
-        <kbd>🗣️</kbd> - Anonymous mode | Hides the leaderboard and winner of each round.<br>
-        <kbd>🧠</kbd> - Train bots | Enables or disables AI training in a game.<br>
+        <summary><code>👨‍💻</code> - Player settings</summary><br>
+        <code>👥</code> - Maximum players | Sets the maximun players in a game.<br>
+        <code>🔳</code> - Blacklist | Sets the players which cannot join a game.<br>
+        <code>🌗</code> - Use whilelist | Changes the blacklist into a blacklist.<br>
+        <code>🗣️</code> - Anonymous mode | Hides the leaderboard and winner of each round.<br>
+        <code>🧠</code> - Train bots | Enables or disables AI training in a game.<br>
       </details>
       <br>
       <details>
-        <summary><kbd>⏰</kbd> - Timing settings</summary><br>
-        <kbd>⏱️</kbd> - Judge time | The time the judge has to pick a winner.<br>
-        <kbd>⏳</kbd> - Between round time | Sets the time to wait in between rounds.<br>
-        <kbd>🕒</kbd> - Player time | Sets the time you have to pick a card.<br>
+        <summary>`⏰` - Timing settings</summary><br>
+        <code>⏱️</code> - Judge time | The time the judge has to pick a winner.<br>
+        <code>⏳</code> - Between round time | Sets the time to wait in between rounds.<br>
+        <code>🕒</code> - Player time | Sets the time you have to pick a card.<br>
       </details>
       <br>
       <hr>
-      <kbd>💾</kbd> - Saves your currently inputted settings if you have the <code>Manage Server</code>.<br>
-      <kbd>⏹️</kbd> - Closes the menu.<br>
+          <code>💾</code> - Saves your currently inputted settings if you have the <code>Manage Server</code>.<br>
+          <code>⏹️</code> - Closes the menu.<br>
     </details>
   </dd>
 </dl>
