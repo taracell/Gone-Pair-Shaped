@@ -9,7 +9,7 @@ def download_data(bot):
                       aws_secret_access_key=bot.token["AWSdownload"])
 
     try:
-        s3.download_file("cahdatastorage", "data.txt", "data.txt")
+        s3.download_file("CAHdatastorage", "data.txt", "data.txt")
         print("Download Successful")
         return True
     except FileNotFoundError:

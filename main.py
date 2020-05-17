@@ -1,10 +1,9 @@
 """
-CAHBot by Minion3665 and the rest of ClicksMinutePer
-This bot is licensed under the Apache2 4.0 sharealike blah blah blah license (the same one as CAH uses as we have to share alike)
+GPSBot by Minion3665 and the rest of ClicksMinutePer
+This bot is licensed under the Apache2 4.0 sharealike blah blah blah license
 Please make sure to credit us if you use our code
-And also remember to credit Cards Against Humanity LLC
 
-Thank you for using CAHBot
+Thank you for using GPSBot
 """
 # from utils.miniutils.minidiscord import message
 
@@ -33,7 +32,7 @@ cogs = [
     "cogs.terms",
     "jishaku",
     "guildmanager.cog",
-    "cogs.cah",
+    "cogs.gps",
     "cogs.botlist",
 ]
 
@@ -85,11 +84,11 @@ bot.main_prefix = main_prefix
 @bot.event
 async def on_ready():
     print(f'Logged in successfully as {bot.user} with {bot.loaded} cogs')
-    if bot.__dict__.get("allow_running_cah_games", True):
+    if bot.__dict__.get("allow_running_gps_games", True):
         await bot.change_presence(
             status=discord.Status.online,
             activity=discord.Activity(
-                name="your games of CAH",
+                name="your games of GPS",
                 type=discord.ActivityType.watching,
             )
         )

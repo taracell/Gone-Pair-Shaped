@@ -21,7 +21,7 @@ default_lang = "gb"
 
 def allow_runs():
     def predicate(ctx):
-        if not ctx.bot.allow_running_cah_games:
+        if not ctx.bot.allow_running_gps_games:
             raise errors.Development("Unfortunately I'm in development mode right now, come back later")
         return True
 
@@ -49,10 +49,10 @@ class CAH(commands.Cog):
                 0
             )
         try:
-            bot.allow_running_cah_games
+            bot.allow_running_gps_games
         except AttributeError:
             bot.set(
-                "allow_running_cah_games",
+                "allow_running_gps_games",
                 True
             )
         try:
@@ -395,7 +395,7 @@ combination"""
         """Broadcasts a message to every currently active game channel.
         """
         if nostart:
-            self.bot.allow_running_cah_games = False
+            self.bot.allow_running_gps_games = False
             await self.bot.change_presence(
                 status=discord.Status.dnd,
                 activity=discord.Activity(
@@ -420,7 +420,7 @@ combination"""
     async def nostart(self, ctx, end: typing.Optional[bool] = False, instantly: typing.Optional[bool] = False):
         """Stops games from being played
         """
-        self.bot.allow_running_cah_games = False
+        self.bot.allow_running_gps_games = False
         await self.bot.change_presence(
             status=discord.Status.dnd,
             activity=discord.Activity(
@@ -448,7 +448,7 @@ combination"""
     async def yesstart(self, ctx):
         """Allows games to be started.
         """
-        self.bot.allow_running_cah_games = True
+        self.bot.allow_running_gps_games = True
         await self.bot.change_presence(
             status=discord.Status.online,
             activity=discord.Activity(
