@@ -12,7 +12,6 @@ import discord
 from utils.miniutils import minidiscord
 from . import player
 
-
 class Game:
     def __init__(self, context, cog, use_whitelist, blacklist, lang="gb"):
         self.question_data = context.bot.gps_question_data
@@ -178,10 +177,12 @@ class Game:
             """
             if number.lower() == "cancel":
                 return -42069
+            elif number.lower() == "all":
+                return -69420
             else:
                 return int(number)
 
-        async def get_int_setting(setting_to_change, _min, _max, embed_title, embed_description, menu_to_show):
+        async def get_int_setting(setting_to_change, _min, _max, embed_title, embed_description, menu_to_show, allow_all=False):
             """
             Sets a variable to the input by the user
             """
@@ -194,7 +195,7 @@ class Game:
                     timeout=timeout,
                     edit=setup_message,
                     error=f"That's not a number between {_min} and {_max}",
-                    check=lambda message: ((message.content.lower() in ["cancel", "-42069"]) or (_min <= int(message.content) <= _max)) and self.context.bot.loop.create_task(message.delete())
+                    check=lambda message: ((message.content.lower() in ["cancel", "-42069"]) or (message.content.lower() in ["all", "-69420"] and allow_all) or (_min <= int(message.content) <= _max)) and self.context.bot.loop.create_task(message.delete())
                 ))[0]
             except asyncio.TimeoutError:
                 await self.context.send(
@@ -260,15 +261,16 @@ class Game:
             }
             cards = {
                 "📝": (
-                    f"`Write-your-own-cards` | {settings['blanks']}",
+                    f"`Write-your-own-cards` | {settings['blanks'] if settings['blanks'] != -69420 else 'ALL THE CARDS!!!'}",
                     functools.partial(
                         get_int_setting,
                         "blanks",
                         0,
-                        50,
+                        42069,
                         "How many write-your-own cards should there be?",
-                        "",
+                        "You can type all to have a game with just blank cards",
                         "cards",
+                        True
                     )
                 ),
                 "📁" if settings['hand_size'] < 10 else "📂": (
@@ -365,25 +367,6 @@ class Game:
             }
             int_input = {
                 "⏪": ("Go back to the main settings", show_menu),
-            }
-
-            options = {
-                "main": {
-                    "reactions": main,
-                    "name": "Game"
-                },
-                "cards": {
-                    "reactions": cards,
-                    "name": "Card"
-                },
-                "players": {
-                    "reactions": players,
-                    "name": "Player"
-                },
-                "timers": {
-                    "reactions": timers,
-                    "name": "Timing"
-                }
             }
 
             menu_settings = options.get(menu_to_show, options["main"])

@@ -16,6 +16,8 @@ from discord.ext import commands
 from utils import help
 from utils.miniutils import classes, data, minidiscord
 
+import asyncio
+
 with open('token.txt') as f:
     token = [line.strip() for line in f]
 
@@ -107,4 +109,10 @@ for position, cog in enumerate(cogs):
         print(f"Failed to load {cog} (cog {position + 1}/{len(cogs)}), Here's the error: {e}")
         print("- [x] " + "".join(traceback.format_exc()).replace("\n", "\n- [x] "))
 
-bot.run(bot.tokens["discord"])
+loop = asyncio.get_event_loop()
+try:
+    loop.run_until_complete(bot.start(bot.tokens["discord"]))
+except KeyboardInterrupt:
+    loop.run_until_complete(bot.logout())
+finally:
+    print("Bot shutting down: Goodbye!")

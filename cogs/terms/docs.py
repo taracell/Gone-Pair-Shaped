@@ -44,19 +44,7 @@ Run this in a server to view if the server has agreed to the terms"""
                            f"You can use ◀ and ▶ to navigate through these terms and ⏪ to go back to the main menu. You can either react with these *or* say them in this channel",
             "buttons": {
                 "⏪": partial(help_command.set_pos, 0),
-                "◀️": partial(help_command.move, 5),
-                "▶️": help_command.move,
-            }
-        },
-        {
-            "description": f"> We are not associated in any way with `Cards Against Humanity LLC`\n"
-                           f"First, the legal stuff. We are not associated with `Cards Against Humanity LLC` "
-                           f"(The company that made the original Cards Against Humanity card game). "
-                           f"That's also why we called our bot something else. They said we had to credit them and we "
-                           f"figured that here was the 100% best place to put it.",
-            "buttons": {
-                "⏪": partial(help_command.set_pos, 0),
-                "◀️": partial(help_command.move, -1),
+                "◀️": partial(help_command.move, 3),
                 "▶️": help_command.move,
             }
         },
@@ -85,18 +73,6 @@ Run this in a server to view if the server has agreed to the terms"""
             }
         },
         {
-            "description": f"> You agree that we don't have control of 3rd party packs\n"
-                           f"We have a connection to cardcast :tada: (https://www.cardcastgame.com/#). You agree "
-                           f"that we don't control and won't censor any of the packs that are used on there. They may "
-                           f"be insane, offensive or otherwise inappropriate. Then again, if you're trying to play "
-                           f"Cardboard Against Humankind you probably don't mind much...",
-            "buttons": {
-                "⏪": partial(help_command.set_pos, 0),
-                "◀️": partial(help_command.move, -1),
-                "▶️": help_command.move,
-            }
-        },
-        {
             "description": f"> You agree that we can change these terms\n"
                            f"Reading terms is always available from this command, but we may change them at any time. "
                            f"**We __strongly recommend__ that you read the terms regularly as we __will not__ tell you "
@@ -106,7 +82,7 @@ Run this in a server to view if the server has agreed to the terms"""
             "buttons": {
                 "⏪": partial(help_command.set_pos, 0),
                 "◀️": partial(help_command.move, -1),
-                "▶️": partial(help_command.move, -5),
+                "▶️": partial(help_command.move, -3),
             }
         },
     ]
