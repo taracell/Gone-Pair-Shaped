@@ -222,7 +222,7 @@ class Game:
 
             main = {
                 "▶": ("Play", show_menu),
-                "🔂" if settings["rounds"] != 0 else "🔁": (
+                "⏭️" if settings["rounds"] != 0 else "🔁": (
                     "`Maximum rounds` " +
                     (f"| {settings['rounds']}" if settings['rounds'] != 0 else "| Endless"),
                     functools.partial(
