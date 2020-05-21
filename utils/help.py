@@ -197,7 +197,7 @@ class MiniCustomHelp(commands.HelpCommand):
                                f"{extra_doc_lines}"
                                f"```diff\n{subcommands}```".replace("%%", self.clean_prefix),
                 "buttons": {
-                    "▶️": {
+                    "▶️️": {
                         "action": f"to see how to use {self.clean_prefix}"
                                   f"{list(group.commands)[0].qualified_name}",
                         "callback": self.move,
@@ -248,7 +248,7 @@ class MiniCustomHelp(commands.HelpCommand):
                             else f"to go back to the main group",
                             "callback": partial(self.move, -1),
                         },
-                        "▶️": {
+                        "▶️️": {
                             "action": f"to see how to use {self.clean_prefix}"
                                       f"{list(group.commands)[position + 1].qualified_name}",
                             "callback": self.move,

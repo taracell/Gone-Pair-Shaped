@@ -8,6 +8,7 @@ from discord.ext import commands
 
 from utils import checks
 from utils.miniutils.data import json
+import database
 
 agrees = json.Json("disclaimer")
 
@@ -87,6 +88,7 @@ class Disclaimers(commands.Cog):
             agrees,
             json.Json("prefixes"),
             json.Json("languages"),
+            json.Json("default_game_settings"),
             json.Json("settings"),
         }
         self.bot.check(agreed_check().predicate)
@@ -118,13 +120,7 @@ class Disclaimers(commands.Cog):
         """
         Agree to the disclaimer and start playing some GPS
         """
-        agrees.save_key(
-            ctx.guild.id,
-            {
-                "user_id": ctx.author.id,
-                "time": datetime.datetime.utcnow().timestamp()
-            }
-        )
+        database.guild.
 
         await ctx.send(
             f"To get started, run %%help and select 🎮 to see how to play. If you ever want us to delete all your settings, you can do that with %%disagree",

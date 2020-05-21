@@ -15,8 +15,12 @@ from discord.ext import commands
 
 from utils import help
 from utils.miniutils import classes, data, minidiscord
+import json
 
 import asyncio
+import nest_asyncio
+
+nest_asyncio.apply()
 
 with open('token.txt') as f:
     token = [line.strip() for line in f]
@@ -29,6 +33,7 @@ except FileNotFoundError:
 
 main_prefix = "$" if production else "£"
 cogs = [
+    "database",
     "utils.constants",
     "cogs.info",
     "cogs.terms",
@@ -36,6 +41,7 @@ cogs = [
     "guildmanager.cog",
     "cogs.gps",
     "cogs.botlist",
+    #"cogs.server"
 ]
 
 prefixes = data.Json("prefixes")
@@ -69,6 +75,9 @@ bot = minidiscord.AutoShardedBot(
     ),  # We create a discord activity to start up with
     status=discord.Status.idle
 )
+
+with open("config.json") as config:
+    bot.config = json.load(config)
 
 bot.prefixes = prefixes
 bot.get_main_custom_prefix = get_main_custom_prefix

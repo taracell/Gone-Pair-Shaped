@@ -41,11 +41,11 @@ Run this in a server to view if the server has agreed to the terms"""
     return [
         {
             "description": f"> **Terms and conditions**\n{guild_message if help_command.context.guild is not None else dms_message}\n\n"
-                           f"You can use ◀ and ▶ to navigate through these terms and ⏪ to go back to the main menu. You can either react with these *or* say them in this channel",
+                           f"You can use ◀ and ▶️ to navigate through these terms and ⏪ to go back to the main menu. You can either react with these *or* say them in this channel",
             "buttons": {
                 "⏪": partial(help_command.set_pos, 0),
                 "◀️": partial(help_command.move, 3),
-                "▶️": help_command.move,
+                "▶️️": help_command.move,
             }
         },
         {
@@ -57,7 +57,7 @@ Run this in a server to view if the server has agreed to the terms"""
             "buttons": {
                 "⏪": partial(help_command.set_pos, 0),
                 "◀️": partial(help_command.move, -1),
-                "▶️": help_command.move,
+                "▶️️": help_command.move,
             }
         },
         {
@@ -69,7 +69,7 @@ Run this in a server to view if the server has agreed to the terms"""
             "buttons": {
                 "⏪": partial(help_command.set_pos, 0),
                 "◀️": partial(help_command.move, -1),
-                "▶️": help_command.move,
+                "▶️️": help_command.move,
             }
         },
         {
@@ -82,7 +82,7 @@ Run this in a server to view if the server has agreed to the terms"""
             "buttons": {
                 "⏪": partial(help_command.set_pos, 0),
                 "◀️": partial(help_command.move, -1),
-                "▶️": partial(help_command.move, -3),
+                "▶️️": partial(help_command.move, -3),
             }
         },
     ]

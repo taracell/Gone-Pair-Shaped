@@ -23,7 +23,7 @@ class Player:
         # Save information about the coroutines the player is currently running
         self.coros = []
 
-        self.tsar_count = 0
+        self.judge_count = 0
         self.shuffles = game_instance.shuffles
 
     def __str__(self):

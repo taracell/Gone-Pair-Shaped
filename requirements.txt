@@ -4,4 +4,7 @@ jishaku
 emoji
 git+https://github.com/dragdev-studios/guildmanager
 matplotlib~=3.2.1
-aiohttp~=3.6.2
+aiohttp
+nest_asyncio
+sqlalchemy
+pymysql
